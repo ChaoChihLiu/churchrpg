@@ -30,5 +30,6 @@ correct-control-files/Incoming/*.DAT
 /config/*
 /config/**/*
 *.log.gz
+/access/
 /access/*
 /access/**/*
