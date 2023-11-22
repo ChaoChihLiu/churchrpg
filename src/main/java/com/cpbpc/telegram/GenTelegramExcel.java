@@ -128,7 +128,7 @@ public class GenTelegramExcel {
 
     private static String shortenURL(String link) throws UnsupportedEncodingException {
 //        return link;
-        String accessKey = "878b1b9a2591d77044096f25d89ac7f494558e97";
+        String accessKey = "";
         String requestBody = "{\"long_url\":\"" + link + "\", \"domain\":\"bit.ly\", \"group_guid\":\"Bn7fexZnrBp\"}";
         StringEntity entity = new StringEntity(requestBody);
         HttpClient httpClient = HttpClientBuilder.create().build();
