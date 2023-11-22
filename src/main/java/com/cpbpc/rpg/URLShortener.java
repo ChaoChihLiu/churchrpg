@@ -23,7 +23,7 @@ public class URLShortener {
             }
 
             // Replace YOUR_ACCESS_KEY with your actual bit.ly access key
-            String accessKey = "878b1b9a2591d77044096f25d89ac7f494558e97";
+            String accessKey = "";
 
             // Replace YOUR_LONG_URL with the URL you want to shorten
                 String longUrl = "https://cpbpc-rpg-audio.s3.ap-southeast-1.amazonaws.com/rpg/"+year+"_"+month+"/arpg"+year+month+date+".mp3";
