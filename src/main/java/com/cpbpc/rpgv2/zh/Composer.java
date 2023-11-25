@@ -3,8 +3,6 @@ package com.cpbpc.rpgv2.zh;
 import com.cpbpc.rpgv2.AbstractArticleParser;
 import com.cpbpc.rpgv2.AbstractComposer;
 import com.cpbpc.rpgv2.ConfigObj;
-import com.cpbpc.rpgv2.PhoneticIntf;
-import com.cpbpc.rpgv2.util.ThreadStorage;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;

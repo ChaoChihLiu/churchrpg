@@ -1,9 +1,6 @@
 package com.cpbpc.rpgv2;
 
-import com.cpbpc.rpgv2.en.ArticleParser;
-import com.cpbpc.rpgv2.util.AWSUtil;
 import com.cpbpc.rpgv2.util.ThreadStorage;
-import com.cpbpc.rpgv2.zh.Composer;
 import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
