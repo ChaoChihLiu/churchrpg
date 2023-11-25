@@ -1,13 +1,14 @@
 package com.cpbpc.rpgv2;
 
-import com.cpbpc.rpgv2.util.ThreadStorage;
+import com.cpbpc.comms.AppProperties;
+import com.cpbpc.comms.ThreadStorage;
 
 import javax.xml.transform.TransformerException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.cpbpc.rpgv2.util.PauseTool.pause;
-import static com.cpbpc.rpgv2.util.PauseTool.replacePunctuationWithPause;
+import static com.cpbpc.comms.PunctuationTool.pause;
+import static com.cpbpc.comms.PunctuationTool.replacePunctuationWithPause;
 
 public abstract class AbstractComposer {
 
@@ -22,8 +23,8 @@ public abstract class AbstractComposer {
 
     protected String wrapToPolly(String content) {
 
-        return "<speak><prosody rate='" + AppProperties.getProperties().getProperty("speech_speed")
-                + "' volume='" + AppProperties.getProperties().getProperty("speech_volume") + "'>"
+        return "<speak><prosody rate='" + AppProperties.getConfig().getProperty("speech_speed")
+                + "' volume='" + AppProperties.getConfig().getProperty("speech_volume") + "'>"
                 + content
                 + "</prosody></speak>";
 

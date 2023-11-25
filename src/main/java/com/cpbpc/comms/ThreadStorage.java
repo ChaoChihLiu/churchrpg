@@ -1,34 +1,30 @@
-package com.cpbpc.rpgv2.util;
+package com.cpbpc.comms;
 
 import com.cpbpc.rpgv2.AbbreIntf;
-import com.cpbpc.rpgv2.AppProperties;
 import com.cpbpc.rpgv2.PhoneticIntf;
 import com.cpbpc.rpgv2.VerseIntf;
 
 import java.util.Map;
-import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ThreadStorage {
-
-    private static final Properties appProperties = AppProperties.getProperties();
     private static Map<String, ThreadLocal<AbbreIntf>> abbreIntfStorage = new ConcurrentHashMap<>();
     private static Map<String, ThreadLocal<PhoneticIntf>> phoneticStorage = new ConcurrentHashMap<>();
     private static Map<String, ThreadLocal<VerseIntf>> verseStorage = new ConcurrentHashMap<>();
 
     public static AbbreIntf getAbbreviation() {
-        String language = appProperties.getProperty("language", "zh");
+        String language = AppProperties.getConfig().getProperty("language", "zh");
         ThreadLocal<AbbreIntf> storage = abbreIntfStorage.getOrDefault(language, createAbbre(language));
         return storage.get();
     }
     public static PhoneticIntf getPhonetics() {
-        String language = appProperties.getProperty("language", "zh");
+        String language = AppProperties.getConfig().getProperty("language", "zh");
         ThreadLocal<PhoneticIntf> storage = phoneticStorage.getOrDefault(language, createPhonetics(language));
         return storage.get();
     }
 
     public static VerseIntf getVerse() {
-        String language = appProperties.getProperty("language", "zh");
+        String language = AppProperties.getConfig().getProperty("language", "zh");
         ThreadLocal<VerseIntf> storage = verseStorage.getOrDefault(language, createVerse(language));
         return storage.get();
     }

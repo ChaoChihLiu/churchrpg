@@ -1,4 +1,4 @@
-package com.cpbpc.rpgv2;
+package com.cpbpc.comms;
 
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicLong;
@@ -11,7 +11,7 @@ public class AppProperties {
     private AppProperties() {
     }
 
-    public static Properties getProperties() {
+    public static Properties getConfig() {
         return appProperties;
     }
 

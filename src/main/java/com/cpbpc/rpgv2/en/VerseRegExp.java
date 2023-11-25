@@ -1,15 +1,16 @@
 package com.cpbpc.rpgv2.en;
 
+import com.cpbpc.comms.PunctuationTool;
+import com.cpbpc.comms.ThreadStorage;
 import com.cpbpc.rpgv2.ConfigObj;
 import com.cpbpc.rpgv2.VerseIntf;
+import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -17,11 +18,16 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class VerseRegExp implements VerseIntf {
+import static com.cpbpc.comms.PunctuationTool.containHyphen;
+import static com.cpbpc.comms.PunctuationTool.getAllowedPunctuations;
+import static com.cpbpc.comms.PunctuationTool.getHyphen;
 
-    private static final String[] hyphens_unicode = new String[]{"\\u002d", "\\u2010", "\\u2011", "\\u2012", "\\u2013", "\\u2015", "\\u2212"};
+public class VerseRegExp implements VerseIntf {
+    
     private static final Map<String, ConfigObj> verse = new HashMap();
     private static Logger logger = Logger.getLogger(VerseRegExp.class.getName());
+    private final Pattern endWithVerseNumberPattern = Pattern.compile("\\d$");
+    private final Pattern endWithPunctuationPattern = Pattern.compile("\\d[,|;|\\.]$");
 
     public void put(String shortForm, String completeForm, boolean isPaused) {
         verse.put(shortForm, new ConfigObj(shortForm, completeForm, false));
@@ -32,176 +38,22 @@ public class VerseRegExp implements VerseIntf {
     }
 
     //    public static void main( String[] args ){
-    public String convert(String content) throws IOException {
-
-        String replaced = content;
-
-        replaced = analyseCharByChar(content);
-        replaced = replaceSingleVerseRef(replaced);
-
-        logger.info("replaced : " + replaced);
-        return replaced;
+    public String convert(String content) {
+        return convertVerse(content);
     }
 
-    /*
-    need to replace (v16) to be (version 16)
-    (v16-20) to be (version 16 to 20)
-     */
-//    private static String SingleVersePattern = "\\(\\s{0,}[Vv]{1,2}\\.{0,}\\s{0,}[0-9]{1,3}[‑,-]{0,}\\s{0,}[0-9]{0,3}\\s{0,}\\)";
-    private static String genSingleVersePattern() {
-        String singleVersePattern = "\\(\\s{0,}[Vv]{1,2}\\.{0,}\\s{0,}[0-9]{1,3}[,";
-
-        for (String hyphen_unicode : hyphens_unicode) {
-            String hyphen = StringEscapeUtils.unescapeJava(hyphen_unicode);
-            singleVersePattern += hyphen;
-        }
-        singleVersePattern += "]{0,}\\s{0,}[0-9]{0,3}\\s{0,}\\)";
-
-        return singleVersePattern;
-    }
-
-    private static String replaceSingleVerseRef(String content) {
-
-        String replaced = content;
-        Pattern p = Pattern.compile(genSingleVersePattern());
-
-        Matcher matcher = p.matcher(replaced);
-        List<String> findings = new ArrayList<>();
-        while (matcher.find()) {
-            findings.add(matcher.group(0).trim());
-        }
-        logger.info("what is my finds : " + findings.toString());
-
-        for (String finding : findings) {
-            while (replaced.contains(finding)) {
-                String replacement = finding.toLowerCase()
-                        .replace(".", "");
-                for (String hyphen_unicode : hyphens_unicode) {
-                    String hyphen = StringEscapeUtils.unescapeJava(hyphen_unicode);
-                    replacement = replacement.replace(hyphen, " to ");
-                }
-                if (!replacement.toLowerCase().contains("verse") && finding.toLowerCase().contains("vv")) {
-                    replacement = replacement.replace("vv", "verses");
-                }
-                if (!replacement.toLowerCase().contains("verse") && finding.toLowerCase().contains("v")) {
-                    replacement = replacement.replace("v", "verse");
-                }
-                replaced = replaced.replaceFirst(finding.replace("(", "\\(")
-                                .replace(")", "\\)"),
-                        replacement
-                );
-
-            }
+    private Pattern versePattern = null;
+    public Pattern getVersePattern() {
+        if (versePattern != null) {
+            return versePattern;
         }
 
-        return replaced;
-    }
-
-    private static String analyseCharByChar(String content) throws IOException {
-
-        String p = generateVersePattern();
-        String replaced = content;
-        logger.info(p);
-
-        Pattern r = Pattern.compile(p);
-        Matcher matcher = r.matcher(replaced);
-        Map<String, String> finds = new LinkedHashMap<>();
-        while (matcher.find()) {
-            finds.put(matcher.group(0).trim(), matcher.group(2).trim());
-        }
-        logger.info("what is my finds : " + finds.toString());
-
-        Set<Map.Entry<String, String>> entries = finds.entrySet();
-        int anchorPoint = find1stPragraph(content);
-        int counter = 0;
-        for (Map.Entry<String, String> entry : entries) {
-
-            while (replaced.contains(entry.getKey())) {
-                String ref = appendNextCharTillCompleteVerse(replaced, entry.getKey(), 0);
-                int position = content.indexOf(ref) + ref.length();
-                String book = StringUtils.trim(entry.getValue());
-                String verse_str = StringUtils.trim(ref.replaceFirst(book, ""));
-                String replace = generateCompleteVerses(mapBookAbbre(book), verse_str);
-                //put full bible verse in
-                if (position <= anchorPoint) {
-                    counter++;
-                    String scraped = BibleVerseScraper.scrap(book, verse_str);
-//                    The first Bible passage for today is
-                    replace = "The " + ordinal(counter) + " Bible passage for today is " + replace + "[pause]" + scraped;
-                }
-//                logger.info( "book is " + book + ", verses is " + verse_str );
-                logger.info("ref is " + ref + ", replace is " + replace);
-                replaced = replaced.replaceFirst(ref, replace);
-            }
-
-        }
-
-
-        return replaced;
-//        int newStart = replaced.indexOf(replace)+replace.length();
-//        logger.info( "new start is " + newStart );
-//        return analyseCharByChar(replaced, newStart);
-    }
-
-    public static String ordinal(int i) {
-        String[] suffixes = new String[]{"th", "st", "nd", "rd", "th", "th", "th", "th", "th", "th"};
-        switch (i % 100) {
-            case 11:
-            case 12:
-            case 13:
-                return i + "th";
-            default:
-                return i + suffixes[i % 10];
-        }
-    }
-
-    private static int find1stPragraph(String content) {
-        return content.indexOf("<p>&nbsp;</p>");
-    }
-
-    private static String appendNextCharTillCompleteVerse(String content, String ref, int startFrom) {
-        if (content == null || content.trim().length() <= 0 || ref == null || ref.trim().length() <= 0) {
-            return "";
-        }
-
-        int position = content.indexOf(ref, startFrom) + ref.length();
-        StringBuilder builder = new StringBuilder(ref);
-        List<String> verseParts = new ArrayList<>();
-        List<String> punctuations = new ArrayList<>();
-        punctuations.addAll(List.of(":", ",", " ", ";"));
-        for (String hyphen_unicode : hyphens_unicode) {
-            punctuations.add(StringEscapeUtils.unescapeJava(hyphen_unicode));
-        }
-
-        verseParts.addAll(punctuations);
-        for (int i = 0; i < 10; i++) {
-            verseParts.add(String.valueOf(i));
-        }
-        logger.info("verseParts : " + verseParts.toString());
-
-        for (int i = position; i < content.length(); i++) {
-
-            String nextChar = content.substring(i, i + 1);
-            if (!verseParts.contains(nextChar)) {
-                break;
-            }
-            builder.append(nextChar);
-        }
-
-        String result = builder.toString();
-        if (punctuations.contains(result.substring(result.length() - 1, result.length()))) {
-            result = result.substring(0, result.length() - 1);
-        }
-        return result;
-    }
-
-    private static String generateVersePattern() {
         StringBuilder builder = new StringBuilder("((");
 
-        Set<String> keySet = verse.keySet();
+        Set<String> keySet = ThreadStorage.getVerse().getVerseMap().keySet();
         for (String key : keySet) {
             builder.append(key.toString()).append("|")
-                    .append(key.toString()).append("&nbsp;|")
+                    .append(key).append("&nbsp;|")
                     .append(key.replace(" ", "&nbsp;")).append("|")
             ;
         }
@@ -210,218 +62,193 @@ public class VerseRegExp implements VerseIntf {
         }
         builder.append(")[.]{0,1}\\s{0,}[0-9]{1,3})");
 
+        logger.info(builder.toString());
+
+        versePattern = Pattern.compile(builder.toString());
+        return versePattern;
+    }
+
+    protected Pattern genSingleVersePattern() {
+        String singleVersePattern = "\\(\\s{0,}[vV]{1,2}\\.{0,}\\s{0,}[0-9]{1,3}[,";
+
+        for (String hyphen_unicode : PunctuationTool.getHyphensUnicode()) {
+            String hyphen = StringEscapeUtils.unescapeJava(hyphen_unicode);
+            singleVersePattern += hyphen;
+        }
+        singleVersePattern += "]{0,}\\s{0,}[0-9]{0,3}\\s{0,}\\)";
+
+        return Pattern.compile(singleVersePattern);
+    }
+
+    //Eph 6:13-17
+    //Eph 6:13, 17, 19
+    //Eph 6:13-7:4
+    //Eph 6-7:4
+    //Eph 6:13, 14, 17-19
+    //Eph 6:13, 7:14, 17-19
+    //Eph 6:13-17; 14-20
+    //Eph 6:13-17; 7:14-20
+    //Eph 6:13-17; 14, 19, 20
+    //Eph 6:13;7:19-20
+    //Eph 6:13,7:19-20
+    protected String generateCompleteVerses(String book, String verse_input) {
+        String verse_str = StringUtils.trim(verse_input);
+        String result = "";
+        for (char c : verse_str.toCharArray()) {
+            if (c == ':') {
+                result = attachChapterWord(book, result);
+                result += " verse ";
+                continue;
+            }
+
+            if (c == ';') {
+                String input = verse_str.substring(verse_str.indexOf(";") + 1);
+                if (!StringUtils.isEmpty(input.trim())) {
+                    result = book + " " + result + c + generateCompleteVerses(book, input);
+                    return result;
+                }
+                result += c;
+                continue;
+            }
+
+            if (c == ',') {
+                result += c;
+                continue;
+            }
+            if (containHyphen(String.valueOf(c))) {
+                if(!result.contains(StringUtils.trim(returnChapterWord(book)))) {
+                    result = attachChapterWord(book, result);
+                }
+                result += " to ";
+                continue;
+            }
+
+            result += c;
+        }
+
+        if (stringEndWithVerseNumber(result) && !result.contains(StringUtils.trim(returnChapterWord(book)))){
+            result = attachChapterWord(book, result);
+        }
+        if (stringEndWithPunctuationPattern(result) && !result.contains(StringUtils.trim(returnChapterWord(book)))){
+            result = attachChapterWord(book, result);
+        }
+
+        return book + " " + result;
+    }
+
+    private static Pattern AllChapterPattern = Pattern.compile("^[0-9,\\s]+$");
+    private String attachChapterWord(String book, String input) {
+
+        Matcher matcher = AllChapterPattern.matcher(input);
+        if( matcher.find() ){
+            return returnChapterWord(book) + input;
+        }
+        String reversed_word = StringUtils.reverse(returnChapterWord(book));
+        String trimmed = StringUtils.trim(input);
+        String reversed = StringUtils.reverse(trimmed);
+        String result = "";
+        boolean isAttached = false;
+        for( char c : reversed.toCharArray() ){
+            if( !isAttached && !NumberUtils.isCreatable(String.valueOf(c)) ){
+                result += reversed_word;
+                isAttached = true;
+            }
+            result += c;
+        }
+
+        return StringUtils.reverse(result);
+    }
+
+    private boolean stringEndWithVerseNumber(String input) {
+        return endWithVerseNumberPattern.matcher(input).find();
+    }
+
+    private boolean stringEndWithPunctuationPattern(String input) {
+        return endWithPunctuationPattern.matcher(input).find();
+    }
+
+    public String appendNextCharTillCompleteVerse(String content, String verse, int start, int end) {
+        List<String> verseParts = new ArrayList<>();
+        verseParts.addAll(getAllowedPunctuations());
+
+        for (int i = 0; i < 10; i++) {
+            verseParts.add(String.valueOf(i));
+        }
+
+        StringBuilder builder = new StringBuilder(verse);
+        for (int i = start; i < end; i++) {
+
+            String nextChar = content.substring(i, i + 1);
+            if (!verseParts.contains(nextChar)) {
+                break;
+            }
+            builder.append(nextChar);
+        }
+
         return builder.toString();
     }
+    
+    private String returnChapterWord(String book) {
+        String chapter = " chapter ";
+        List<String> psalms = new ArrayList<>();
+        psalms.addAll(List.of("Psalms", "Ps", "Psalm", "Pslm", "Psa", "Psm", "Pss"));
+        if ( psalms.contains(book) ) {
+            chapter = " ";
+        }
+        return chapter;
+    }
 
-    private static String analyseWithMultiReg(String content) throws UnsupportedEncodingException {
+    public String convertVerse(String line) {
+        return convertSingleVerse(convertNormalVerse(line));
+    }
 
-        List<String> ps = generateVersePatterns();
-        String replaced = content;
-        for (String p : ps) {
-            logger.info(p);
-
-            Pattern r = Pattern.compile(p);
-            Matcher matcher = r.matcher(content);
-            int start = 0;
-            while (matcher.find(start)) {
-                logger.info("0 is " + matcher.group(0).trim());
-                logger.info("1 is " + matcher.group(1).trim());
-
-                String ref = matcher.group(0).trim();
-                String book = matcher.group(1).trim();
-                String verse_str = ref.replaceFirst(book, "");
-                String replace = generateCompleteVerses(mapBookAbbre(book), verse_str);
-                logger.info("ref is " + ref + ", replace is " + replace);
-                replaced = replaced.replaceFirst(ref, replace);
-
-                start = matcher.end();
+    private String convertSingleVerse(String line) {
+        Pattern p = genSingleVersePattern();
+        Matcher m = p.matcher(line);
+        int start = 0;
+        String result = line;
+        while (m.find(start)) {
+            String target = StringUtils.lowerCase(StringUtils.trim(m.group(0)));
+            String replacement = target;
+            if( target.contains("vv") ){
+                replacement = RegExUtils.replaceFirst(replacement, "vv", "verses");
             }
-
-            logger.info("replaced : " + replaced);
-        }
-
-        return replaced;
-
-    }
-
-    private static List<String> generateVersePatterns() {
-
-        List<String> list = new ArrayList<>();
-
-        StringBuilder builder = new StringBuilder("((");
-
-        Set<String> keySet = verse.keySet();
-        for (String key : keySet) {
-            builder.append(key.toString()).append("|");
-        }
-        if (builder.toString().endsWith("|")) {
-            builder.delete(builder.length() - 1, builder.length());
-        }
-        builder.append(")[.]{0,1}\\s{0,})");
-
-        list.add(generateMultiVerseAndConsecutivePattern(builder.toString()));
-        list.add(generateConsecutiveVersePattern(builder.toString()));
-        list.add(generateMultiVersePattern(builder.toString()));
-        list.add(generateSingleVersePattern(builder.toString()));
-        list.add(generateConsecutiveBookPattern(builder.toString()));
-
-        return list;
-    }
-
-    //Gen 1:3
-    //1 Cor1:2
-    private static String generateSingleVersePattern(String bookPattern) {
-        return new StringBuilder(bookPattern).append("([0-9]{1,3}:[0-9]{1,3})").toString();
-    }
-
-    //Gen 1-3
-    //Gen1-3
-    private static String generateConsecutiveBookPattern(String bookPattern) {
-        return new StringBuilder(bookPattern).append("([0-9]{1,3}\\-[0-9]{1,3})").toString();
-    }
-
-    private static String generateMultiVerseAndConsecutivePattern(String bookPattern) {
-        return new StringBuilder(bookPattern).append("([0-9:,]{1,})").toString();
-    }
-
-    //Gen 1:3-2:1
-    //Gen 1:3-14
-    private static String generateConsecutiveVersePattern(String bookPattern) {
-        return new StringBuilder(bookPattern).append("([0-9]{1,3}:[0-9]{1,3}-[0-9]{0}:{0}[0-9]{1,3})").toString();
-    }
-
-    //Gen 1:3,4,5,6
-    private static String generateMultiVersePattern(String bookPattern) {
-        return new StringBuilder(bookPattern).append("(([0-9]{1,3}:([0-9]){1,3},{0,}){1,})").toString();
-    }
-
-    private static String generateCompleteVerses(String book, String verse_str) throws UnsupportedEncodingException {
-        if (null == verse_str || verse_str.trim().length() <= 0) {
-            return book;
-        }
-
-        //Gen 1:3-4:10
-        if (verse_str.trim().length() > 0
-                &&
-                containHyphen(verse_str)
-                && verse_str.contains(":")
-        ) {
-            String[] verses = verse_str.split(getHyphen(verse_str));
-
-            if (verses.length >= 2 && AllVersesContainChapter(verses)) {
-                StringBuilder completeVerse = new StringBuilder(book + " ");
-                int count = 0;
-                for (String verse : verses) {
-                    completeVerse.append(convertVerse(verse.trim()));
-                    if (verses.length - 1 > count) {
-                        completeVerse.append(" to ");
-                        if (!book.toLowerCase().equals("psalms")) {
-                            completeVerse.append(" chapter ");
-                        }
-                    }
-                    count++;
-                }
-                return completeVerse
-//                        .append(",")
-                        .toString();
+            if( target.contains("v") && !target.contains("vv") ){
+                replacement = RegExUtils.replaceFirst(replacement, "v", "verse");
             }
-        }
-
-        //Gen 1:3;4:10
-        if (verse_str.trim().length() > 0 && verse_str.contains(";") && verse_str.contains(":")) {
-            String[] verses = verse_str.split(";");
-            if (verses.length >= 2 && AllVersesContainChapter(verses)) {
-                StringBuilder completeVerse = new StringBuilder(book + " ");
-                int count = 0;
-                for (String verse : verses) {
-                    completeVerse.append(convertVerse(verse.trim()));
-                    if (verses.length - 1 > count) {
-                        completeVerse.append("; ");
-                        if (!book.toLowerCase().equals("psalms")) {
-                            completeVerse.append(" chapter ");
-                        }
-                    }
-                    count++;
-                }
-                return completeVerse
-//                        .append(",")
-                        .toString();
+            if( containHyphen(target) ){
+                String hyphen = getHyphen(target);
+                replacement = RegExUtils.replaceFirst(replacement, hyphen, " to ");
             }
+            replacement = RegExUtils.replaceFirst(replacement, "\\.", "");
+
+            start = m.end();
+            result = StringUtils.replace(result, target, replacement);
         }
 
-        if (verse_str.trim().length() <= 1) {
-            return book + " chapter " + verse_str;
-        }
-
-        if (!book.toLowerCase().equals("psalms")) {
-            return book + " chapter " + convertVerse(verse_str.trim()) + " ";
-        }
-        return book + " " + convertVerse(verse_str.trim()) + " ";
-    }
-
-    private static String getHyphen(String verseStr) {
-
-        for (String hyphen_unicode : hyphens_unicode) {
-            String hyphen = StringEscapeUtils.unescapeJava(hyphen_unicode);
-            if (verseStr.contains(hyphen)) {
-                return hyphen;
-            }
-        }
-
-        return "";
-    }
-
-    private static boolean containHyphen(String verseStr) {
-
-        for (String hyphen_unicode : hyphens_unicode) {
-            String hyphen = StringEscapeUtils.unescapeJava(hyphen_unicode);
-            if (verseStr.contains(hyphen)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    private static boolean AllVersesContainChapter(String[] verses) {
-
-        for (String verse : verses) {
-            if (!verse.contains(":")) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    private static String convertVerse(String verse) throws UnsupportedEncodingException {
-        logger.info(verse);
-
-        String end = "";
-        if (verse.trim().endsWith(":") || endWithHyphen(verse)) {
-            end = verse.trim().substring(verse.trim().length() - 1, verse.trim().length());
-            verse = verse.trim().substring(0, verse.trim().length() - 1);
-            logger.info("remove verse end " + verse);
-        }
-
-        String result = "";
-        result = verse.replaceAll(":", " verse ");
-        for (String hyphen_unicode : hyphens_unicode) {
-            result = result.replaceAll(StringEscapeUtils.unescapeJava(hyphen_unicode), " to ");
-        }
-        result += end;
         return result;
     }
+    
+    private String convertNormalVerse(String line) {
+        Pattern p = getVersePattern();
+        Matcher m = p.matcher(line);
+        int start = 0;
+        String result = line;
+        while (m.find(start)) {
+            String book = mapBookAbbre(m.group(2));
+            String grabbedVerse = appendNextCharTillCompleteVerse(line, m.group(0), m.end(), line.length());
+            String verse_str = grabbedVerse.replaceFirst(m.group(2), "");
+            String completeVerse = generateCompleteVerses(book, verse_str);
+            completeVerse = StringUtils.replaceAll(completeVerse, "\\.", "");
 
-    private static boolean endWithHyphen(String verse) {
-        for (String hyphen_unicode : hyphens_unicode) {
-            String hyphen = StringEscapeUtils.unescapeJava(hyphen_unicode);
-            if (verse.endsWith(hyphen)) {
-                return true;
-            }
+            start = m.end();
+            logger.info("orginal " + grabbedVerse);
+            logger.info("completeVerse " + completeVerse);
+
+            result = result.replaceFirst(grabbedVerse, completeVerse);
         }
 
-        return false;
+        return result;
     }
 
     private static String mapBookAbbre(String book) {
@@ -433,10 +260,31 @@ public class VerseRegExp implements VerseIntf {
         book = book.replace(".", "").replace("&nbsp;", " ");
 
         if (verse.containsKey(book.trim())) {
-            return "";
+            return verse.get(book.trim()).getFullWord();
         }
 
         return book;
+    }
+
+    //弗6
+    //弗6-7
+    //弗6;7
+    //弗6,7
+    //弗6:13
+
+    public List<String> analyseVerse(String line) {
+        Pattern p = getVersePattern();
+        Matcher m = p.matcher(line);
+        List<String> result = new ArrayList<>();
+        if (m.find()) {
+            String book = mapBookAbbre(m.group(2));
+            String grabbedVerse = appendNextCharTillCompleteVerse(line, m.group(0), m.end(), line.length());
+            String verse_str = grabbedVerse.replaceFirst(m.group(2), "");
+            result.add(StringUtils.trim(book));
+            result.add(StringUtils.trim(verse_str));
+        }
+
+        return result;
     }
 
 }

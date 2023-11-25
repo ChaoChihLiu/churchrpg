@@ -1,16 +1,16 @@
 package com.cpbpc.rpgv2;
 
-import com.cpbpc.rpgv2.util.AWSUtil;
+import com.cpbpc.comms.AWSUtil;
+import com.cpbpc.comms.AppProperties;
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.util.Properties;
 import java.util.logging.Logger;
 
-//public class com.cpbpc.rpg.RPGToAudio implements RequestHandler {
 public class RPGToAudio {
 
-    private static final Properties appProperties = AppProperties.getProperties();
+    private static final Properties appProperties = AppProperties.getConfig();
     private long previousUsage = 0;
     private long pollyLimit = 0;
     private Logger logger = Logger.getLogger(RPGToAudio.class.getName());

@@ -1,15 +1,19 @@
 package com.cpbpc.rpgv2.en;
 
+import com.cpbpc.comms.RomanNumeral;
+import com.cpbpc.comms.ThreadStorage;
 import com.cpbpc.rpgv2.AbstractArticleParser;
 import com.cpbpc.rpgv2.AbstractComposer;
-import com.cpbpc.rpgv2.util.RomanNumeral;
+import com.cpbpc.rpgv2.VerseIntf;
 
 import java.util.List;
 
-import static com.cpbpc.rpgv2.util.NumberConverter.ordinal;
-import static com.cpbpc.rpgv2.util.PauseTool.pause;
+import static com.cpbpc.comms.NumberConverter.ordinal;
+import static com.cpbpc.comms.PunctuationTool.pause;
 
 public class Composer extends AbstractComposer {
+
+    private static VerseIntf verse = ThreadStorage.getVerse();
     public Composer(AbstractArticleParser parser) {
         super(parser);
     }
@@ -27,9 +31,9 @@ public class Composer extends AbstractComposer {
         try {
             for (String ref : parser.readTopicVerses()) {
                 count++;
-                List<String> refs = parser.analyseVerse(ref);
+                List<String> refs = verse.analyseVerse(ref);
                 buffer.append("The " + ordinal(count) + " Bible passage for today is").append(pause(200))
-                        .append(processSentence(parser.convertVerse(ref))).append(pause(400))
+                        .append(processSentence(verse.convert(ref))).append(pause(400))
                         .append(processSentence(BibleVerseScraper.scrap(refs.get(0), refs.get(1)))).append(pause(400))
                 ;
             }

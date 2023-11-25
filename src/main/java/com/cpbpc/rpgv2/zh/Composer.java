@@ -1,20 +1,24 @@
 package com.cpbpc.rpgv2.zh;
 
+import com.cpbpc.comms.ThreadStorage;
 import com.cpbpc.rpgv2.AbstractArticleParser;
 import com.cpbpc.rpgv2.AbstractComposer;
 import com.cpbpc.rpgv2.ConfigObj;
+import com.cpbpc.rpgv2.VerseIntf;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static com.cpbpc.rpgv2.util.PauseTool.pause;
+import static com.cpbpc.comms.PunctuationTool.pause;
 
 public class Composer extends AbstractComposer {
     public Composer(AbstractArticleParser parser) {
         super(parser);
     }
+
+    private VerseIntf verse = ThreadStorage.getVerse();
 
     protected String mapBookAbbre(String book) {
 
@@ -50,9 +54,9 @@ public class Composer extends AbstractComposer {
         try {
             for (String ref : parser.readTopicVerses()) {
                 count++;
-                List<String> refs = parser.analyseVerse(ref);
+                List<String> refs = verse.analyseVerse(ref);
                 result.append("聖經經文第" + count + "段").append(pause(200))
-                        .append(processSentence(parser.convertVerse(ref))).append(pause(400))
+                        .append(processSentence(verse.convert(ref))).append(pause(400))
                         .append(processSentence(BibleVerseScraper.scrap(mapBookAbbre(refs.get(0)), refs.get(1)))).append(pause(400))
                 ;
             }

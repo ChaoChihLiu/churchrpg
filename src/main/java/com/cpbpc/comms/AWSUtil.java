@@ -1,4 +1,4 @@
-package com.cpbpc.rpgv2.util;
+package com.cpbpc.comms;
 
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
 import com.amazonaws.services.s3.AmazonS3;
@@ -9,7 +9,6 @@ import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.StorageClass;
 import com.amazonaws.services.s3.model.Tag;
 import com.amazonaws.util.StringInputStream;
-import com.cpbpc.rpgv2.AppProperties;
 
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -31,20 +30,20 @@ public class AWSUtil {
 
     public static void putScriptToS3(String content, String publishDate_str) throws UnsupportedEncodingException {
 
-        String bucketName = AppProperties.getProperties().getProperty("script_bucket");
-        String prefix = AppProperties.getProperties().getProperty("script_prefix");
+        String bucketName = AppProperties.getConfig().getProperty("script_bucket");
+        String prefix = AppProperties.getConfig().getProperty("script_prefix");
         if (!prefix.endsWith("/")) {
             prefix += "/";
         }
 
         String publishMonth = publishDate_str.split("-")[0] + "_" + publishDate_str.split("-")[1];
-        String nameToBe = AppProperties.getProperties().getProperty("name_prefix") + publishDate_str.replaceAll("-", "");
-        String objectType = AppProperties.getProperties().getProperty("script_format");
+        String nameToBe = AppProperties.getConfig().getProperty("name_prefix") + publishDate_str.replaceAll("-", "");
+        String objectType = AppProperties.getConfig().getProperty("script_format");
         String objectKey = prefix + publishMonth + "/" + nameToBe + "." + objectType;
-        String audioKey =  AppProperties.getProperties().getProperty("output_prefix")
+        String audioKey =  AppProperties.getConfig().getProperty("output_prefix")
                             + publishMonth + "/"
                             + nameToBe + "."
-                            + AppProperties.getProperties().getProperty("output_format");
+                            + AppProperties.getConfig().getProperty("output_format");
 
         try {
             InputStream inputStream = new StringInputStream(content);
@@ -54,12 +53,12 @@ public class AWSUtil {
 
             List<Tag> tags = new ArrayList<>();
             tags.add(new Tag("publish_date", publishDate_str));
-            tags.add(new Tag("voice_id", AppProperties.getProperties().getProperty("voice_id")));
-            tags.add(new Tag("category", URLDecoder.decode(AppProperties.getProperties().getProperty("content_category"))));
+            tags.add(new Tag("voice_id", AppProperties.getConfig().getProperty("voice_id")));
+            tags.add(new Tag("category", URLDecoder.decode(AppProperties.getConfig().getProperty("content_category"))));
             tags.add(new Tag("audio_key", audioKey));
-            tags.add(new Tag("name_prefix", AppProperties.getProperties().getProperty("name_prefix")));
-            tags.add(new Tag("output_bucket", AppProperties.getProperties().getProperty("output_bucket")));
-            tags.add(new Tag("output_prefix", AppProperties.getProperties().getProperty("output_prefix")));
+            tags.add(new Tag("name_prefix", AppProperties.getConfig().getProperty("name_prefix")));
+            tags.add(new Tag("output_bucket", AppProperties.getConfig().getProperty("output_bucket")));
+            tags.add(new Tag("output_prefix", AppProperties.getConfig().getProperty("output_prefix")));
 
             putObjectRequest.setStorageClass(StorageClass.IntelligentTiering);
             putObjectRequest.setTagging(new ObjectTagging(tags));

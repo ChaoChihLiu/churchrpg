@@ -1,4 +1,4 @@
-package com.cpbpc.rpgv2.util;
+package com.cpbpc.comms;
 
 import org.apache.commons.lang3.math.NumberUtils;
 

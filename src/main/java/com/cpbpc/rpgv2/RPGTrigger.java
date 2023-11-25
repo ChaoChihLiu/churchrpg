@@ -1,10 +1,9 @@
 package com.cpbpc.rpgv2;
 
-import com.amazonaws.ClientConfiguration;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
+import com.cpbpc.comms.AppProperties;
 import com.cpbpc.comms.DBUtil;
-import com.cpbpc.rpgv2.util.ThreadStorage;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -21,7 +20,7 @@ import java.util.logging.Logger;
 
 public class RPGTrigger implements RequestHandler {
 
-    private static final Properties appProperties = AppProperties.getProperties();
+    private static final Properties appProperties = AppProperties.getConfig();
     //    private static AWSLambda lambda = null;
     private static final String SEARCH_CONTENT_BY_ID = " select DATE_FORMAT(cjr.startrepeat , \"%Y-%m-%d\") as startrepeat, cc.alias, cjv.* " +
             " from cpbpc_jevents_vevdetail cjv " +
@@ -80,9 +79,7 @@ public class RPGTrigger implements RequestHandler {
 
     @Override
     public Boolean handleRequest(Object input, Context context) {
-
-//        lambda = AWSLambdaClient.builder().withRegion(Regions.AP_SOUTHEAST_1).withClientConfiguration(createClientConfig()).build();
-
+        
         Connection conn = null;
         try {
 
@@ -92,7 +89,7 @@ public class RPGTrigger implements RequestHandler {
                 logger.info("cannot create connection to db");
                 return false;
             }
-            initStorage(conn);
+            DBUtil.initStorage(appProperties);
 
             int process_id = retrieveLastProcessId(conn);
             logger.info("processid  " + process_id);
@@ -206,42 +203,6 @@ public class RPGTrigger implements RequestHandler {
 
         return null;
 
-    }
-
-    private void initStorage(Connection conn) throws SQLException {
-        AbbreIntf abbr = ThreadStorage.getAbbreviation();
-        PhoneticIntf phonetic = ThreadStorage.getPhonetics();
-        VerseIntf verse = ThreadStorage.getVerse();
-
-        PreparedStatement state = conn.prepareStatement("select * from cpbpc_abbreviation order by seq_no asc, length(short_form) desc");
-        ResultSet rs = state.executeQuery();
-
-        while (rs.next()) {
-            String group = rs.getString("group");
-            String shortForm = rs.getString("short_form");
-            String completeForm = rs.getString("complete_form");
-            String isPaused = rs.getString("is_paused");
-
-            if ("bible".toLowerCase().equals(group.toLowerCase())) {
-                verse.put(shortForm, completeForm, (isPaused.equals("1")) ? true : false);
-            } else if ("pronunciation".toLowerCase().equals(group.toLowerCase())) {
-                phonetic.put(shortForm, completeForm, (isPaused.equals("1")) ? true : false);
-            } else {
-                abbr.put(shortForm, completeForm, (isPaused.equals("1")) ? true : false);
-            }
-
-        }
-
-    }
-
-    private ClientConfiguration createClientConfig() {
-        ClientConfiguration clientConfiguration = new ClientConfiguration();
-        clientConfiguration.setSocketTimeout(TIME_OUT);
-        clientConfiguration.setClientExecutionTimeout(TIME_OUT);
-        clientConfiguration.setConnectionTimeout(TIME_OUT);
-        clientConfiguration.setRequestTimeout(TIME_OUT);
-
-        return clientConfiguration;
     }
 
     private void updateProcessId(int current_process_id, Connection conn) {

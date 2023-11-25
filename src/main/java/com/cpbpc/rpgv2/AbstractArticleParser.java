@@ -1,8 +1,8 @@
 package com.cpbpc.rpgv2;
 
-import com.cpbpc.rpgv2.util.ThreadStorage;
+import com.cpbpc.comms.AppProperties;
+import com.cpbpc.comms.ThreadStorage;
 import org.apache.commons.lang3.RegExUtils;
-import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
@@ -21,10 +21,10 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.cpbpc.rpgv2.util.PauseTool.changeFullCharacter;
-import static com.cpbpc.rpgv2.util.PauseTool.getPauseTag;
-import static com.cpbpc.rpgv2.util.PauseTool.replacePunctuationWithPause;
-import static com.cpbpc.rpgv2.util.TextUtil.removeHtmlTag;
+import static com.cpbpc.comms.PunctuationTool.changeFullCharacter;
+import static com.cpbpc.comms.PunctuationTool.getPauseTag;
+import static com.cpbpc.comms.PunctuationTool.replacePunctuationWithPause;
+import static com.cpbpc.comms.TextUtil.removeHtmlTag;
 
 public abstract class AbstractArticleParser {
 
@@ -50,14 +50,14 @@ public abstract class AbstractArticleParser {
     public static void main(String args[]) {
         try {
 
-            String propPath = "/Users/liuchaochih/Documents/GitHub/churchrpg/src/main/resources/app-chinese.properties";
+            String propPath = "/Users/liuchaochih/Documents/GitHub/churchrpg/src/main/resources/app-english.properties";
             FileInputStream in = new FileInputStream(propPath);
-            AppProperties.getProperties().load(in);
+            AppProperties.getConfig().load(in);
 
             try {
-                Connection conn = DriverManager.getConnection(AppProperties.getProperties().getProperty("db_url"),
-                        AppProperties.getProperties().getProperty("db_username"),
-                        AppProperties.getProperties().getProperty("db_password"));
+                Connection conn = DriverManager.getConnection(AppProperties.getConfig().getProperty("db_url"),
+                        AppProperties.getConfig().getProperty("db_username"),
+                        AppProperties.getConfig().getProperty("db_password"));
                 AbbreIntf abbr = ThreadStorage.getAbbreviation();
                 PhoneticIntf phonetic = ThreadStorage.getPhonetics();
                 VerseIntf verse = ThreadStorage.getVerse();
@@ -84,10 +84,11 @@ public abstract class AbstractArticleParser {
                 logger.info(e.getMessage());
             }
 
-            String content = Files.readString(new File("src/main/resources/chinese-sample.txt").toPath());
+            String content = Files.readString(new File("src/main/resources/english-sample.txt").toPath());
 
-            AbstractArticleParser parser = new com.cpbpc.rpgv2.zh.ArticleParser(content, "你们的生命是什么呢？");
-            AbstractComposer composer = new com.cpbpc.rpgv2.zh.Composer(parser);
+//            AbstractArticleParser parser = new com.cpbpc.rpgv2.en.ArticleParser(content, "你们的生命是什么呢？");
+            AbstractArticleParser parser = new com.cpbpc.rpgv2.en.ArticleParser(content, "JOSHUA SPOKE OF THE SUM OF HIS SERVICE");
+            AbstractComposer composer = new com.cpbpc.rpgv2.en.Composer(parser);
 
             String script = composer.toPolly();
             System.out.println(script);
@@ -172,6 +173,7 @@ public abstract class AbstractArticleParser {
     }
 
     public List<String> readTopicVerses() {
+        VerseIntf verse = ThreadStorage.getVerse();
         List<String> result = new ArrayList<>();
         Pattern versePattern = getTopicVersePattern();
         Matcher m = versePattern.matcher(content);
@@ -182,24 +184,9 @@ public abstract class AbstractArticleParser {
             if (position > anchorPoint) {
                 break;
             }
-            result.add(replaceSpace(appendNextCharTillCompleteVerse(target, position, anchorPoint)));
+            result.add(replaceSpace(verse.appendNextCharTillCompleteVerse(content, target, position, anchorPoint)));
         }
         return result;
-    }
-
-    protected List<String> getAllowedPunctuations() {
-        List<String> punctuations = new ArrayList<>();
-        punctuations.addAll(List.of(":", ",", " ", ";", "：", "，", "；"));
-        for (String hyphen_unicode : hyphens_unicode) {
-            punctuations.add(StringEscapeUtils.unescapeJava(hyphen_unicode));
-        }
-        return punctuations;
-    }
-
-    protected abstract String appendNextCharTillCompleteVerse(String content, String verse, int start, int end) ;
-    
-    protected String appendNextCharTillCompleteVerse(String verse, int start, int end) {
-        return appendNextCharTillCompleteVerse(content, verse, start, end);
     }
 
     public int getAnchorPointAfterScriptureFocus() {
@@ -242,79 +229,9 @@ public abstract class AbstractArticleParser {
         return "<div style=\"text-align: justify;\"> </div>";
     }
 
-    protected String mapBookAbbre(String book) {
-
-        if (null == book || book.trim().length() <= 0) {
-            return book;
-        }
-
-        book = book.replace(".", "");
-
-        Map<String, ConfigObj> verseMap = verse.getVerseMap();
-        Set<Map.Entry<String, ConfigObj>> entries = verseMap.entrySet();
-        for (Map.Entry<String, ConfigObj> entry : entries) {
-            ConfigObj obj = entry.getValue();
-            if (StringUtils.equalsIgnoreCase(book, obj.getShortForm())) {
-                return obj.getFullWord();
-            }
-        }
-
-        return book;
-    }
-
-    protected String getHyphen(String verseStr) {
-
-        for (String hyphen_unicode : hyphens_unicode) {
-            String hyphen = StringEscapeUtils.unescapeJava(hyphen_unicode);
-            if (verseStr.contains(hyphen)) {
-                return hyphen;
-            }
-        }
-
-        return "";
-    }
-
-    protected boolean containHyphen(String verseStr) {
-
-        for (String hyphen_unicode : hyphens_unicode) {
-            String hyphen = StringEscapeUtils.unescapeJava(hyphen_unicode);
-            if (verseStr.contains(hyphen)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
 
     protected abstract Pattern getTopicVersePattern();
 
-    protected abstract Pattern getVersePattern();
-
     protected abstract Pattern getDatePattern();
-
-    protected abstract String generateCompleteVerses(String book, String verse_str);
-
-    //弗6
-    //弗6-7
-    //弗6;7
-    //弗6,7
-    //弗6:13
-
-    public List<String> analyseVerse(String line) {
-        Pattern p = getVersePattern();
-        Matcher m = p.matcher(line);
-        List<String> result = new ArrayList<>();
-        if (m.find()) {
-            String book = mapBookAbbre(m.group(2));
-            String grabbedVerse = appendNextCharTillCompleteVerse(line, m.group(0), m.end(), line.length());
-            String verse_str = grabbedVerse.replaceFirst(m.group(2), "");
-            result.add(StringUtils.trim(book));
-            result.add(StringUtils.trim(verse_str));
-        }
-
-        return result;
-    }
     
-    public abstract String convertVerse(String line);
-
 }

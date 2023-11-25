@@ -19,9 +19,9 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.cpbpc.rpgv2.util.PauseTool.changeFullCharacter;
-import static com.cpbpc.rpgv2.util.PauseTool.replacePunctuationWithPause;
-import static com.cpbpc.rpgv2.util.TextUtil.removeHtmlTag;
+import static com.cpbpc.comms.PunctuationTool.changeFullCharacter;
+import static com.cpbpc.comms.PunctuationTool.replacePunctuationWithPause;
+import static com.cpbpc.comms.TextUtil.removeHtmlTag;
 
 
 class BibleVerseScraper {

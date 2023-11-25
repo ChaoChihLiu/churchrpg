@@ -1,7 +1,7 @@
 package com.cpbpc.telegram;
 
+import com.cpbpc.comms.AppProperties;
 import com.cpbpc.comms.DBUtil;
-import com.cpbpc.rpgv2.AppProperties;
 import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -41,7 +41,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class GenTelegramExcel {
-    private static final Properties appProperties = AppProperties.getProperties();
+    private static final Properties appProperties = AppProperties.getConfig();
     private static final String propPath = "./src/main/resources/app-english.properties";
     private static final String theme = "The Book of Joshua";
     private static final String writer = "Rev Dr Michael Koech";
