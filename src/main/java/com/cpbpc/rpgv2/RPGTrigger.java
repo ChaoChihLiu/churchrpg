@@ -6,6 +6,7 @@ import com.amazonaws.services.lambda.AWSLambda;
 import com.amazonaws.services.lambda.AWSLambdaClient;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
+import com.cpbpc.comms.DBUtil;
 import com.cpbpc.rpgv2.util.ThreadStorage;
 
 import java.io.FileInputStream;
@@ -89,7 +90,7 @@ public class RPGTrigger implements RequestHandler {
         Connection conn = null;
         try {
 
-            conn = createConnection();
+            conn = DBUtil.createConnection(appProperties);
 
             if (null == conn) {
                 logger.info("cannot create connection to db");
@@ -286,20 +287,5 @@ public class RPGTrigger implements RequestHandler {
         return 0;
     }
 
-    private Connection createConnection() {
-
-        try {
-            Connection conn = DriverManager.getConnection(appProperties.getProperty("db_url"),
-                    appProperties.getProperty("db_username"),
-                    appProperties.getProperty("db_password"));
-
-            return conn;
-        } catch (Exception e) {
-            logger.info(e.getMessage());
-        }
-
-        return null;
-
-    }
 
 }

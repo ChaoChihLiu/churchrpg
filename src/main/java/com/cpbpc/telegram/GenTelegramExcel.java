@@ -1,5 +1,6 @@
 package com.cpbpc.telegram;
 
+import com.cpbpc.comms.DBUtil;
 import com.cpbpc.rpgv2.AppProperties;
 import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
@@ -330,22 +331,9 @@ public class GenTelegramExcel {
         appProperties.load(in);
     }
 
-    private static Connection createConnection() {
-        try {
-            Connection conn = DriverManager.getConnection(appProperties.getProperty("db_url"),
-                    appProperties.getProperty("db_username"),
-                    appProperties.getProperty("db_password"));
-
-            return conn;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return null;
-    }
 
     private static void initAbbre() throws SQLException {
-        Connection conn = createConnection();
+        Connection conn = DBUtil.createConnection(appProperties);
         PreparedStatement state = conn.prepareStatement("select * from cpbpc_abbreviation order by seq_no asc, length(short_form) desc");
         ResultSet rs = state.executeQuery();
 
@@ -368,7 +356,7 @@ public class GenTelegramExcel {
         List<Map<String, String>> list = new ArrayList<>();
 
         String category = URLDecoder.decode(appProperties.getProperty("content_category"));
-        Connection conn = createConnection();
+        Connection conn = DBUtil.createConnection(appProperties);
         PreparedStatement stat = conn.prepareStatement(query);
         stat.setString(1, category);
         stat.setString(2, year + "-" + month);

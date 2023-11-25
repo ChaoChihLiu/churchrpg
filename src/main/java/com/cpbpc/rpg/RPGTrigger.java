@@ -7,6 +7,7 @@ import com.amazonaws.services.lambda.AWSLambdaClient;
 import com.amazonaws.services.lambda.model.InvokeRequest;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
+import com.cpbpc.comms.DBUtil;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -92,7 +93,7 @@ public class RPGTrigger implements RequestHandler {
         Connection conn = null;
         try {
 
-            conn = createConnection();
+            conn = DBUtil.createConnection(AppProperties.getAppProperties());
 
             if (null == conn) {
                 logger.info("cannot create connection to db");
@@ -336,47 +337,5 @@ public class RPGTrigger implements RequestHandler {
 
         return 0;
     }
-
-    //    private static final Gson gson = new Gson();
-    private Connection createConnection() {
-
-//        String secretName = "calvarypandan-1-admin";
-//        String secretName = System.getenv("secret_name");
-//        logger.info("secret name " + secretName);
-
-        // Create a Secrets Manager client
-//        AWSSecretsManagerClientBuilder buillder = AWSSecretsManagerClient.builder().withRegion(Regions.AP_SOUTHEAST_1);
-//        AWSSecretsManager client = buillder.build();
-//
-//        GetSecretValueRequest getSecretValueRequest = new GetSecretValueRequest();
-//        getSecretValueRequest.setSecretId(secretName);
-//
-//        GetSecretValueResult getSecretValueResponse = null;
-
-        try {
-//            getSecretValueResponse = client.getSecretValue(getSecretValueRequest);
-//            Map<String, String> config = gson.fromJson(getSecretValueResponse.getSecretString(), Map.class);
-//            logger.log("config + " + config.toString());
-
-//            conn = DriverManager.getConnection("jdbc:mysql://"+config.get("host")+":3306/",
-//                                                config.get("username"),
-//                                                config.get("password"));
-
-            Connection conn = DriverManager.getConnection(appProperties.getProperty("db_url"),
-                    appProperties.getProperty("db_username"),
-                    appProperties.getProperty("db_password"));
-
-            return conn;
-        } catch (Exception e) {
-            logger.info(e.getMessage());
-        }
-
-        return null;
-
-//        String secret = getSecretValueResponse.getSecretString();
-//        logger.log("secret : " + secret);
-
-//        return secret;
-    }
-
+    
 }

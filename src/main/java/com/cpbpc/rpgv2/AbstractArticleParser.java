@@ -94,7 +94,7 @@ public abstract class AbstractArticleParser {
 
             String script = composer.toPolly();
             System.out.println(script);
-            AWSUtil.putScriptToS3(script, "2023-12-30");
+//            AWSUtil.putScriptToS3(script, "2023-12-30");
 
         } catch (Exception e) {
             e.printStackTrace();
