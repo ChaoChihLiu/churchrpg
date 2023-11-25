@@ -5,6 +5,8 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class PunctuationTool {
 
@@ -29,6 +31,7 @@ public class PunctuationTool {
                 .replaceAll("、", ",")
                 .replaceAll("；", ";")
                 .replaceAll("？", "?")
+                .replaceAll("！", "!")
                 .replaceAll("。", ".")
                 .replaceAll("（", "(")
                 .replaceAll("）", ")")
@@ -66,13 +69,28 @@ public class PunctuationTool {
 
     public static String replacePunctuationWithPause(String input){
         String result = input
-                            .replaceAll("\\.", getPauseTag(400))
+                            .replaceAll("\\.", getPauseTag(800))
                             .replaceAll(",", getPauseTag(200))
-                            .replaceAll(":", getPauseTag(200))
-                            .replaceAll(";", getPauseTag(200))
-                            .replaceAll("\\?", getPauseTag(200))
+                            .replaceAll(":", getPauseTag(800))
+                            .replaceAll(";", getPauseTag(400))
+                            .replaceAll("\\?", getPauseTag(800))
+                            .replaceAll("\\!", getPauseTag(800))
                             .replaceAll("\\(", getPauseTag(200))
                             .replaceAll("\\)", getPauseTag(200))
+                ;
+        return result;
+    }
+
+    public static String replacePunctuationWithBreakTag(String input){
+        String result = input
+                .replaceAll("\\.", pause(800))
+                .replaceAll(",", pause(200))
+                .replaceAll(":", pause(800))
+                .replaceAll(";", pause(400))
+                .replaceAll("\\?", pause(800))
+                .replaceAll("\\!", pause(800))
+                .replaceAll("\\(", pause(200))
+                .replaceAll("\\)", pause(200))
                 ;
         return result;
     }
@@ -89,6 +107,18 @@ public class PunctuationTool {
         }
 
         return pause(Integer.valueOf(timespan));
+    }
+
+    private static final Pattern pattern = Pattern.compile("\\[pause(\\d{0,})\\]");
+    public static String replacePauseTag( String input ){
+        Matcher matcher = pattern.matcher(input);
+        String result = input;
+        while( matcher.find() ){
+            String timespan = matcher.group(1);
+            result = result.replace(matcher.group(0), pause(timespan));
+        }
+
+        return result;
     }
 
 }

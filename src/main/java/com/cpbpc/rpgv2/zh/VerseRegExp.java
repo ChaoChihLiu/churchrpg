@@ -37,6 +37,11 @@ public class VerseRegExp implements VerseIntf {
     
 
     //    public static void main( String[] args ){
+    public String convert(String content, boolean addPause) {
+
+        return convertVerse(content);
+
+    }
     public String convert(String content) {
 
        return convertVerse(content);

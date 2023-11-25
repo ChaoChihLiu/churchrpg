@@ -4,10 +4,8 @@ import com.cpbpc.comms.AppProperties;
 import com.cpbpc.comms.ThreadStorage;
 
 import javax.xml.transform.TransformerException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-import static com.cpbpc.comms.PunctuationTool.pause;
+import static com.cpbpc.comms.PunctuationTool.replacePauseTag;
 import static com.cpbpc.comms.PunctuationTool.replacePunctuationWithPause;
 
 public abstract class AbstractComposer {
@@ -36,17 +34,6 @@ public abstract class AbstractComposer {
 
     protected abstract String toPolly();
     
-    private final Pattern pattern = Pattern.compile("\\[pause(\\d{0,})\\]");
-    protected String replacePauseTag( String input ){
-        Matcher matcher = pattern.matcher(input);
-        String result = input;
-        while( matcher.find() ){
-            String timespan = matcher.group(1);
-            result = result.replace(matcher.group(0), pause(timespan));
-        }
-
-        return result;
-    }
 
     protected String prettyPrintln(String input) throws TransformerException {
 //        Source xmlInput = new StreamSource(new StringReader(input));

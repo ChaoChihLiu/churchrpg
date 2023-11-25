@@ -9,6 +9,7 @@ public interface VerseIntf {
     public void put(String shortForm, String completeForm, boolean isPaused);
 
     public String convert(String content);
+    public String convert(String content, boolean addPause);
 
     public Map<String, ConfigObj> getVerseMap();
 

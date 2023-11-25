@@ -30,13 +30,11 @@ public abstract class AbstractArticleParser {
 
     private static Logger logger = Logger.getLogger(AbstractArticleParser.class.getName());
 
-    protected final String[] hyphens_unicode = new String[]{"\\u002d", "\\u2010", "\\u2011", "\\u2012", "\\u2013", "\\u2015", "\\u2212"};
     protected String content;
     protected String title;
 
     protected AbbreIntf abbr = ThreadStorage.getAbbreviation();
     protected VerseIntf verse = ThreadStorage.getVerse();
-    protected PhoneticIntf phonetic = ThreadStorage.getPhonetics();
 
     public AbstractArticleParser(String content, String title) {
         this.content = changeFullCharacter(content);

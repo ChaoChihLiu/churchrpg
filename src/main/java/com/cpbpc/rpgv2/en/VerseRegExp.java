@@ -38,8 +38,11 @@ public class VerseRegExp implements VerseIntf {
     }
 
     //    public static void main( String[] args ){
+    public String convert(String content, boolean addPause) {
+        return convertVerse(content, addPause);
+    }
     public String convert(String content) {
-        return convertVerse(content);
+        return convertVerse(content, false);
     }
 
     private Pattern versePattern = null;
@@ -198,8 +201,8 @@ public class VerseRegExp implements VerseIntf {
         return chapter;
     }
 
-    public String convertVerse(String line) {
-        return convertSingleVerse(convertNormalVerse(line));
+    public String convertVerse(String line, boolean addPause) {
+        return convertSingleVerse(convertNormalVerse(line, addPause));
     }
 
     private String convertSingleVerse(String line) {
@@ -229,7 +232,7 @@ public class VerseRegExp implements VerseIntf {
         return result;
     }
     
-    private String convertNormalVerse(String line) {
+    private String convertNormalVerse(String line, boolean addPause) {
         Pattern p = getVersePattern();
         Matcher m = p.matcher(line);
         int start = 0;
@@ -246,6 +249,9 @@ public class VerseRegExp implements VerseIntf {
             logger.info("completeVerse " + completeVerse);
 
             result = result.replaceFirst(grabbedVerse, completeVerse);
+            if( addPause ){
+                result += PunctuationTool.getPauseTag(400);
+            }
         }
 
         return result;
