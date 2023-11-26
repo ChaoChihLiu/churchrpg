@@ -11,6 +11,7 @@ import java.util.Set;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
+import static com.cpbpc.comms.PunctuationTool.removeDoubleQuote;
 import static com.cpbpc.comms.PunctuationTool.replacePunctuationWithPause;
 import static com.cpbpc.comms.TextUtil.removeHtmlTag;
 
@@ -36,6 +37,7 @@ public class ArticleParser extends AbstractArticleParser {
         try{
             for (String split : splits) {
                 String line = StringUtils.trim(removeHtmlTag(split));
+                line = removeDoubleQuote(line);
                 if (!StringUtils.isEmpty(line)) {
                     result.add(verse.convert(replaceSpace(line)));
                 }
@@ -55,6 +57,7 @@ public class ArticleParser extends AbstractArticleParser {
             if (StringUtils.isEmpty(line)) {
                 continue;
             }
+            line = removeDoubleQuote(line);
             if (StringUtils.contains(line, "<strong>默想</strong>")) {
                 result = removeHtmlTag(line).trim();
             }
@@ -71,6 +74,7 @@ public class ArticleParser extends AbstractArticleParser {
             if (StringUtils.isEmpty(line)) {
                 continue;
             }
+            line = removeDoubleQuote(line);
             if (StringUtils.contains(line, "<strong>祷告</strong>")) {
                 result = removeHtmlTag(line).trim();
             }

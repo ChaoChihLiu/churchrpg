@@ -77,7 +77,9 @@ public class PunctuationTool {
                             .replaceAll("\\!", getPauseTag(800))
                             .replaceAll("\\(", getPauseTag(200))
                             .replaceAll("\\)", getPauseTag(200))
-                            .replaceAll("\"", "")
+//                            .replaceAll("\"", "")
+                            .replaceAll("”", "")
+                            .replaceAll("“", "")
                 ;
         return result;
     }
@@ -92,7 +94,18 @@ public class PunctuationTool {
                 .replaceAll("\\!", pause(800))
                 .replaceAll("\\(", pause(200))
                 .replaceAll("\\)", pause(200))
+//                .replaceAll("\"", "")
+                .replaceAll("”", "")
+                .replaceAll("“", "")
+                ;
+        return result;
+    }
+
+    public static String removeDoubleQuote(String input){
+        String result = input
                 .replaceAll("\"", "")
+                .replaceAll("”", "")
+                .replaceAll("“", "")
                 ;
         return result;
     }
