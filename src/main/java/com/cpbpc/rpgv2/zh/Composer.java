@@ -57,7 +57,7 @@ public class Composer extends AbstractComposer {
                 List<String> refs = verse.analyseVerse(ref);
                 result.append("聖經經文第" + count + "段").append(pause(200))
                         .append(processSentence(verse.convert(ref))).append(pause(400))
-                        .append(processSentence(BibleVerseScraper.scrap(mapBookAbbre(refs.get(0)), refs.get(1)))).append(pause(400))
+                        .append(processSentence(BibleVerseScraper.scrap(mapBookAbbre(refs.get(0)), refs.get(1))))
                 ;
             }
         } catch (Exception e) {

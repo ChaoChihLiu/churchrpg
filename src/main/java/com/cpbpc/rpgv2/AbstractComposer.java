@@ -1,6 +1,6 @@
 package com.cpbpc.rpgv2;
 
-import com.cpbpc.comms.AppProperties;
+import com.cpbpc.comms.AWSUtil;
 import com.cpbpc.comms.ThreadStorage;
 
 import javax.xml.transform.TransformerException;
@@ -21,10 +21,7 @@ public abstract class AbstractComposer {
 
     protected String wrapToPolly(String content) {
 
-        return "<speak><prosody rate='" + AppProperties.getConfig().getProperty("speech_speed")
-                + "' volume='" + AppProperties.getConfig().getProperty("speech_volume") + "'>"
-                + content
-                + "</prosody></speak>";
+        return AWSUtil.toPolly(content);
 
     }
 

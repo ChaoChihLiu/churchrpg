@@ -1,5 +1,6 @@
-package com.cpbpc.remembrance;
+package com.cpbpc.dailydevotion;
 
+import com.cpbpc.comms.AWSUtil;
 import com.cpbpc.comms.AppProperties;
 import com.cpbpc.comms.DBUtil;
 import com.cpbpc.comms.PunctuationTool;
@@ -7,6 +8,7 @@ import com.cpbpc.comms.ThreadStorage;
 import com.cpbpc.rpgv2.AbbreIntf;
 import com.cpbpc.rpgv2.PhoneticIntf;
 import com.cpbpc.rpgv2.VerseIntf;
+import com.cpbpc.rpgv2.en.BibleVerseScraper;
 import com.itextpdf.text.pdf.PdfReader;
 import com.itextpdf.text.pdf.parser.PdfTextExtractor;
 import org.apache.commons.lang3.RegExUtils;
@@ -20,7 +22,11 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class PDFReader {
+import static com.cpbpc.comms.PunctuationTool.pause;
+import static com.cpbpc.comms.PunctuationTool.replacePauseTag;
+import static com.cpbpc.comms.PunctuationTool.replacePunctuationWithPause;
+
+public class DevotionTTS {
 
 
     public static void main(String args[]) throws IOException {
@@ -35,8 +41,9 @@ public class PDFReader {
             VerseIntf verse = ThreadStorage.getVerse();
             PhoneticIntf phonetic = ThreadStorage.getPhonetics();
 
-            PdfReader reader = new PdfReader("/Users/liuchaochih/Downloads/Daily+Remembrancer+International+Edition.pdf");
-            for (int i = 3; i <= reader.getNumberOfPages(); i++) {
+            PdfReader reader = new PdfReader(AppProperties.getConfig().getProperty("input_pdf_path"));
+            String month = AppProperties.getConfig().getProperty("month");
+            for (int i = 2; i <= reader.getNumberOfPages(); i++) {
                 StringBuilder text = new StringBuilder();
                 String raw = PdfTextExtractor.getTextFromPage(reader, i);
                 raw = PunctuationTool.changeFullCharacter(raw);
@@ -44,6 +51,12 @@ public class PDFReader {
 //                String result = phonetic.convert(abbr.convert(verse.convert(PunctuationTool.changeFullCharacter(RegExUtils.replaceAll(raw, System.lineSeparator(), " ")))));
 //                result = PunctuationTool.replacePunctuationWithBreakTag(result).replaceAll("<break", System.lineSeparator() + "<break");
                 Parser parser = new Parser(raw);
+                if( !parser.date.contains(month) ){
+                    break;
+                }
+
+                String book = StringUtils.split(parser.mainVerse, " ")[0];
+                String verses = StringUtils.split(parser.mainVerse, " ")[1];
 
                 String result = text.append( parser.date )
                                     .append(PunctuationTool.pause(800))
@@ -51,17 +64,20 @@ public class PDFReader {
                                     .append(PunctuationTool.pause(800))
                                     .append(parser.title)
                                     .append(PunctuationTool.pause(400))
+                                    .append("Bible passage for today is").append(pause(200))
                                     .append(verse.convert(parser.mainVerse))
+                                    .append(replacePauseTag(replacePunctuationWithPause(phonetic.convert(BibleVerseScraper.scrap(book, verses)))))
                                     .append(PunctuationTool.pause(800))
                                     .append(parser.theme)
                                     .append(phonetic.convert(abbr.convert(verse.convert(PunctuationTool.changeFullCharacter(RegExUtils.replaceAll(parser.content, System.lineSeparator(), " "))))))
                         .toString()
                 ;
                 result = PunctuationTool.replacePunctuationWithBreakTag(result).replaceAll("<break", System.lineSeparator() + "<break");
-
+                result = AWSUtil.toPolly(result);
                 System.out.println("modified : " + result);
+                AWSUtil.putScriptToS3(result, parser.date, parser.moment);
 
-                if( i == 10 ){
+                if( i == 3 ){
                     break;
                 }
             }

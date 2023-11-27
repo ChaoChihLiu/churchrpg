@@ -257,7 +257,7 @@ public class VerseRegExp implements VerseIntf {
         return result;
     }
 
-    private static String mapBookAbbre(String book) {
+    private  String mapBookAbbre(String book) {
 
         if (null == book || book.trim().length() <= 0) {
             return book;
