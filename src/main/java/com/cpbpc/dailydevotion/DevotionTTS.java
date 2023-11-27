@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.cpbpc.comms.PunctuationTool.pause;
 import static com.cpbpc.comms.PunctuationTool.replacePauseTag;
 import static com.cpbpc.comms.PunctuationTool.replacePunctuationWithPause;
 
@@ -59,16 +58,16 @@ public class DevotionTTS {
                 String verses = StringUtils.split(parser.mainVerse, " ")[1];
 
                 String result = text.append( parser.date )
-                                    .append(PunctuationTool.pause(800))
+                                    .append(PunctuationTool.pause(200))
                                     .append(parser.moment)
+                                    .append(PunctuationTool.pause(1600))
+                                    .append("This devotion is entitled")
+                                    .append(PunctuationTool.pause(1600))
+                                    .append(parser.theme)
                                     .append(PunctuationTool.pause(800))
-                                    .append(parser.title)
-                                    .append(PunctuationTool.pause(400))
-                                    .append("Bible passage for today is").append(pause(200))
+                                    .append("The Bible passage is from ")
                                     .append(verse.convert(parser.mainVerse))
                                     .append(replacePauseTag(replacePunctuationWithPause(phonetic.convert(BibleVerseScraper.scrap(book, verses)))))
-                                    .append(PunctuationTool.pause(800))
-                                    .append(parser.theme)
                                     .append(phonetic.convert(abbr.convert(verse.convert(PunctuationTool.changeFullCharacter(RegExUtils.replaceAll(parser.content, System.lineSeparator(), " "))))))
                         .toString()
                 ;
