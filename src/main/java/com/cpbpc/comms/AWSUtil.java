@@ -17,13 +17,16 @@ import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.amazonaws.regions.Regions.AP_SOUTHEAST_1;
-
 public class AWSUtil {
 
-    private static final AmazonS3 s3Client = AmazonS3Client.builder().withRegion(AP_SOUTHEAST_1)
-            .withCredentials(new DefaultAWSCredentialsProviderChain())
-            .build();
+    private static AmazonS3 s3Client = null;
+    static{
+        if( s3Client == null ){
+            s3Client = AmazonS3Client.builder().withRegion(AppProperties.getConfig().getProperty("region"))
+                    .withCredentials(new DefaultAWSCredentialsProviderChain())
+                    .build();
+        }
+    }
 //    private static final AwsBasicCredentials awsCredentials = AwsBasicCredentials.create(accessKeyId, secretKey);
 //    private static final AmazonS3 s3Client = AmazonS3Client.builder().withRegion(AP_SOUTHEAST_1)
 //        .credentialsProvider(() -> awsCredentials)
@@ -60,6 +63,7 @@ public class AWSUtil {
             tags.add(new Tag("audio_key", audioKey));
             tags.add(new Tag("name_prefix", AppProperties.getConfig().getProperty("name_prefix")));
             tags.add(new Tag("output_bucket", AppProperties.getConfig().getProperty("output_bucket")));
+            tags.add(new Tag("output_format", AppProperties.getConfig().getProperty("output_format")));
             tags.add(new Tag("output_prefix", AppProperties.getConfig().getProperty("output_prefix")));
 
             putObjectRequest.setStorageClass(StorageClass.IntelligentTiering);
@@ -97,10 +101,12 @@ public class AWSUtil {
 
             List<Tag> tags = new ArrayList<>();
             tags.add(new Tag("publish_date", publishDate_str));
+            tags.add(new Tag("engine", AppProperties.getConfig().getProperty("engine")));
             tags.add(new Tag("voice_id", AppProperties.getConfig().getProperty("voice_id")));
             tags.add(new Tag("category", URLDecoder.decode(AppProperties.getConfig().getProperty("content_category"))));
             tags.add(new Tag("audio_key", audioKey));
             tags.add(new Tag("output_bucket", AppProperties.getConfig().getProperty("output_bucket")));
+            tags.add(new Tag("output_format", AppProperties.getConfig().getProperty("output_format")));
             tags.add(new Tag("output_prefix", AppProperties.getConfig().getProperty("output_prefix")));
 
             putObjectRequest.setStorageClass(StorageClass.IntelligentTiering);

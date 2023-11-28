@@ -94,6 +94,14 @@ dependencies {
     // https://mvnrepository.com/artifact/com.itextpdf/itextpdf
     implementation group: 'com.itextpdf', name: 'itextpdf', version: '5.5.13.3'
 
+    // https://mvnrepository.com/artifact/org.apache.pdfbox/pdfbox
+    implementation group: 'org.apache.pdfbox', name: 'pdfbox', version: '2.0.30'
+
+    // https://mvnrepository.com/artifact/software.amazon.awssdk/transcribe
+    implementation group: 'software.amazon.awssdk', name: 'transcribe', version: '2.21.29'
+    // https://mvnrepository.com/artifact/software.amazon.awssdk/transcribestreaming
+    implementation group: 'software.amazon.awssdk', name: 'transcribestreaming', version: '2.21.29'
+
 
 //    implementation 'org.postgresql:postgresql:42.2.14'
 

@@ -8,7 +8,6 @@ import com.cpbpc.comms.ThreadStorage;
 import com.cpbpc.rpgv2.AbbreIntf;
 import com.cpbpc.rpgv2.PhoneticIntf;
 import com.cpbpc.rpgv2.VerseIntf;
-import com.cpbpc.rpgv2.en.BibleVerseScraper;
 import com.itextpdf.text.pdf.PdfReader;
 import com.itextpdf.text.pdf.parser.PdfTextExtractor;
 import org.apache.commons.lang3.RegExUtils;
@@ -22,8 +21,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.cpbpc.comms.PunctuationTool.replacePauseTag;
-import static com.cpbpc.comms.PunctuationTool.replacePunctuationWithPause;
+import static com.cpbpc.comms.PunctuationTool.pause;
 
 public class DevotionTTS {
 
@@ -61,13 +59,16 @@ public class DevotionTTS {
                                     .append(PunctuationTool.pause(200))
                                     .append(parser.moment)
                                     .append(PunctuationTool.pause(1600))
+                                    .append(parser.quotedVerse)
+                                    .append(pause(800))
+                                    .append("The Bible passage is from ")
+                                    .append(verse.convert(parser.mainVerse))
+                                    .append(pause(800))
                                     .append("This devotion is entitled")
                                     .append(PunctuationTool.pause(1600))
                                     .append(parser.theme)
-                                    .append(PunctuationTool.pause(800))
-                                    .append("The Bible passage is from ")
-                                    .append(verse.convert(parser.mainVerse))
-                                    .append(replacePauseTag(replacePunctuationWithPause(phonetic.convert(BibleVerseScraper.scrap(book, verses)))))
+                                    .append(PunctuationTool.pause(400))
+//                                    .append(replacePauseTag(replacePunctuationWithPause(phonetic.convert(BibleVerseScraper.scrap(book, verses)))))
                                     .append(phonetic.convert(abbr.convert(verse.convert(PunctuationTool.changeFullCharacter(RegExUtils.replaceAll(parser.content, System.lineSeparator(), " "))))))
                         .toString()
                 ;
@@ -91,7 +92,7 @@ class Parser{
     protected String raw = "";
     protected String date = "";
     protected String moment = "";
-    protected String title = "";
+    protected String quotedVerse = "";
     protected String mainVerse = "";
     protected String theme = "";
     protected String content = "";
@@ -100,7 +101,7 @@ class Parser{
         this.raw = input;
         date = parseDate();
         moment = parseMoment();
-        title = parseTitle();
+        quotedVerse = parseQuotedVerse();
         mainVerse = parseMainVerse();
         theme = parseTheme();
         content = parseContent();
@@ -184,17 +185,17 @@ class Parser{
     }
 
     private Pattern quotePattern = Pattern.compile("\"([^\"]*)\"");
-    private String parseTitle() {
+    private String parseQuotedVerse() {
         return parseText(quotePattern);
     }
 
     private VerseIntf verse = ThreadStorage.getVerse();
     private String parseMainVerse() {
         List<String> sentences = List.of(raw.split(System.lineSeparator()));
-        if( StringUtils.isEmpty(title) ){
-            title = parseTitle();
+        if( StringUtils.isEmpty(quotedVerse) ){
+            quotedVerse = parseQuotedVerse();
         }
-        return StringUtils.trim(StringUtils.replace(sentences.get(2), "\""+title+"\"", ""));
+        return StringUtils.trim(StringUtils.replace(sentences.get(2), "\""+ quotedVerse +"\"", ""));
     }
 
 

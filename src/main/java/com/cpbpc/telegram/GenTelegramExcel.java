@@ -96,6 +96,7 @@ public class GenTelegramExcel {
                             "\uD83D\uDCAD" + " " + capitalize(StringUtils.lowerCase(dataRow.get("summary"))) + "\n" +
                             "\uD83D\uDCD6" + " " + grepThemeVerses(dataRow) + "\n" +
                             genEmojiWritingHand() + " " + writer + "\n" +
+                            "\n" +
                             "\uD83D\uDDE3" + " " + shortenURL(genAudioLink(dataRow)) + "\n" +
                             "\n" +
                             "\uD83D\uDCDD" + " " + shortenURL(genArticleLink(dataRow))
