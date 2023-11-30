@@ -19,12 +19,12 @@ public class Composer extends AbstractComposer {
     }
 
     @Override
-    protected String toPolly() {
+    protected String toPolly(boolean fixPronu) {
         StringBuilder buffer = new StringBuilder();
 
         buffer.append(parser.readDate()).append(pause(200));
         buffer.append("Today's devotional is entitled").append(pause(200))
-                .append(processSentence(RomanNumeral.convert(parser.getTitle()))).append(pause(400))
+                .append(processSentence(RomanNumeral.convert(parser.getTitle()), fixPronu)).append(pause(400))
         ;
 
         int count = 0;
@@ -33,8 +33,8 @@ public class Composer extends AbstractComposer {
                 count++;
                 List<String> refs = verse.analyseVerse(ref);
                 buffer.append("The " + ordinal(count) + " Bible passage for today is").append(pause(200))
-                        .append(processSentence(verse.convert(ref))).append(pause(400))
-                        .append(processSentence(BibleVerseScraper.scrap(refs.get(0), refs.get(1))))
+                        .append(processSentence(verse.convert(ref), fixPronu)).append(pause(400))
+                        .append(processSentence(BibleVerseScraper.scrap(refs.get(0), refs.get(1)), fixPronu))
                 ;
             }
         } catch (Exception e) {
@@ -42,17 +42,17 @@ public class Composer extends AbstractComposer {
         }
         buffer.append("800").append("End of scripture reading").append(pause(800));
         buffer.append("The scripture passage in focus is").append(pause(200))
-                .append(processSentence(parser.readFocusScripture())).append(pause(400));
+                .append(processSentence(parser.readFocusScripture(), fixPronu)).append(pause(400));
 
         buffer.append("Today's devotional is entitled").append(pause(200))
-                .append(processSentence(parser.getTitle())).append(pause(400))
+                .append(processSentence(parser.getTitle(), fixPronu)).append(pause(400))
         ;
 
         for (String paragraph : parser.readParagraphs()) {
-            buffer.append(processSentence(paragraph)).append(pause(400));
+            buffer.append(processSentence(paragraph, fixPronu)).append(pause(400));
         }
-        buffer.append(pause(400)).append(processSentence(parser.readThought()));
-        buffer.append(pause(800)).append(processSentence(parser.readPrayer()));
+        buffer.append(pause(400)).append(processSentence(parser.readThought(), fixPronu));
+        buffer.append(pause(800)).append(processSentence(parser.readPrayer(), fixPronu));
 
         String result = buffer.toString();
 

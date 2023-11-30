@@ -17,7 +17,7 @@ public class Composer extends AbstractComposer {
     public Composer(AbstractArticleParser parser) {
         super(parser);
     }
-
+    
     private VerseIntf verse = ThreadStorage.getVerse();
 
     protected String mapBookAbbre(String book) {
@@ -41,12 +41,12 @@ public class Composer extends AbstractComposer {
     }
 
     @Override
-    protected String toPolly() {
+    protected String toPolly(boolean fixPronu) {
         StringBuilder result = new StringBuilder();
 
         result.append(parser.readDate()).append(pause(200));
-        result.append("今日靈修題目").append(pause(200))
-                .append(processSentence(parser.getTitle())).append(pause(400))
+        result.append("今日灵修题目").append(pause(200))
+                .append(processSentence(parser.getTitle(), fixPronu)).append(pause(400))
         ;
 
         int count = 0;
@@ -55,27 +55,27 @@ public class Composer extends AbstractComposer {
             for (String ref : parser.readTopicVerses()) {
                 count++;
                 List<String> refs = verse.analyseVerse(ref);
-                result.append("聖經經文第" + count + "段").append(pause(200))
-                        .append(processSentence(verse.convert(ref))).append(pause(400))
-                        .append(processSentence(BibleVerseScraper.scrap(mapBookAbbre(refs.get(0)), refs.get(1))))
+                result.append("圣经经文第" + count + "段").append(pause(200))
+                        .append(processSentence(verse.convert(ref), fixPronu)).append(pause(400))
+                        .append(processSentence(BibleVerseScraper.scrap(mapBookAbbre(refs.get(0)), refs.get(1)), fixPronu))
                 ;
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        result.append(pause(800)).append("結束經文朗讀").append(pause(800));
-        result.append("引用經文").append(pause(200))
-                .append(processSentence(parser.readFocusScripture())).append(pause(400));
+        result.append(pause(800)).append("結束经文朗读").append(pause(800));
+        result.append("引用经文").append(pause(200))
+                .append(processSentence(parser.readFocusScripture(), fixPronu)).append(pause(400));
 
-        result.append("今日靈修題目").append(pause(200))
-                .append(processSentence(parser.getTitle())).append(pause(400))
+        result.append("今日灵修题目").append(pause(200))
+                .append(processSentence(parser.getTitle(), fixPronu)).append(pause(400))
         ;
 
         for (String paragraph : parser.readParagraphs()) {
-            result.append(processSentence(paragraph)).append(pause(400));
+            result.append(processSentence(paragraph, fixPronu)).append(pause(400));
         }
-        result.append(pause(400)).append(processSentence(parser.readThought()));
-        result.append(pause(800)).append(processSentence(parser.readPrayer()));
+        result.append(pause(400)).append(processSentence(parser.readThought(), fixPronu));
+        result.append(pause(800)).append(processSentence(parser.readPrayer(), fixPronu));
 
 
         try {

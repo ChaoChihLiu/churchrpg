@@ -97,11 +97,11 @@ public abstract class AbstractArticleParser {
                 composer = new com.cpbpc.rpgv2.en.Composer(parser);
             }
             
-            String script = composer.toPolly();
+            String script = composer.toPolly(false);
             IOUtils.write(script, new FileOutputStream(new File("script.txt")));
             IOUtils.write(removeHtmlTag(script), new FileOutputStream(new File("script-no-tag.txt")));
             System.out.println(script);
-//            OpenAIUtil.toOpenAI(removeHtmlTag(content), "echo");
+//            OpenAIUtil.textToSpeech(removeHtmlTag("Girgashites"), "echo");
 //            AWSUtil.putScriptToS3(script, "2023-12-10");
 
         } catch (Exception e) {

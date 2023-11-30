@@ -103,6 +103,9 @@ dependencies {
     implementation group: 'software.amazon.awssdk', name: 'transcribestreaming', version: '2.21.29'
     // https://mvnrepository.com/artifact/com.google.code.gson/gson
     implementation group: 'com.google.code.gson', name: 'gson', version: '2.10.1'
+    // https://mvnrepository.com/artifact/com.github.houbb/opencc4j
+    implementation group: 'com.github.houbb', name: 'opencc4j', version: '1.8.1'
+
 
 //    implementation 'org.postgresql:postgresql:42.2.14'
 

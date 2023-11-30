@@ -14,7 +14,7 @@ public abstract class AbstractComposer {
     protected PhoneticIntf phonetic = ThreadStorage.getPhonetics();
     protected AbbreIntf abbr = ThreadStorage.getAbbreviation();
     protected VerseIntf verse = ThreadStorage.getVerse();
-
+    
     public AbstractComposer(AbstractArticleParser parser) {
         this.parser = parser;
     }
@@ -25,11 +25,14 @@ public abstract class AbstractComposer {
 
     }
 
-    protected String processSentence(String content) {
-        return replacePauseTag(replacePunctuationWithPause(phonetic.convert(content)));
+    protected String processSentence(String content, boolean fixPronu) {
+        if( fixPronu ){
+            return replacePauseTag(replacePunctuationWithPause(phonetic.convert(content)));
+        }
+        return replacePauseTag(replacePunctuationWithPause(content));
     }
 
-    protected abstract String toPolly();
+    protected abstract String toPolly(boolean fixPronu);
     
 
     protected String prettyPrintln(String input) throws TransformerException {

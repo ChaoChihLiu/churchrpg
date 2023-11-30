@@ -31,7 +31,7 @@ public class RPGToAudio {
         logger.info("original : " + convertData.getContent());
 
         AbstractComposer composer = initComposer(appProperties.getProperty("language"), convertData.getContent(), convertData.getTitle());
-        String content_modified = composer.toPolly();
+        String content_modified = composer.toPolly(true);
 
         logger.info("content : " + content_modified);
 
