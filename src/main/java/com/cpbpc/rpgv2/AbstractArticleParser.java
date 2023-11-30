@@ -1,6 +1,7 @@
 package com.cpbpc.rpgv2;
 
 import com.cpbpc.comms.AppProperties;
+import com.cpbpc.comms.OpenAIUtil;
 import com.cpbpc.comms.ThreadStorage;
 import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -47,8 +48,9 @@ public abstract class AbstractArticleParser {
 
     public static void main(String args[]) {
         try {
+            String language = "chinese";
 
-            String propPath = "/Users/liuchaochih/Documents/GitHub/churchrpg/src/main/resources/app-english.properties";
+            String propPath = "/Users/liuchaochih/Documents/GitHub/churchrpg/src/main/resources/app-"+language+".properties";
             FileInputStream in = new FileInputStream(propPath);
             AppProperties.getConfig().load(in);
 
@@ -82,14 +84,15 @@ public abstract class AbstractArticleParser {
                 logger.info(e.getMessage());
             }
 
-            String content = Files.readString(new File("src/main/resources/english-sample.txt").toPath());
+            String content = Files.readString(new File("src/main/resources/"+language+"-sample.txt").toPath());
 
-//            AbstractArticleParser parser = new com.cpbpc.rpgv2.en.ArticleParser(content, "你们的生命是什么呢？");
-            AbstractArticleParser parser = new com.cpbpc.rpgv2.en.ArticleParser(content, "JOSHUA SPOKE OF THE SUM OF HIS SERVICE");
-            AbstractComposer composer = new com.cpbpc.rpgv2.en.Composer(parser);
+//            AbstractArticleParser parser = new com.cpbpc.rpgv2.zh.ArticleParser(content, "不结果子被诅咒");
+//            AbstractArticleParser parser = new com.cpbpc.rpgv2.en.ArticleParser(content, "JOSHUA SPOKE OF THE SUM OF HIS SERVICE");
+//            AbstractComposer composer = new com.cpbpc.rpgv2.en.Composer(parser);
 
-            String script = composer.toPolly();
-            System.out.println(script);
+//            String script = composer.toPolly();
+            System.out.println(removeHtmlTag(content));
+            OpenAIUtil.toOpenAI(removeHtmlTag(content), "echo");
 //            AWSUtil.putScriptToS3(script, "2023-12-30");
 
         } catch (Exception e) {

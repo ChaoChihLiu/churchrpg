@@ -3,6 +3,7 @@ package com.cpbpc.dailydevotion;
 import com.cpbpc.comms.AWSUtil;
 import com.cpbpc.comms.AppProperties;
 import com.cpbpc.comms.DBUtil;
+import com.cpbpc.comms.OpenAIUtil;
 import com.cpbpc.comms.PunctuationTool;
 import com.cpbpc.comms.ThreadStorage;
 import com.cpbpc.rpgv2.AbbreIntf;
@@ -45,6 +46,7 @@ public class DevotionTTS {
                 String raw = PdfTextExtractor.getTextFromPage(reader, i);
                 raw = PunctuationTool.changeFullCharacter(raw);
                 System.out.println("original : " + raw);
+                OpenAIUtil.toOpenAI(raw, "echo");
 //                String result = phonetic.convert(abbr.convert(verse.convert(PunctuationTool.changeFullCharacter(RegExUtils.replaceAll(raw, System.lineSeparator(), " ")))));
 //                result = PunctuationTool.replacePunctuationWithBreakTag(result).replaceAll("<break", System.lineSeparator() + "<break");
                 Parser parser = new Parser(raw);
@@ -75,7 +77,7 @@ public class DevotionTTS {
                 result = PunctuationTool.replacePunctuationWithBreakTag(result).replaceAll("<break", System.lineSeparator() + "<break");
                 result = AWSUtil.toPolly(result);
                 System.out.println("modified : " + result);
-                AWSUtil.putScriptToS3(result, parser.date, parser.moment);
+//                AWSUtil.putScriptToS3(result, parser.date, parser.moment);
 
                 if( i == 3 ){
                     break;
