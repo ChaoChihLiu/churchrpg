@@ -63,7 +63,7 @@ public class Composer extends AbstractComposer {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        result.append("結束經文朗讀").append(pause(400));
+        result.append(pause(800)).append("結束經文朗讀").append(pause(800));
         result.append("引用經文").append(pause(200))
                 .append(processSentence(parser.readFocusScripture())).append(pause(400));
 

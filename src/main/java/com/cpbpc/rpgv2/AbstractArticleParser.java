@@ -1,13 +1,14 @@
 package com.cpbpc.rpgv2;
 
 import com.cpbpc.comms.AppProperties;
-import com.cpbpc.comms.OpenAIUtil;
 import com.cpbpc.comms.ThreadStorage;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.nio.file.Files;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -86,14 +87,22 @@ public abstract class AbstractArticleParser {
 
             String content = Files.readString(new File("src/main/resources/"+language+"-sample.txt").toPath());
 
-//            AbstractArticleParser parser = new com.cpbpc.rpgv2.zh.ArticleParser(content, "不结果子被诅咒");
-//            AbstractArticleParser parser = new com.cpbpc.rpgv2.en.ArticleParser(content, "JOSHUA SPOKE OF THE SUM OF HIS SERVICE");
-//            AbstractComposer composer = new com.cpbpc.rpgv2.en.Composer(parser);
-
-//            String script = composer.toPolly();
-            System.out.println(removeHtmlTag(content));
-            OpenAIUtil.toOpenAI(removeHtmlTag(content), "echo");
-//            AWSUtil.putScriptToS3(script, "2023-12-30");
+            AbstractArticleParser parser = null;
+            AbstractComposer composer = null;
+            if( language.equals("chinese") ){
+                parser = new com.cpbpc.rpgv2.zh.ArticleParser(content, "你们的生命是什么呢？");
+                composer = new com.cpbpc.rpgv2.zh.Composer(parser);
+            } else{
+                parser = new com.cpbpc.rpgv2.en.ArticleParser(content, "JOSHUA SPOKE OF THE SUM OF HIS SERVICE");
+                composer = new com.cpbpc.rpgv2.en.Composer(parser);
+            }
+            
+            String script = composer.toPolly();
+            IOUtils.write(script, new FileOutputStream(new File("script.txt")));
+            IOUtils.write(removeHtmlTag(script), new FileOutputStream(new File("script-no-tag.txt")));
+            System.out.println(script);
+//            OpenAIUtil.toOpenAI(removeHtmlTag(content), "echo");
+//            AWSUtil.putScriptToS3(script, "2023-12-10");
 
         } catch (Exception e) {
             e.printStackTrace();

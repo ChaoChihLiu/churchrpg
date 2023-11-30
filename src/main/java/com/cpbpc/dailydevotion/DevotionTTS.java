@@ -46,7 +46,7 @@ public class DevotionTTS {
                 String raw = PdfTextExtractor.getTextFromPage(reader, i);
                 raw = PunctuationTool.changeFullCharacter(raw);
                 System.out.println("original : " + raw);
-                OpenAIUtil.toOpenAI(raw, "echo");
+                OpenAIUtil.textToSpeech(raw, "echo");
 //                String result = phonetic.convert(abbr.convert(verse.convert(PunctuationTool.changeFullCharacter(RegExUtils.replaceAll(raw, System.lineSeparator(), " ")))));
 //                result = PunctuationTool.replacePunctuationWithBreakTag(result).replaceAll("<break", System.lineSeparator() + "<break");
                 Parser parser = new Parser(raw);

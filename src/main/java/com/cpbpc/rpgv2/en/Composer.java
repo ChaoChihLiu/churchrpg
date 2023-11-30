@@ -40,7 +40,7 @@ public class Composer extends AbstractComposer {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        buffer.append("End of scripture reading").append(pause(400));
+        buffer.append("800").append("End of scripture reading").append(pause(800));
         buffer.append("The scripture passage in focus is").append(pause(200))
                 .append(processSentence(parser.readFocusScripture())).append(pause(400));
 
