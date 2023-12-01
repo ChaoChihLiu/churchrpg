@@ -106,8 +106,8 @@ dependencies {
     // https://mvnrepository.com/artifact/com.github.houbb/opencc4j
     implementation group: 'com.github.houbb', name: 'opencc4j', version: '1.8.1'
 
-
-//    implementation 'org.postgresql:postgresql:42.2.14'
+    // https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-core
+    implementation group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.22.0'
 
 }
 

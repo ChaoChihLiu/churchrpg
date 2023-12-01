@@ -24,7 +24,7 @@ import static com.cpbpc.comms.PunctuationTool.replacePunctuationWithPause;
 import static com.cpbpc.comms.TextUtil.removeHtmlTag;
 
 
-class BibleVerseScraper {
+public class BibleVerseScraper {
 
     private static final String[] hyphens_unicode = new String[]{"\\u002d", "\\u2010", "\\u2011", "\\u2012", "\\u2013", "\\u2015", "\\u2212"};
     private static Map<String, String> textCache = new HashMap<>();
@@ -86,6 +86,9 @@ class BibleVerseScraper {
     }
 
     public static String scrap(String book, String verseStr) throws IOException {
+        return scrap(book, verseStr, "");
+    }
+    public static String scrap(String book, String verseStr, String chapterBreak) throws IOException {
         List<String> result = new ArrayList<>();
         if ((StringUtils.countMatches(verseStr, "篇") >= 2
                 || StringUtils.countMatches(verseStr, "章") >= 2)
@@ -115,7 +118,7 @@ class BibleVerseScraper {
         } else {
             result.addAll(returnVerses(verseStr));
         }
-        return attachBibleVerses(book, result);
+        return attachBibleVerses(book, result, chapterBreak);
     }
 
     private static String[] splitVerses(String verseStr, List<String> spliters) {
@@ -132,7 +135,7 @@ class BibleVerseScraper {
         return new String[]{};
     }
 
-    private static String attachBibleVerses(String book, List<String> verses) throws IOException {
+    private static String attachBibleVerses(String book, List<String> verses, String chapterBreak) throws IOException {
         StringBuffer buffer = new StringBuffer();
         String currentBookChapter = "";
         for (String verse : verses) {
@@ -161,7 +164,7 @@ class BibleVerseScraper {
             }
 
             if (verseNum == 0) {
-                buffer.append(recurBibleVerse("", book, chapterNum, verseNum));
+                buffer.append(recurBibleVerse("", book, chapterNum, verseNum, chapterBreak));
             } else {
                 String result = grabBibleVerse(book, chapterNum, verseNum);
                 if (StringUtils.isEmpty(result)) {
@@ -178,14 +181,17 @@ class BibleVerseScraper {
         return replacePunctuationWithPause(changeFullCharacter(result));
     }
 
-    private static String recurBibleVerse(String grabResult, String book, int chapter, int verse) throws IOException {
+    private static String recurBibleVerse(String grabResult, String book, int chapter, int verse, String chapterBreak) throws IOException {
         if (verse == 0) {
-            return recurBibleVerse("", book, chapter, 1);
+            return recurBibleVerse("", book, chapter, 1, chapterBreak);
         }
 
         StringBuffer buffer = new StringBuffer(grabResult);
         String response = grabBibleVerse(book, chapter, verse);
         if (StringUtils.isEmpty(response)) {
+            if( !StringUtils.isEmpty(chapterBreak) ){
+                return buffer.toString() + System.lineSeparator() + chapterBreak;
+            }
             return buffer.toString();
         }
         buffer
@@ -194,7 +200,7 @@ class BibleVerseScraper {
                 .append(response).append(System.lineSeparator());
 
         int i = verse + 1;
-        return recurBibleVerse(buffer.toString(), book, chapter, i);
+        return recurBibleVerse(buffer.toString(), book, chapter, i, chapterBreak);
     }
 
     private static String grabBibleVerse(String book, int chapter, int verse) throws IOException {

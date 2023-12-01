@@ -1,5 +1,7 @@
 package com.cpbpc.comms;
 
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -9,6 +11,45 @@ public class AppProperties {
     private static final AtomicLong totalLength = new AtomicLong(0);
 
     private AppProperties() {
+    }
+
+    public static  void loadConfig(String filePath){
+        String propPath = filePath;
+        FileInputStream in = null;
+        try {
+            in = new FileInputStream(propPath);
+            appProperties.load(in);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (IOException e) {
+                }
+            }
+        }
+    }
+
+    public static void loadConfig(){
+        String propPath = System.getProperty("app.properties");
+        FileInputStream in = null;
+        try {
+            in = new FileInputStream(propPath);
+            appProperties.load(in);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (IOException e) {
+                }
+            }
+        }
+
     }
 
     public static Properties getConfig() {

@@ -43,9 +43,9 @@ import java.util.regex.Pattern;
 
 public class GenTelegramExcel {
     private static final Properties appProperties = AppProperties.getConfig();
-    private static final String propPath = "./src/main/resources/app-chinese.properties";
-    private static final String theme = "神所使用的人：基于士师的人生";
-    private static final String writer = "纳尔逊•恩乌诺牧师博士";
+    private static final String propPath = "./src/main/resources/app-english.properties";
+    private static final String theme = "Psalm 119:God’s Word Magnified";
+    private static final String writer = "Rev Dr Jose Trinipil G. Lagapa";
     private static final String year = "2024";
     private static final String month = "01";
     private static final boolean isTest = false;

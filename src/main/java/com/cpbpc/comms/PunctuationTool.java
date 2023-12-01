@@ -135,5 +135,14 @@ public class PunctuationTool {
 
         return result;
     }
+    public static String replacePauseTag( String input, String replacement ){
+        Matcher matcher = pattern.matcher(input);
+        String result = input;
+        while( matcher.find() ){
+            result = result.replace(matcher.group(0), replacement);
+        }
+
+        return result;
+    }
 
 }

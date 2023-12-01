@@ -62,18 +62,21 @@ public class BibleVerseScraper {
 //                String verseStr = "32:7";
 //        String verseStr = "31:1,7, 9,11";
 //        String verseStr = "3:7-9";
-//        String book = "Psalms";
-        String book = "Proverbs";
+        String book = "Psalms";
+//        String book = "Proverbs";
 //        String verseStr = "32:7-34";
 //        String verseStr = "32:7-34:9";
 //        String verseStr = "24:1-8";
-        String verseStr = "24-26:8";
+//        String verseStr = "24-26:8";
 //        String verseStr = "9";
-//        String verseStr = "34-36";
+        String verseStr = "34-36";
         System.out.println(scrap(book, verseStr));
     }
-
     public static String scrap(String book, String verseStr) throws IOException {
+        return scrap(book, verseStr, "");
+    }
+
+    public static String scrap(String book, String verseStr, String chapterBreak) throws IOException {
         List<String> result = new ArrayList<>();
         if ((StringUtils.countMatches(verseStr, ":") >= 1
                 || !StringUtils.contains(verseStr, ":")) && containHyphen(verseStr)) {
@@ -81,9 +84,9 @@ public class BibleVerseScraper {
 
             int hyphenPosition = verseStr.indexOf(hyphen);
             int colonPosition = verseStr.indexOf(":", 0);
-            if (colonPosition < hyphenPosition) {
+            if (colonPosition > 0 && colonPosition < hyphenPosition) {
                 result.addAll(returnVerses(verseStr));
-                return attachBibleVerses(book, result);
+                return attachBibleVerses(book, result, chapterBreak);
             }
 
             String[] array = StringUtils.split(verseStr, hyphen);
@@ -113,10 +116,10 @@ public class BibleVerseScraper {
         } else {
             result.addAll(returnVerses(verseStr));
         }
-        return attachBibleVerses(book, result);
+        return attachBibleVerses(book, result, chapterBreak);
     }
 
-    private static String attachBibleVerses(String book, List<String> verses) throws IOException {
+    private static String attachBibleVerses(String book, List<String> verses, String chapterBreak) throws IOException {
         StringBuffer buffer = new StringBuffer();
         String currentBookChapter = "";
         for (String verse : verses) {
@@ -145,7 +148,7 @@ public class BibleVerseScraper {
             }
 
             if (verseNum == 0) {
-                buffer.append(recurBibleVerse("", book, chapterNum, verseNum));
+                buffer.append(recurBibleVerse("", book, chapterNum, verseNum, chapterBreak));
             } else {
                 String result = grabBibleVerse(book, chapterNum, verseNum);
                 if (StringUtils.isEmpty(result)) {
@@ -160,14 +163,17 @@ public class BibleVerseScraper {
         return buffer.toString();
     }
 
-    private static String recurBibleVerse(String grabResult, String book, int chapter, int verse) throws IOException {
+    private static String recurBibleVerse(String grabResult, String book, int chapter, int verse, String chapterBreak) throws IOException {
         if (verse == 0) {
-            return recurBibleVerse("", book, chapter, 1);
+            return recurBibleVerse("", book, chapter, 1, chapterBreak);
         }
 
         StringBuffer buffer = new StringBuffer(grabResult);
         String response = grabBibleVerse(book, chapter, verse);
         if (StringUtils.isEmpty(response)) {
+            if( !StringUtils.isEmpty(chapterBreak) ){
+                return buffer.toString() + System.lineSeparator()+chapterBreak;
+            }
             return buffer.toString();
         }
         buffer
@@ -175,7 +181,7 @@ public class BibleVerseScraper {
                 .append("[pause]").append(response).append(System.lineSeparator());
 
         int i = verse + 1;
-        return recurBibleVerse(buffer.toString(), book, chapter, i);
+        return recurBibleVerse(buffer.toString(), book, chapter, i, chapterBreak);
     }
 
     private static String grabBibleVerse(String book, int chapter, int verse) throws IOException {

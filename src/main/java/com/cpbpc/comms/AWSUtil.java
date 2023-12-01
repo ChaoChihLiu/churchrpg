@@ -31,11 +31,10 @@ public class AWSUtil {
                     .build();
         }
     }
-//    private static final AwsBasicCredentials awsCredentials = AwsBasicCredentials.create(accessKeyId, secretKey);
-//    private static final AmazonS3 s3Client = AmazonS3Client.builder().withRegion(AP_SOUTHEAST_1)
-//        .credentialsProvider(() -> awsCredentials)
-//        .build();
-
+    
+    private static void saveToS3(String content, String bucketName, String objectKey, String audioKey) throws IOException {
+        saveToS3(content, bucketName, objectKey, "", audioKey);
+    }
 
     private static void saveToS3(String content, String bucketName, String objectKey, String publishDate_str, String audioKey) throws IOException {
         try {
@@ -45,16 +44,18 @@ public class AWSUtil {
             PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName, objectKey, inputStream, metadata);
 
             List<Tag> tags = new ArrayList<>();
-            tags.add(new Tag("publish_date", publishDate_str));
+            if( !StringUtils.isNullOrEmpty(publishDate_str) ){
+                tags.add(new Tag("publish_date", publishDate_str));
+            }
             tags.add(new Tag("voice_id", AppProperties.getConfig().getProperty("voice_id")));
             tags.add(new Tag("category", URLDecoder.decode(AppProperties.getConfig().getProperty("content_category"))));
             tags.add(new Tag("audio_key", audioKey));
-            tags.add(new Tag("name_prefix", AppProperties.getConfig().getProperty("name_prefix")));
+            if( AppProperties.getConfig().containsKey("name_prefix") ){
+                tags.add(new Tag("name_prefix", AppProperties.getConfig().getProperty("name_prefix")));
+            }
             tags.add(new Tag("output_bucket", AppProperties.getConfig().getProperty("output_bucket")));
             tags.add(new Tag("output_format", AppProperties.getConfig().getProperty("output_format")));
             tags.add(new Tag("output_prefix", AppProperties.getConfig().getProperty("output_prefix")));
-
-            logger.info("tags : " + tags.toString());
             
             putObjectRequest.setStorageClass(StorageClass.IntelligentTiering);
             putObjectRequest.setTagging(new ObjectTagging(tags));
@@ -63,6 +64,25 @@ public class AWSUtil {
         } catch (IOException e) {
             throw e;
         }
+    }
+
+    public static void putBibleScriptToS3(String content, String book, String chapter, String verseNum) throws IOException {
+
+        book = StringUtils.replace(book, " ", "");
+        String bucketName = AppProperties.getConfig().getProperty("script_bucket");
+        String prefix = AppProperties.getConfig().getProperty("script_prefix");
+        if (!prefix.endsWith("/")) {
+            prefix += "/";
+        }
+
+        String nameToBe = chapter+"/"+verseNum;
+        String objectType = AppProperties.getConfig().getProperty("script_format");
+        String objectKey = prefix + book + "/" + nameToBe + "." + objectType;
+        String audioKey =  AppProperties.getConfig().getProperty("output_prefix") + book + "/" + nameToBe + "."
+                + AppProperties.getConfig().getProperty("output_format");
+
+        saveToS3(content, bucketName, objectKey, audioKey);
+
     }
 
     public static void putScriptToS3(String content, String publishDate_str) throws IOException {
