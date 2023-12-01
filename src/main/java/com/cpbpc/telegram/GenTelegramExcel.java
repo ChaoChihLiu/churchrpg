@@ -2,6 +2,7 @@ package com.cpbpc.telegram;
 
 import com.cpbpc.comms.AppProperties;
 import com.cpbpc.comms.DBUtil;
+import com.cpbpc.comms.SecretUtil;
 import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -42,9 +43,12 @@ import java.util.regex.Pattern;
 
 public class GenTelegramExcel {
     private static final Properties appProperties = AppProperties.getConfig();
-    private static final String propPath = "./src/main/resources/app-english.properties";
-    private static final String theme = "The Book of Joshua";
-    private static final String writer = "Rev Dr Michael Koech";
+    private static final String propPath = "./src/main/resources/app-chinese.properties";
+    private static final String theme = "神所使用的人：基于士师的人生";
+    private static final String writer = "纳尔逊•恩乌诺牧师博士";
+    private static final String year = "2024";
+    private static final String month = "01";
+    private static final boolean isTest = false;
 
     /*
     ✝️ 你们在基督里是完整的
@@ -74,10 +78,10 @@ public class GenTelegramExcel {
         loadProperties();
         initAbbre();
 
-        LocalDate currentDate = LocalDate.of(2023, 12, 1);
+        LocalDate currentDate = LocalDate.of(Integer.parseInt(year), Integer.parseInt(month), 01);
         LocalDate lastDayOfMonth = YearMonth.from(currentDate).atEndOfMonth();
 
-        List<Map<String, String>> rows = fetchData(lastDayOfMonth.getYear(), lastDayOfMonth.getMonthValue());
+        List<Map<String, String>> rows = fetchData();
 
 
         // Create a new Excel workbook
@@ -97,9 +101,9 @@ public class GenTelegramExcel {
                             "\uD83D\uDCD6" + " " + grepThemeVerses(dataRow) + "\n" +
                             genEmojiWritingHand() + " " + writer + "\n" +
                             "\n" +
-                            "\uD83D\uDDE3" + " " + shortenURL(genAudioLink(dataRow)) + "\n" +
+                            "\uD83D\uDDE3" + " " + shortenURL(genAudioLink(dataRow), isTest) + "\n" +
                             "\n" +
-                            "\uD83D\uDCDD" + " " + shortenURL(genArticleLink(dataRow))
+                            "\uD83D\uDCDD" + " " + shortenURL(genArticleLink(dataRow), isTest)
             );
             cell.setCellValue(richText);
             CellStyle cellStyle = workbook.createCellStyle();
@@ -127,9 +131,11 @@ public class GenTelegramExcel {
         return result;
     }
 
-    private static String shortenURL(String link) throws UnsupportedEncodingException {
-//        return link;
-        String accessKey = "";
+    private static String shortenURL(String link, boolean isTest) throws UnsupportedEncodingException {
+        if(isTest){
+            return link;
+        }
+        String accessKey = SecretUtil.getBitlyKey();
         String requestBody = "{\"long_url\":\"" + link + "\", \"domain\":\"bit.ly\", \"group_guid\":\"Bn7fexZnrBp\"}";
         StringEntity entity = new StringEntity(requestBody);
         HttpClient httpClient = HttpClientBuilder.create().build();
@@ -352,7 +358,7 @@ public class GenTelegramExcel {
 
     }
 
-    private static List<Map<String, String>> fetchData(int year, int month) throws SQLException {
+    private static List<Map<String, String>> fetchData() throws SQLException {
         List<Map<String, String>> list = new ArrayList<>();
 
         String category = URLDecoder.decode(appProperties.getProperty("content_category"));

@@ -22,4 +22,7 @@ public class SecretUtil {
         return secrets.getProperty("openai_api_key");
     }
 
+    public static String getBitlyKey() {
+        return secrets.getProperty("bitly_api_key");
+    }
 }

@@ -10,14 +10,18 @@ import com.amazonaws.services.s3.model.StorageClass;
 import com.amazonaws.services.s3.model.Tag;
 import com.amazonaws.util.StringInputStream;
 import com.amazonaws.util.StringUtils;
+import com.cpbpc.rpgv2.RPGToAudio;
 
+import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 public class AWSUtil {
+
+    private static Logger logger = Logger.getLogger(RPGToAudio.class.getName());
 
     private static AmazonS3 s3Client = null;
     static{
@@ -33,23 +37,7 @@ public class AWSUtil {
 //        .build();
 
 
-    public static void putScriptToS3(String content, String publishDate_str) throws UnsupportedEncodingException {
-
-        String bucketName = AppProperties.getConfig().getProperty("script_bucket");
-        String prefix = AppProperties.getConfig().getProperty("script_prefix");
-        if (!prefix.endsWith("/")) {
-            prefix += "/";
-        }
-
-        String publishMonth = publishDate_str.split("-")[0] + "_" + publishDate_str.split("-")[1];
-        String nameToBe = AppProperties.getConfig().getProperty("name_prefix") + publishDate_str.replaceAll("-", "");
-        String objectType = AppProperties.getConfig().getProperty("script_format");
-        String objectKey = prefix + publishMonth + "/" + nameToBe + "." + objectType;
-        String audioKey =  AppProperties.getConfig().getProperty("output_prefix")
-                            + publishMonth + "/"
-                            + nameToBe + "."
-                            + AppProperties.getConfig().getProperty("output_format");
-
+    private static void saveToS3(String content, String bucketName, String objectKey, String publishDate_str, String audioKey) throws IOException {
         try {
             InputStream inputStream = new StringInputStream(content);
             // Upload the file to S3
@@ -66,16 +54,39 @@ public class AWSUtil {
             tags.add(new Tag("output_format", AppProperties.getConfig().getProperty("output_format")));
             tags.add(new Tag("output_prefix", AppProperties.getConfig().getProperty("output_prefix")));
 
+            logger.info("tags : " + tags.toString());
+            
             putObjectRequest.setStorageClass(StorageClass.IntelligentTiering);
             putObjectRequest.setTagging(new ObjectTagging(tags));
 
             s3Client.putObject(putObjectRequest);
-        } catch (Exception e) {
+        } catch (IOException e) {
             throw e;
         }
     }
 
-    public static void putScriptToS3(String content, String publishDate_str, String timing) throws UnsupportedEncodingException {
+    public static void putScriptToS3(String content, String publishDate_str) throws IOException {
+
+        String bucketName = AppProperties.getConfig().getProperty("script_bucket");
+        String prefix = AppProperties.getConfig().getProperty("script_prefix");
+        if (!prefix.endsWith("/")) {
+            prefix += "/";
+        }
+
+        String publishMonth = publishDate_str.split("-")[0] + "_" + publishDate_str.split("-")[1];
+        String nameToBe = AppProperties.getConfig().getProperty("name_prefix") + publishDate_str.replaceAll("-", "");
+        String objectType = AppProperties.getConfig().getProperty("script_format");
+        String objectKey = prefix + publishMonth + "/" + nameToBe + "." + objectType;
+        String audioKey =  AppProperties.getConfig().getProperty("output_prefix")
+                            + publishMonth + "/"
+                            + nameToBe + "."
+                            + AppProperties.getConfig().getProperty("output_format");
+
+        saveToS3(content, bucketName, objectKey, publishDate_str, audioKey);
+
+    }
+
+    public static void putScriptToS3(String content, String publishDate_str, String timing) throws IOException {
 
         String bucketName = AppProperties.getConfig().getProperty("script_bucket");
         String prefix = AppProperties.getConfig().getProperty("script_prefix");
@@ -93,29 +104,7 @@ public class AWSUtil {
                 + nameToBe + "."
                 + AppProperties.getConfig().getProperty("output_format");
 
-        try {
-            InputStream inputStream = new StringInputStream(content);
-            // Upload the file to S3
-            ObjectMetadata metadata = new ObjectMetadata();
-            PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName, objectKey, inputStream, metadata);
-
-            List<Tag> tags = new ArrayList<>();
-            tags.add(new Tag("publish_date", publishDate_str));
-            tags.add(new Tag("engine", AppProperties.getConfig().getProperty("engine")));
-            tags.add(new Tag("voice_id", AppProperties.getConfig().getProperty("voice_id")));
-            tags.add(new Tag("category", URLDecoder.decode(AppProperties.getConfig().getProperty("content_category"))));
-            tags.add(new Tag("audio_key", audioKey));
-            tags.add(new Tag("output_bucket", AppProperties.getConfig().getProperty("output_bucket")));
-            tags.add(new Tag("output_format", AppProperties.getConfig().getProperty("output_format")));
-            tags.add(new Tag("output_prefix", AppProperties.getConfig().getProperty("output_prefix")));
-
-            putObjectRequest.setStorageClass(StorageClass.IntelligentTiering);
-            putObjectRequest.setTagging(new ObjectTagging(tags));
-
-            s3Client.putObject(putObjectRequest);
-        } catch (Exception e) {
-            throw e;
-        }
+        saveToS3(content, bucketName, objectKey, publishDate_str, audioKey);
     }
 
     public static String toPolly(String content){

@@ -13,8 +13,8 @@ public class URLShortener {
 
     public static void main(String[] args) throws UnsupportedEncodingException {
 
-        String year = "2023";
-        String month = "12";
+        String year = "2024";
+        String month = "01";
 
         for (int i = 1; i <= 31; i++) {
             String date = String.valueOf(i);
@@ -26,9 +26,9 @@ public class URLShortener {
             String accessKey = "";
 
             // Replace YOUR_LONG_URL with the URL you want to shorten
-                String longUrl = "https://cpbpc-rpg-audio.s3.ap-southeast-1.amazonaws.com/rpg/"+year+"_"+month+"/arpg"+year+month+date+".mp3";
+//                String longUrl = "https://cpbpc-rpg-audio.s3.ap-southeast-1.amazonaws.com/rpg/"+year+"_"+month+"/arpg"+year+month+date+".mp3";
 
-//            String longUrl = "https://cpbpc-rpg-audio.s3.ap-southeast-1.amazonaws.com/rpg-chinese/2023_12/crpg202312" + date + ".mp3";
+            String longUrl = "https://cpbpc-rpg-audio.s3.ap-southeast-1.amazonaws.com/rpg-chinese/"+year+"_"+month+"/crpg"+year+month+date+ ".mp3";
             System.out.println(longUrl);
 
             // Construct the API endpoint URL
