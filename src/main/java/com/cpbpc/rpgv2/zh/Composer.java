@@ -53,12 +53,15 @@ public class Composer extends AbstractComposer {
 
         try {
             for (String ref : parser.readTopicVerses()) {
-                count++;
                 List<String> refs = verse.analyseVerse(ref);
-                result.append("圣经经文第" + count + "段").append(pause(200))
-                        .append(processSentence(verse.convert(ref), fixPronu)).append(pause(400))
-                        .append(processSentence(BibleVerseScraper.scrap(mapBookAbbre(refs.get(0)), refs.get(1)), fixPronu))
-                ;
+                String book = refs.get(0);
+                for( int i=1; i<refs.size(); i++ ){
+                    count++;
+                    result.append("圣经经文第" + count + "段").append(pause(200))
+                            .append(processSentence(verse.convert(makeCompleteVerse(book, refs.get(1), refs.get(i))), fixPronu)).append(pause(400))
+                            .append(processSentence(BibleVerseScraper.scrap(mapBookAbbre(book), makeCompleteVerse(refs.get(1), refs.get(i))), fixPronu))
+                    ;
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -87,5 +90,54 @@ public class Composer extends AbstractComposer {
         }
 
         return "";
+    }
+
+    private String makeCompleteVerse(String reference, String verse) {
+
+        if( StringUtils.equals(reference, verse) ){
+            return reference;
+        }
+
+        if( StringUtils.contains(verse, "章") || StringUtils.contains(verse, "篇") ){
+            return verse;
+        }
+
+        if( !StringUtils.contains(reference, "章") && !StringUtils.contains(verse, "篇") ){
+            return verse;
+        }
+
+        String chapter = "";
+        if(StringUtils.contains(reference, "章")){
+            chapter = StringUtils.substring(reference, 0, StringUtils.indexOf(reference, "章")+1);
+        }
+        if(StringUtils.contains(reference, "篇")){
+            chapter = StringUtils.substring(reference, 0, StringUtils.indexOf(reference, "篇")+1);
+        }
+
+        return chapter + verse;
+    }
+    private String makeCompleteVerse(String book, String reference, String verse) {
+
+        if( StringUtils.equals(reference, verse) ){
+            return book + reference;
+        }
+
+        if( StringUtils.contains(verse, "章") || StringUtils.contains(verse, "篇") ){
+            return book + verse;
+        }
+
+        if( !StringUtils.contains(reference, "章") && !StringUtils.contains(verse, "篇") ){
+            return book + verse;
+        }
+
+        String chapter = "";
+        if(StringUtils.contains(reference, "章")){
+            chapter = StringUtils.substring(reference, 0, StringUtils.indexOf(reference, "章")+1);
+        }
+        if(StringUtils.contains(reference, "篇")){
+            chapter = StringUtils.substring(reference, 0, StringUtils.indexOf(reference, "篇")+1);
+        }
+
+        return book + chapter + verse;
     }
 }

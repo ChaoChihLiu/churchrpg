@@ -2,6 +2,8 @@ package com.cpbpc.telegram;
 
 import com.cpbpc.comms.AppProperties;
 import com.cpbpc.comms.DBUtil;
+import com.cpbpc.comms.NumberConverter;
+import com.cpbpc.comms.PunctuationTool;
 import com.cpbpc.comms.SecretUtil;
 import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
@@ -21,7 +23,6 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -43,12 +44,11 @@ import java.util.regex.Pattern;
 
 public class GenTelegramExcel {
     private static final Properties appProperties = AppProperties.getConfig();
-    private static final String propPath = "./src/main/resources/app-english.properties";
     private static final String theme = "Psalm 119:God’s Word Magnified";
     private static final String writer = "Rev Dr Jose Trinipil G. Lagapa";
     private static final String year = "2024";
     private static final String month = "01";
-    private static final boolean isTest = false;
+    private static final boolean isTest = true;
 
     /*
     ✝️ 你们在基督里是完整的
@@ -75,7 +75,8 @@ public class GenTelegramExcel {
 
     public static void main(String args[]) throws IOException, SQLException {
 
-        loadProperties();
+        AppProperties.loadConfig(System.getProperty("app.properties",
+                                                    "/Users/liuchaochih/Documents/GitHub/churchrpg/src/main/resources/app-chinese.properties"));
         initAbbre();
 
         LocalDate currentDate = LocalDate.of(Integer.parseInt(year), Integer.parseInt(month), 01);
@@ -282,11 +283,12 @@ public class GenTelegramExcel {
             return "";
         }
 
+        content = PunctuationTool.changeFullCharacter(content);
         int position = content.indexOf(ref, startFrom) + ref.length();
         StringBuilder builder = new StringBuilder(ref);
         List<String> verseParts = new ArrayList<>();
         List<String> punctuations = new ArrayList<>();
-        punctuations.addAll(List.of(":", ",", " ", ";", "节", "節", "章"));
+        punctuations.addAll(List.of(":", ",", " ", ";", "节", "節", "章", "篇", "十"));
         for (String hyphen_unicode : hyphens_unicode) {
             punctuations.add(StringEscapeUtils.unescapeJava(hyphen_unicode));
         }
@@ -294,6 +296,7 @@ public class GenTelegramExcel {
         verseParts.addAll(punctuations);
         for (int i = 0; i < 10; i++) {
             verseParts.add(String.valueOf(i));
+            verseParts.add(NumberConverter.toChineseNumber(i));
         }
         System.out.println("verseParts : " + verseParts.toString());
 
@@ -330,13 +333,6 @@ public class GenTelegramExcel {
 
         return builder.toString();
     }
-
-    private static void loadProperties() throws IOException {
-        FileInputStream in = null;
-        in = new FileInputStream(propPath);
-        appProperties.load(in);
-    }
-
 
     private static void initAbbre() throws SQLException {
         Connection conn = DBUtil.createConnection(appProperties);

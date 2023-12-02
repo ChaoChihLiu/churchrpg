@@ -68,7 +68,7 @@ public class VerseRegExp implements VerseIntf {
         List<String> verseParts = new ArrayList<>();
         verseParts.addAll(getAllowedPunctuations());
 
-        verseParts.addAll(List.of("上", "下", "章", "篇", "节", "節", "到", "至"));
+        verseParts.addAll(List.of("上", "下", "章", "篇", "节", "節", "到", "至", "十"));
         for (int i = 0; i < 10; i++) {
             verseParts.add(String.valueOf(i));
             verseParts.add(NumberConverter.toChineseNumber(i));
@@ -127,7 +127,28 @@ public class VerseRegExp implements VerseIntf {
             String grabbedVerse = appendNextCharTillCompleteVerse(line, m.group(0), m.end(), line.length());
             String verse_str = grabbedVerse.replaceFirst(m.group(2), "");
             result.add(book);
-            result.add(verse_str);
+            if( StringUtils.contains(verse_str, ",") || StringUtils.contains(verse_str, ";")
+                    || StringUtils.contains(verse_str, "，") || StringUtils.contains(verse_str, "；")  ){
+                List<String> list = splitVerseWithCommaAndSemicollon(verse_str);
+                result.addAll(list);
+            }else{
+                result.add(verse_str);
+            }
+
+        }
+
+        return result;
+    }
+
+    private List<String> splitVerseWithCommaAndSemicollon(String verseStr) {
+
+        List<String> splitters = List.of(",", ";", "，", "；");
+        List<String> result = new ArrayList<>();
+        for( String splitter : splitters ){
+            if( !StringUtils.contains(verseStr, splitter) ){
+                continue;
+            }
+            result.addAll(List.of(StringUtils.split(verseStr, splitter)));
         }
 
         return result;
@@ -197,11 +218,11 @@ public class VerseRegExp implements VerseIntf {
         }
 
         if (stringEndWithVerseNumber(result) &&
-                (!result.endsWith("節") || !result.endsWith(returnChapterWord(book)))) {
+                ( (!result.endsWith("節")||!result.endsWith("节")) || !result.endsWith(returnChapterWord(book)))) {
             result += decideChapterVerseWord(book, result);
         }
         if (stringEndWithPunctuationPattern(result) &&
-                (!result.endsWith("節") || !result.endsWith(returnChapterWord(book)))) {
+                ( (!result.endsWith("節")||!result.endsWith("节")) || !result.endsWith(returnChapterWord(book)))) {
             result = StringUtils.substring(result, 0, result.length() - 2) + decideChapterVerseWord(book, result) + StringUtils.substring(result, result.length() - 2, result.length() - 1);
         }
 
@@ -223,7 +244,7 @@ public class VerseRegExp implements VerseIntf {
                 hasChapter = true;
                 break;
             }
-            if ("節".equals(String.valueOf(c))) {
+            if ("節".equals(String.valueOf(c))||"节".equals(String.valueOf(c))) {
                 hasVerse = true;
                 break;
             }

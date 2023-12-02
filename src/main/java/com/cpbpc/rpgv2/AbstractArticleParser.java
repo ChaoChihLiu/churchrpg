@@ -49,7 +49,7 @@ public abstract class AbstractArticleParser {
 
     public static void main(String args[]) {
         try {
-            String language = "english";
+            String language = "chinese";
 
             String propPath = "/Users/liuchaochih/Documents/GitHub/churchrpg/src/main/resources/app-"+language+".properties";
             FileInputStream in = new FileInputStream(propPath);
@@ -90,7 +90,7 @@ public abstract class AbstractArticleParser {
             AbstractArticleParser parser = null;
             AbstractComposer composer = null;
             if( language.equals("chinese") ){
-                parser = new com.cpbpc.rpgv2.zh.ArticleParser(content, "你们的生命是什么呢？");
+                parser = new com.cpbpc.rpgv2.zh.ArticleParser(content, "俄陀聂(二)");
                 composer = new com.cpbpc.rpgv2.zh.Composer(parser);
             } else{
                 parser = new com.cpbpc.rpgv2.en.ArticleParser(content, "GOD’S WORD OVER ME");
@@ -188,9 +188,11 @@ public abstract class AbstractArticleParser {
         Pattern versePattern = getTopicVersePattern();
         Matcher m = versePattern.matcher(content);
         int anchorPoint = getAnchorPointAfterScriptureFocus();
-        while (m.find()) {
+        int start = 0;
+        while (m.find(start)) {
             String target = m.group();
             int position = m.end();
+            start = m.end();
             if (position > anchorPoint) {
                 break;
             }
