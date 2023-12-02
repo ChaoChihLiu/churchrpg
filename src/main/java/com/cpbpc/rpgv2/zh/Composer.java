@@ -68,7 +68,7 @@ public class Composer extends AbstractComposer {
                 .append(processSentence(parser.readFocusScripture(), fixPronu)).append(pause(400));
 
         result.append("今日灵修题目").append(pause(200))
-                .append(processSentence(parser.getTitle(), fixPronu)).append(pause(400))
+                .append(processSentence(parser.getTitle(), fixPronu)).append(pause(800))
         ;
 
         for (String paragraph : parser.readParagraphs()) {

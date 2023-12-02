@@ -77,6 +77,8 @@ public class BibleVerseScraper {
     }
 
     public static String scrap(String book, String verseStr, String chapterBreak) throws IOException {
+        book = convertOrdinalNumber(book);
+
         List<String> result = new ArrayList<>();
         if ((StringUtils.countMatches(verseStr, ":") >= 1
                 || !StringUtils.contains(verseStr, ":")) && containHyphen(verseStr)) {
@@ -117,6 +119,21 @@ public class BibleVerseScraper {
             result.addAll(returnVerses(verseStr));
         }
         return attachBibleVerses(book, result, chapterBreak);
+    }
+
+    private static String convertOrdinalNumber(String book) {
+
+        if( StringUtils.startsWithIgnoreCase(book, "first") ){
+            return StringUtils.replaceIgnoreCase(book, "first", "1");
+        }
+        if( StringUtils.startsWithIgnoreCase(book, "second") ){
+            return StringUtils.replaceIgnoreCase(book, "second", "2");
+        }
+        if( StringUtils.startsWithIgnoreCase(book, "third") ){
+            return StringUtils.replaceIgnoreCase(book, "third", "3");
+        }
+
+        return book;
     }
 
     private static String attachBibleVerses(String book, List<String> verses, String chapterBreak) throws IOException {

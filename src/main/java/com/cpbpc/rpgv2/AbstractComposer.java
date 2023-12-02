@@ -27,7 +27,7 @@ public abstract class AbstractComposer {
 
     protected String processSentence(String content, boolean fixPronu) {
         if( fixPronu ){
-            return replacePauseTag(replacePunctuationWithPause(phonetic.convert(content)));
+            return phonetic.convert(replacePauseTag(replacePunctuationWithPause(content)));
         }
         return replacePauseTag(replacePunctuationWithPause(content));
     }

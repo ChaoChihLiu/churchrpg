@@ -40,12 +40,12 @@ public class Composer extends AbstractComposer {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        buffer.append("800").append("End of scripture reading").append(pause(800));
+        buffer.append(pause(800)).append("End of scripture reading").append(pause(800));
         buffer.append("The scripture passage in focus is").append(pause(200))
                 .append(processSentence(parser.readFocusScripture(), fixPronu)).append(pause(400));
 
         buffer.append("Today's devotional is entitled").append(pause(200))
-                .append(processSentence(parser.getTitle(), fixPronu)).append(pause(400))
+                .append(processSentence(parser.getTitle(), fixPronu)).append(pause(800))
         ;
 
         for (String paragraph : parser.readParagraphs()) {

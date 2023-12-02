@@ -49,7 +49,7 @@ public abstract class AbstractArticleParser {
 
     public static void main(String args[]) {
         try {
-            String language = "chinese";
+            String language = "english";
 
             String propPath = "/Users/liuchaochih/Documents/GitHub/churchrpg/src/main/resources/app-"+language+".properties";
             FileInputStream in = new FileInputStream(propPath);
@@ -93,11 +93,11 @@ public abstract class AbstractArticleParser {
                 parser = new com.cpbpc.rpgv2.zh.ArticleParser(content, "你们的生命是什么呢？");
                 composer = new com.cpbpc.rpgv2.zh.Composer(parser);
             } else{
-                parser = new com.cpbpc.rpgv2.en.ArticleParser(content, "JOSHUA SPOKE OF THE SUM OF HIS SERVICE");
+                parser = new com.cpbpc.rpgv2.en.ArticleParser(content, "GOD’S WORD OVER ME");
                 composer = new com.cpbpc.rpgv2.en.Composer(parser);
             }
             
-            String script = composer.toPolly(false);
+            String script = composer.toPolly(true);
             IOUtils.write(script, new FileOutputStream(new File("script.txt")));
             IOUtils.write(removeHtmlTag(script), new FileOutputStream(new File("script-no-tag.txt")));
             System.out.println(script);
@@ -146,7 +146,7 @@ public abstract class AbstractArticleParser {
             Matcher matcher = p.matcher(input);
             while (matcher.find()) {
                 String orginal = matcher.group(2);
-                String replace = orginal.replaceAll("<[^>]*>|&nbsp;|&zwnj;|&raquo;|&laquo;|&gt;|\n", " ");
+                String replace = orginal.replaceAll("<[^>]*>|&nbsp;|&zwnj;|&raquo;|&laquo;|&gt;|\n|\r\n", " ");
                 replacements.put(orginal, replace);
             }
 

@@ -44,7 +44,7 @@ public class RPGToAudio {
         logger.info(" total length " + AppProperties.getTotalLength());
 
         logger.info("use.polly is " + Boolean.valueOf((String) appProperties.getOrDefault("use.polly", "true")));
-        if (Boolean.valueOf((String) appProperties.getOrDefault("use.polly", "true")) == true) {
+        if (Boolean.valueOf((String) appProperties.getOrDefault("use.polly", "false")) == true) {
             logger.info("send to polly script S3 bucket!");
             AWSUtil.putScriptToS3(content_modified, convertData.getStartDate());
         }
