@@ -5,8 +5,6 @@ import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.cpbpc.comms.AppProperties;
 import com.cpbpc.comms.DBUtil;
 
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.sql.Connection;
@@ -40,36 +38,16 @@ public class RPGTrigger implements RequestHandler {
 
     public static void main(String[] args) {
 
-//        System.setProperty("app.properties", "/Users/liuchaochih/Documents/GitHub/churchrpg/src/main/resources/app-english.properties");
-//        System.setProperty("publish.date", "2023-12-01");
-////        System.setProperty("publish.month", "");
-//        System.setProperty("use.polly", "true");
-
-        String propPath = System.getProperty("app.properties");
-        FileInputStream in = null;
-        try {
-            in = new FileInputStream(propPath);
-            appProperties.load(in);
-
-            if (null != System.getProperty("publish.date") && System.getProperty("publish.date").trim().length() > 0) {
-                appProperties.setProperty("publish.date", System.getProperty("publish.date"));
-            }
-            if (null != System.getProperty("publish.month") && System.getProperty("publish.month").trim().length() > 0) {
-                appProperties.setProperty("publish.month", System.getProperty("publish.month"));
-            }
-            appProperties.setProperty("use.polly", "false");
-            if (null != System.getProperty("use.polly") && Boolean.valueOf(System.getProperty("use.polly")) == true) {
-                appProperties.setProperty("use.polly", System.getProperty("use.polly"));
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            if (in != null) {
-                try {
-                    in.close();
-                } catch (IOException e) {
-                }
-            }
+        AppProperties.loadConfig(System.getProperty("app.properties", "/Users/liuchaochih/Documents/GitHub/churchrpg/src/main/resources/app-english.properties"));
+        if (null != System.getProperty("publish.date") && System.getProperty("publish.date").trim().length() > 0) {
+            appProperties.setProperty("publish.date", System.getProperty("publish.date"));
+        }
+        if (null != System.getProperty("publish.month") && System.getProperty("publish.month").trim().length() > 0) {
+            appProperties.setProperty("publish.month", System.getProperty("publish.month"));
+        }
+        appProperties.setProperty("use.polly", "false");
+        if (null != System.getProperty("use.polly") && Boolean.valueOf(System.getProperty("use.polly")) == true) {
+            appProperties.setProperty("use.polly", System.getProperty("use.polly"));
         }
 
         RPGTrigger trigger = new RPGTrigger();

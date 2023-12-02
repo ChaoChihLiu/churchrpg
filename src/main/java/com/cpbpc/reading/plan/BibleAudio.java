@@ -30,7 +30,8 @@ public class BibleAudio {
     private static Properties appProperties = AppProperties.getConfig();
 
     public static void main(String args[]) throws IOException, InvalidFormatException, SQLException, InterruptedException {
-        AppProperties.loadConfig("src/main/resources/app-bibleplan-english.properties");
+        AppProperties.loadConfig(System.getProperty("app.properties",
+                                                    "/Users/liuchaochih/Documents/GitHub/churchrpg/src/main/resources/app-bibleplan-english.properties"));
         
         File file = new File( appProperties.getProperty("reading_plan") );
         XSSFWorkbook workbook = new XSSFWorkbook(file);
@@ -78,7 +79,7 @@ public class BibleAudio {
         String[] verses = StringUtils.split(toBe, System.lineSeparator());
         int verseNum = 1;
         for( String verse : verses ){
-            Thread.sleep(1000);
+//            Thread.sleep(1000);
             String script = AWSUtil.toPolly(PunctuationTool.replacePunctuationWithBreakTag(verse));
             AWSUtil.putBibleScriptToS3(script, book, String.valueOf(chapterNum), String.valueOf(verseNum));
             verseNum++;

@@ -15,10 +15,10 @@ import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -26,13 +26,13 @@ import static com.cpbpc.comms.PunctuationTool.pause;
 
 public class DevotionTTS {
 
+    private static Logger logger = Logger.getLogger(DevotionTTS.class.getName());
 
     public static void main(String args[]) throws IOException {
 
         try {
-            String propPath = System.getProperty("app.properties");
-            FileInputStream in = new FileInputStream(propPath);
-            AppProperties.getConfig().load(in);
+            AppProperties.loadConfig(System.getProperty("app.properties",
+                    "/Users/liuchaochih/Documents/GitHub/churchrpg/src/main/resources/app-devotion.properties"));
             DBUtil.initStorage(AppProperties.getConfig());
 
             AbbreIntf abbr = ThreadStorage.getAbbreviation();
@@ -45,7 +45,7 @@ public class DevotionTTS {
                 StringBuilder text = new StringBuilder();
                 String raw = PdfTextExtractor.getTextFromPage(reader, i);
                 raw = PunctuationTool.changeFullCharacter(raw);
-                System.out.println("original : " + raw);
+                logger.info("original : " + raw);
                 OpenAIUtil.textToSpeech(raw, "echo");
 //                String result = phonetic.convert(abbr.convert(verse.convert(PunctuationTool.changeFullCharacter(RegExUtils.replaceAll(raw, System.lineSeparator(), " ")))));
 //                result = PunctuationTool.replacePunctuationWithBreakTag(result).replaceAll("<break", System.lineSeparator() + "<break");
@@ -76,7 +76,7 @@ public class DevotionTTS {
                 ;
                 result = PunctuationTool.replacePunctuationWithBreakTag(result).replaceAll("<break", System.lineSeparator() + "<break");
                 result = AWSUtil.toPolly(result);
-                System.out.println("modified : " + result);
+                logger.info("modified : " + result);
 //                AWSUtil.putScriptToS3(result, parser.date, parser.moment);
 
                 if( i == 3 ){

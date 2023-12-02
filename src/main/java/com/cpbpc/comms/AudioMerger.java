@@ -54,7 +54,8 @@ public class AudioMerger {
     }
     
     public static void main(String[] args) throws IOException, SQLException {
-        AppProperties.loadConfig("src/main/resources/app-bibleplan-english.properties");
+        AppProperties.loadConfig(System.getProperty("app.properties",
+                "/Users/liuchaochih/Documents/GitHub/churchrpg/src/main/resources/app-bibleplan-english.properties"));
         DBUtil.initStorage(AppProperties.getConfig());
         VerseIntf verseRegex = ThreadStorage.getVerse();
 
