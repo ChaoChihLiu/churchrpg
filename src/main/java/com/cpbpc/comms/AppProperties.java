@@ -13,6 +13,19 @@ public class AppProperties {
     private AppProperties() {
     }
 
+    public static boolean isChinese(){
+        if( appProperties.getProperty("language").equals("zh") ){
+            return true;
+        }
+        return false;
+    }
+    public static boolean isEnglish(){
+        if( appProperties.getProperty("language").equals("en") ){
+            return true;
+        }
+        return false;
+    }
+
     public static  void loadConfig(String filePath){
         String propPath = filePath;
         FileInputStream in = null;

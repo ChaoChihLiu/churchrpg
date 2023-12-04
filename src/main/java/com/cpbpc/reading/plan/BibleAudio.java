@@ -2,57 +2,59 @@ package com.cpbpc.reading.plan;
 
 import com.cpbpc.comms.AWSUtil;
 import com.cpbpc.comms.AppProperties;
+import com.cpbpc.comms.AudioMerger;
 import com.cpbpc.comms.DBUtil;
 import com.cpbpc.comms.PunctuationTool;
+import com.cpbpc.comms.SpreadSheetReader;
+import com.cpbpc.comms.TextUtil;
 import com.cpbpc.comms.ThreadStorage;
 import com.cpbpc.rpgv2.PhoneticIntf;
 import com.cpbpc.rpgv2.VerseIntf;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
-import org.apache.poi.ss.util.CellReference;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+import static com.cpbpc.comms.PunctuationTool.replacePauseTag;
+import static com.cpbpc.comms.PunctuationTool.replacePunctuationWithPause;
+import static com.cpbpc.comms.TextUtil.returnChapterWord;
+
 public class BibleAudio {
 
-    private XSSFWorkbook xssfWorkbook;
-    public BibleAudio(XSSFWorkbook workbook){
-        this.xssfWorkbook = workbook;
+    public BibleAudio(){
     }
 
     private static Properties appProperties = AppProperties.getConfig();
 
     public static void main(String args[]) throws IOException, InvalidFormatException, SQLException, InterruptedException {
         AppProperties.loadConfig(System.getProperty("app.properties",
-                                                    "/Users/liuchaochih/Documents/GitHub/churchrpg/src/main/resources/app-bibleplan-english.properties"));
-        
-        File file = new File( appProperties.getProperty("reading_plan") );
-        XSSFWorkbook workbook = new XSSFWorkbook(file);
-        BibleAudio bibleAudio = new BibleAudio(workbook);
-        List<String> verses = bibleAudio.convert();
-        initStorage();
-        VerseIntf verseRegex = ThreadStorage.getVerse();
+                                                    "/Users/liuchaochih/Documents/GitHub/churchrpg/src/main/resources/app-bibleplan-chinese.properties"));
 
-        String chapterBreak = "------";
+        initStorage();
+        PhoneticIntf phoneticIntf = ThreadStorage.getPhonetics();
+        File file = new File( appProperties.getProperty("reading_plan") );
+        BibleAudio bibleAudio = new BibleAudio();
+        List<String> verses = SpreadSheetReader.readVerseFromXlsx(file);
+//        List<String> verses = List.of("创 1章-3章", "太 1章");
+
+        String chapterBreak = "_*-_*-_*-_*-";
         for( String verse : verses ){
-            List<String> result = verseRegex.analyseVerse(verse);
+            List<String> result = analyseVerse(verse);
             String book = result.get(0);
-            String content = scrapBibleVerse(book, result.get(1), chapterBreak);
+            String content = phoneticIntf.convert(scrapBibleVerse(book, result.get(1), chapterBreak));
+            String chapterWord = TextUtil.returnChapterWord(book);
 
             int startChapter = 0;
             if( content.contains(chapterBreak) && PunctuationTool.containHyphen(result.get(1)) ){
                 String hyphen = PunctuationTool.getHyphen(result.get(1));
                 String[] list = StringUtils.split(result.get(1), hyphen);
-                startChapter = Integer.valueOf(list[0]);
-                int endChapter = Integer.valueOf(list[1]);
-                String[] chapterContents = StringUtils.split(content, chapterBreak);
+                startChapter = Integer.valueOf(StringUtils.replace(StringUtils.trim(list[0]), chapterWord, ""));
+                int endChapter = Integer.valueOf(StringUtils.replace(StringUtils.trim(list[1]), chapterWord, ""));
+                String[] chapterContents = content.split(chapterBreak);
                 int count = 0;
                 for( int i = startChapter; i<=endChapter; i++ ){
                     sendToS3( chapterContents[count], book, i );
@@ -61,19 +63,40 @@ public class BibleAudio {
             }//end of if
             else{
                 String input = content.replace(chapterBreak, "");
-                sendToS3(input, book, Integer.parseInt(result.get(1)));
+                sendToS3(input, book, Integer.valueOf(StringUtils.replace(StringUtils.trim(result.get(1)), chapterWord, "")));
             }
 
         }//end of for loop verses
+
+        Thread.sleep(30 * 60 * 1000);
+        AudioMerger.mergeMp3(verses);
     }
 
-    private static void sendToS3(String content, String book, int chapterNum) throws IOException, InterruptedException {
+    private static List<String> analyseVerse(String verse) {
+
+        VerseIntf verseRegex = ThreadStorage.getVerse();
+        List<String> result = verseRegex.analyseVerse(verse);
+
+        if( AppProperties.isChinese() ){
+            String book = result.get(0);
+            for( int i=1; i<result.size(); i++ ){
+                String chapterWord = returnChapterWord(book);
+                if( !StringUtils.endsWith(result.get(i), chapterWord) ){
+                    result.set(i, result.get(i)+chapterWord);
+                }
+            }
+        }
+
+        return result;
+    }
+
+    private static void sendToS3(String content, String book, int chapterNum) throws IOException {
 
         PhoneticIntf phoneticIntf = ThreadStorage.getPhonetics();
-        String toBe = PunctuationTool.replacePauseTag(content, "");
+        String toBe = replacePauseTag(replacePunctuationWithPause(content));
         toBe = phoneticIntf.convert(toBe);
 
-        String title = AWSUtil.toPolly(PunctuationTool.pause(800) + book +" chapter " + chapterNum + PunctuationTool.pause(800));
+        String title = AWSUtil.toPolly(PunctuationTool.pause(800) + generateTitleAudio(book, chapterNum) + PunctuationTool.pause(800));
         AWSUtil.putBibleScriptToS3(title, book, String.valueOf(chapterNum), "0");
 
         String[] verses = StringUtils.split(toBe, System.lineSeparator());
@@ -86,6 +109,16 @@ public class BibleAudio {
         }
     }
 
+    private static String generateTitleAudio(String book, int chapterNum) {
+        if( AppProperties.isChinese() ){
+            return  book + chapterNum + returnChapterWord(book);
+        }
+
+        return  book +" chapter " + chapterNum;
+
+    }
+
+
     private static void initStorage() throws SQLException {
         DBUtil.initStorage(appProperties);
     }
@@ -96,43 +129,5 @@ public class BibleAudio {
         }
         return com.cpbpc.rpgv2.en.BibleVerseScraper.scrap(book, verse, chapterBreak);
     }
-
-    private List<String> convert() {
-        List<String> result = new ArrayList<>();
-        if( xssfWorkbook == null ){
-            return result;
-        }
-
-        int startRow = parseStartRowIndex();
-        int endRow = parseEndRowIndex();
-        int cellIndex = parseCellIndex();
-
-//        wb.getSheetAt(0).getRow(9).getCell(4);
-        XSSFSheet sheet = xssfWorkbook.getSheetAt(Integer.parseInt(appProperties.getProperty("sheet_index")));
-        for( int i = startRow; i<=endRow; i++ ){
-            String value = sheet.getRow(i).getCell(cellIndex).getStringCellValue();
-            result.add(value);
-        }
-
-//        return result;
-        return List.of("Gen 4-6");
-    }
-
-    private int parseCellIndex() {
-        String range = appProperties.getProperty("range");
-        return CellReference.convertColStringToIndex(StringUtils.substring(range, 0, 1));
-    }
-
-    private int parseEndRowIndex() {
-        String range = appProperties.getProperty("range");
-        String result = StringUtils.substring(StringUtils.split(range, "-")[1], 1);
-        return Integer.parseInt(result)-1;
-    }
-
-    private int parseStartRowIndex() {
-        String range = appProperties.getProperty("range");
-        String result = StringUtils.substring(StringUtils.split(range, "-")[0], 1);
-        return Integer.parseInt(result)-1;
-    }
-
+    
 }

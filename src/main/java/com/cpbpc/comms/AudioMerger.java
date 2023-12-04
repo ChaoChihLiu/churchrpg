@@ -2,6 +2,7 @@ package com.cpbpc.comms;
 
 import com.cpbpc.rpgv2.VerseIntf;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -14,6 +15,16 @@ import java.util.Comparator;
 import java.util.List;
 
 public class AudioMerger {
+
+    static {
+        try {
+            AppProperties.loadConfig(System.getProperty("app.properties",
+                    "/Users/liuchaochih/Documents/GitHub/churchrpg/src/main/resources/app-bibleplan-chinese.properties"));
+            DBUtil.initStorage(AppProperties.getConfig());
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     public static File mergeTo(List<File> inputs, String filePath, String outputName ) throws IOException {
         if(!StringUtils.endsWith(filePath, "/") ){
@@ -53,33 +64,43 @@ public class AudioMerger {
         return result;
     }
     
-    public static void main(String[] args) throws IOException, SQLException {
-        AppProperties.loadConfig(System.getProperty("app.properties",
-                "/Users/liuchaochih/Documents/GitHub/churchrpg/src/main/resources/app-bibleplan-english.properties"));
-        DBUtil.initStorage(AppProperties.getConfig());
-        VerseIntf verseRegex = ThreadStorage.getVerse();
+    public static void main(String[] args) throws IOException, SQLException, InvalidFormatException {
 
-        String verses = "Gen 4-6";
-        List<String> result = verseRegex.analyseVerse(verses);
+        File file = new File( AppProperties.getConfig().getProperty("reading_plan") );
+        List<String> verses = SpreadSheetReader.readVerseFromXlsx(file);
+        mergeMp3(verses);
+    }
+
+    public static List<File> mergeMp3(List<String> verses) throws IOException {
+        List<File> files = new ArrayList<>();
+        for( String verse:verses ){
+            files.add(mergeMp3(verse));
+        }
+        return files;
+    }
+
+    public static File mergeMp3(String verse) throws IOException {
+        VerseIntf verseRegex = ThreadStorage.getVerse();
+        List<String> result = verseRegex.analyseVerse(verse);
         int start = 0;
         int end = 0;
 
+        String book = result.get(0);
+        String chapterWord = TextUtil.returnChapterWord(book);
         if( PunctuationTool.containHyphen(result.get(1)) ){
             String hyphen = PunctuationTool.getHyphen(result.get(1));
             String[] inputs = StringUtils.split(result.get(1), hyphen);
-            start = Integer.valueOf(inputs[0]);
-            end = Integer.valueOf(inputs[1]);
+            start = Integer.valueOf(StringUtils.replace(StringUtils.trim(inputs[0]), chapterWord, ""));
+            end = Integer.valueOf(StringUtils.replace(StringUtils.trim(inputs[1]), chapterWord, ""));
         }else{
-            start = end = Integer.valueOf(result.get(1));
+            start = end = Integer.valueOf(StringUtils.replace(StringUtils.trim(result.get(1)), chapterWord, ""));
         }
 
         File local_audio_directory = new File(AppProperties.getConfig().getProperty("local_audio_path"));
         if( !local_audio_directory.exists() ){
-            local_audio_directory.mkdirs();
-            return;
+            return null;
         }
-
-        String book = result.get(0);
+        
         List<File> toBeMerged = new ArrayList<>();
         for( int i = start; i<=end; i++ ){
             File book_directory = new File( local_audio_directory.getAbsolutePath()+"/"+book+"/"+i );
@@ -114,8 +135,8 @@ public class AudioMerger {
             toBeMerged.addAll(list);
         }//end of for loop
 
-        String finalName = StringUtils.replace(verses, " ", "_");
-        AudioMerger.mergeTo( toBeMerged, AppProperties.getConfig().getProperty("local_merged_path"), finalName+".mp3" );
+        String finalName = StringUtils.remove(StringUtils.replace(verse, " ", "_"), chapterWord);
+        return mergeTo( toBeMerged, AppProperties.getConfig().getProperty("local_merged_path"), finalName+".mp3" );
     }
 }
 

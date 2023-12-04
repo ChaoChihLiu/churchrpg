@@ -1,6 +1,7 @@
 package com.cpbpc.rpgv2.zh;
 
 
+import com.cpbpc.comms.TextUtil;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -78,10 +79,10 @@ public class BibleVerseScraper {
 //        String verseStr = "31篇7,11节";
 //        String verseStr = "三章7-9节";
         String book = "詩篇";
-        String verseStr = "三十二篇1节-三十六篇";
+//        String verseStr = "三十二篇1节-三十六篇";
 //        String verseStr = "三十四篇7-9节";
 //        String verseStr = "三十四篇";
-//        String verseStr = "三十四篇-三十六篇";
+        String verseStr = "三十四篇-三十六篇";
         System.out.println(scrap(book, verseStr));
     }
 
@@ -89,6 +90,7 @@ public class BibleVerseScraper {
         return scrap(book, verseStr, "");
     }
     public static String scrap(String book, String verseStr, String chapterBreak) throws IOException {
+        verseStr = StringUtils.trim(verseStr);
         List<String> result = new ArrayList<>();
         if ((StringUtils.countMatches(verseStr, "篇") >= 2
                 || StringUtils.countMatches(verseStr, "章") >= 2)
@@ -96,13 +98,13 @@ public class BibleVerseScraper {
             String hyphen = getHyphen(verseStr);
             String[] array = splitVerses( verseStr, List.of(hyphen, "到", "至") );
 
-            List<String> list1 = returnVerses(StringUtils.replace(array[0], "节", "-200节"));
+            List<String> list1 = returnVerses(book, StringUtils.replace(array[0], "节", "-200节"));
             List<String> list2 = new ArrayList<>();
             String chapterWord = "章";
             if (StringUtils.contains(array[1], "篇")) {
                 chapterWord = "篇";
             }
-            list2.addAll(returnVerses(array[1]));
+            list2.addAll(returnVerses(book, array[1]));
 
             int startingChapter = toNumber(StringUtils.split(list1.get(0), ".")[0]);
             int endingChapter = toNumber(StringUtils.split(list2.get(0), ".")[0]);
@@ -111,12 +113,12 @@ public class BibleVerseScraper {
             com.ibm.icu.text.NumberFormat formatter =
                     com.ibm.icu.text.NumberFormat.getInstance(chineseNumbers);
             for (int i = startingChapter + 1; i < endingChapter; i++) {
-                result.addAll(returnVerses(formatter.format(i) + chapterWord));
+                result.addAll(returnVerses(book, formatter.format(i) + chapterWord));
             }
             result.addAll(list2);
 
         } else {
-            result.addAll(returnVerses(verseStr));
+            result.addAll(returnVerses(book, verseStr));
         }
         return attachBibleVerses(book, result, chapterBreak);
     }
@@ -254,22 +256,18 @@ public class BibleVerseScraper {
         return html;
     }
 
-    private static List<String> returnVerses(String verseStr) {
+    private static List<String> returnVerses(String book, String verseStr) {
         int chapter = 0;
-        if (verseStr.contains("章")) {
-            chapter = toNumber(StringUtils.substring(verseStr, 0, verseStr.indexOf("章")));
+        String chapterWord = TextUtil.returnChapterWord(book);
+        if (verseStr.contains(chapterWord)) {
+            chapter = toNumber(StringUtils.substring(verseStr, 0, verseStr.indexOf(chapterWord)));
         }
-        if (verseStr.contains("篇")) {
-            chapter = toNumber(StringUtils.substring(verseStr, 0, verseStr.indexOf("篇")));
-        }
-
+       
         String verses = "";
-        if (verseStr.contains("章")) {
-            verses = StringUtils.substring(verseStr, verseStr.indexOf("章") + 1);
+        if (verseStr.contains(chapterWord)) {
+            verses = StringUtils.substring(verseStr, verseStr.indexOf(chapterWord) + 1);
         }
-        if (verseStr.contains("篇")) {
-            verses = StringUtils.substring(verseStr, verseStr.indexOf("篇") + 1);
-        }
+       
         if (verses.contains("节") || verses.contains("節")) {
 //            int index = (verses.endsWith("节")) ? verses.indexOf("节") : (verses.endsWith("節")) ? verses.indexOf("節") : 0;
 //            verses = StringUtils.substring(verses, 0, index);
