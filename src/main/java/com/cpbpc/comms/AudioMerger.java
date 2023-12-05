@@ -2,7 +2,7 @@ package com.cpbpc.comms;
 
 import com.cpbpc.rpgv2.VerseIntf;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -13,8 +13,11 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.logging.Logger;
 
 public class AudioMerger {
+
+    private static java.util.logging.Logger logger = Logger.getLogger(AudioMerger.class.getName());
 
     static {
         try {
@@ -22,18 +25,22 @@ public class AudioMerger {
                     "/Users/liuchaochih/Documents/GitHub/churchrpg/src/main/resources/app-bibleplan-chinese.properties"));
             DBUtil.initStorage(AppProperties.getConfig());
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            logger.info(ExceptionUtils.getStackTrace(e));
         }
     }
 
-    public static File mergeTo(List<File> inputs, String filePath, String outputName ) throws IOException {
+    public static File mergeTo(List<File> inputs, String filePath, String outputName ) {
         if(!StringUtils.endsWith(filePath, "/") ){
             filePath += "/";
         }
 
+        File dir = new File(filePath);
         File result = new File(filePath + outputName);
-
+        logger.info("merge to " + filePath+outputName);
         try{
+            if( !dir.exists() ){
+                dir.mkdirs();
+            }
             if(!result.exists()){
                 result.createNewFile();
             }
@@ -54,21 +61,25 @@ public class AudioMerger {
                     temp = fistream.read();
                 };
                 fistream.close();
-
             }
 
         } catch (IOException e){
-            throw e;
+            logger.info(ExceptionUtils.getStackTrace(e));
         }
 
         return result;
     }
     
-    public static void main(String[] args) throws IOException, SQLException, InvalidFormatException {
+    public static void main(String[] args) {
 
-        File file = new File( AppProperties.getConfig().getProperty("reading_plan") );
-        List<String> verses = SpreadSheetReader.readVerseFromXlsx(file);
-        mergeMp3(verses);
+        try {
+            File file = new File( AppProperties.getConfig().getProperty("reading_plan") );
+            List<String> verses = SpreadSheetReader.readVerseFromXlsx(file);
+            logger.info("verse size " + verses.size());
+            mergeMp3(verses);
+        }catch (Exception e){
+            logger.info(ExceptionUtils.getStackTrace(e));
+        }
     }
 
     public static List<File> mergeMp3(List<String> verses) throws IOException {
@@ -103,10 +114,14 @@ public class AudioMerger {
         
         List<File> toBeMerged = new ArrayList<>();
         for( int i = start; i<=end; i++ ){
-            File book_directory = new File( local_audio_directory.getAbsolutePath()+"/"+book+"/"+i );
+            File book_directory = new File( local_audio_directory.getAbsolutePath()+"/"+AppProperties.getConfig().getProperty("output_prefix")+book+"/"+i );
             if( !book_directory.exists() ){
-                continue;
+                book_directory.mkdirs();
             }
+            AWSUtil.copyS3Objects( AppProperties.getConfig().getProperty("output_bucket"),
+                    AppProperties.getConfig().getProperty("output_prefix")+book+"/"+i+"/",
+                    AppProperties.getConfig().getProperty("output_format"),
+                    AppProperties.getConfig().getProperty("local_audio_path"));
             List<File> list = new ArrayList<>();
             list.addAll(List.of(book_directory.listFiles(new FilenameFilter() {
                 @Override

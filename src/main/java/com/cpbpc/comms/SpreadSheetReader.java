@@ -10,11 +10,13 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 import static com.cpbpc.comms.PunctuationTool.containHyphen;
 import static com.cpbpc.comms.PunctuationTool.getHyphen;
 
 public class SpreadSheetReader {
+    private static java.util.logging.Logger logger = Logger.getLogger(SpreadSheetReader.class.getName());
 
     public static List<String> readVerseFromXlsx(File input) throws IOException, InvalidFormatException {
         List<String> result = new ArrayList<>();

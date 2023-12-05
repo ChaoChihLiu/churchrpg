@@ -106,7 +106,7 @@ public class VerseRegExp implements VerseIntf {
         }
         builder.append(")\\s{0,}[0-9一二三四五六七八九十百千零]{1,5}[:|：]{0,}\\){0,})");
 
-        logger.info(builder.toString());
+//        logger.info(builder.toString());
 
         versePattern = Pattern.compile(builder.toString());
         return versePattern;

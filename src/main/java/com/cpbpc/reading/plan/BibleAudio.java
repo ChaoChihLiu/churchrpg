@@ -2,7 +2,6 @@ package com.cpbpc.reading.plan;
 
 import com.cpbpc.comms.AWSUtil;
 import com.cpbpc.comms.AppProperties;
-import com.cpbpc.comms.AudioMerger;
 import com.cpbpc.comms.DBUtil;
 import com.cpbpc.comms.PunctuationTool;
 import com.cpbpc.comms.SpreadSheetReader;
@@ -39,9 +38,9 @@ public class BibleAudio {
         File file = new File( appProperties.getProperty("reading_plan") );
         BibleAudio bibleAudio = new BibleAudio();
         List<String> verses = SpreadSheetReader.readVerseFromXlsx(file);
-//        List<String> verses = List.of("创 1章-3章", "太 1章");
+//        List<String> verses = List.of("创 1章", "太 1章");
 
-        String chapterBreak = "_*-_*-_*-_*-";
+        String chapterBreak = "_______";
         for( String verse : verses ){
             List<String> result = analyseVerse(verse);
             String book = result.get(0);
@@ -55,6 +54,9 @@ public class BibleAudio {
                 startChapter = Integer.valueOf(StringUtils.replace(StringUtils.trim(list[0]), chapterWord, ""));
                 int endChapter = Integer.valueOf(StringUtils.replace(StringUtils.trim(list[1]), chapterWord, ""));
                 String[] chapterContents = content.split(chapterBreak);
+                for( String chapter : chapterContents ){
+                    System.out.println(chapter);
+                }
                 int count = 0;
                 for( int i = startChapter; i<=endChapter; i++ ){
                     sendToS3( chapterContents[count], book, i );
@@ -68,8 +70,8 @@ public class BibleAudio {
 
         }//end of for loop verses
 
-        Thread.sleep(30 * 60 * 1000);
-        AudioMerger.mergeMp3(verses);
+//        Thread.sleep(10 * 60 * 1000);
+//        AudioMerger.mergeMp3(verses);
     }
 
     private static List<String> analyseVerse(String verse) {
@@ -104,6 +106,7 @@ public class BibleAudio {
         for( String verse : verses ){
 //            Thread.sleep(1000);
             String script = AWSUtil.toPolly(PunctuationTool.replacePunctuationWithBreakTag(verse));
+//            System.out.println(script);
             AWSUtil.putBibleScriptToS3(script, book, String.valueOf(chapterNum), String.valueOf(verseNum));
             verseNum++;
         }

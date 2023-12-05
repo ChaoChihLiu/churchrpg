@@ -3,15 +3,22 @@ package com.cpbpc.comms;
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.ListObjectsV2Request;
+import com.amazonaws.services.s3.model.ListObjectsV2Result;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.ObjectTagging;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.amazonaws.services.s3.model.S3Object;
+import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.amazonaws.services.s3.model.StorageClass;
 import com.amazonaws.services.s3.model.Tag;
+import com.amazonaws.util.IOUtils;
 import com.amazonaws.util.StringInputStream;
 import com.amazonaws.util.StringUtils;
-import com.cpbpc.rpgv2.RPGToAudio;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLDecoder;
@@ -21,7 +28,7 @@ import java.util.logging.Logger;
 
 public class AWSUtil {
 
-    private static Logger logger = Logger.getLogger(RPGToAudio.class.getName());
+    private static java.util.logging.Logger logger = Logger.getLogger(AWSUtil.class.getName());
 
     private static AmazonS3 s3Client = null;
     static{
@@ -62,7 +69,7 @@ public class AWSUtil {
 
             s3Client.putObject(putObjectRequest);
         } catch (IOException e) {
-            throw e;
+            logger.info(ExceptionUtils.getStackTrace(e));
         }
     }
 
@@ -134,4 +141,47 @@ public class AWSUtil {
                 + "</prosody></speak>";
     }
 
+    public static void copyS3Objects(String bucketName, String outputPrefix, String outputFormat, String local_destination) {
+
+        List<S3ObjectSummary> objects = listS3Objects(bucketName, outputPrefix);
+        for( S3ObjectSummary object: objects ){
+            String fileName = object.getKey();
+            System.out.println("object key " + fileName);
+            if( !org.apache.commons.lang3.StringUtils.endsWith(fileName, outputFormat) ){
+                continue;
+            }
+
+            downloadS3Object(bucketName, fileName, local_destination+fileName);
+        }
+        
+
+    }
+
+    public static void downloadS3Object(String bucketName, String objectKey, String localFilePath){
+
+        try {
+            File audioFile = new File(localFilePath);
+            if( !audioFile.exists() ){
+                audioFile.createNewFile();
+            }
+
+            S3Object s3Object = s3Client.getObject(bucketName, objectKey);
+
+            FileOutputStream fos = new FileOutputStream(localFilePath);
+            IOUtils.copy(s3Object.getObjectContent(), fos);
+            System.out.println("Object downloaded successfully to: " + localFilePath);
+        } catch (Exception e) {
+            logger.info(ExceptionUtils.getStackTrace(e));
+        }
+    }
+
+    public static List<S3ObjectSummary> listS3Objects(String bucketName, String prefix){
+        ListObjectsV2Request listObjectsRequest = new ListObjectsV2Request();
+        listObjectsRequest.setBucketName(bucketName);
+        listObjectsRequest.setPrefix(prefix);
+
+        ListObjectsV2Result listObjectsResponse = s3Client.listObjectsV2(listObjectsRequest);
+        List<S3ObjectSummary> objects = listObjectsResponse.getObjectSummaries();
+        return objects;
+    }
 }
