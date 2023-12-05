@@ -1,6 +1,7 @@
 package com.cpbpc.rpgv2.en;
 
 
+import com.cpbpc.comms.AppProperties;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -250,7 +251,7 @@ public class BibleVerseScraper {
 
     private static String readFromInternet(String bookChapter) throws IOException {
 
-        String url = "https://www.biblegateway.com/passage/?search=" + URLEncoder.encode(bookChapter) + "&version=KJV";
+        String url = "https://www.biblegateway.com/passage/?search=" + URLEncoder.encode(bookChapter) + "&version="+AppProperties.getConfig().getProperty("bible_version");
         URL obj = new URL(url);
         HttpURLConnection con = (HttpURLConnection) obj.openConnection();
         con.setRequestProperty("User-Agent", "Mozilla/5.0");

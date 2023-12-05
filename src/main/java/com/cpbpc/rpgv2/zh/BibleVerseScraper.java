@@ -1,6 +1,7 @@
 package com.cpbpc.rpgv2.zh;
 
 
+import com.cpbpc.comms.AppProperties;
 import com.cpbpc.comms.TextUtil;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -92,18 +93,15 @@ public class BibleVerseScraper {
     public static String scrap(String book, String verseStr, String chapterBreak) throws IOException {
         verseStr = StringUtils.trim(verseStr);
         List<String> result = new ArrayList<>();
-        if ((StringUtils.countMatches(verseStr, "篇") >= 2
-                || StringUtils.countMatches(verseStr, "章") >= 2)
+        String chapterWord = TextUtil.returnChapterWord(book);
+        if ( StringUtils.countMatches(verseStr, chapterWord) >= 2
                 && (containHyphen(verseStr) || verseStr.contains("到") || verseStr.contains("至"))) {
             String hyphen = getHyphen(verseStr);
             String[] array = splitVerses( verseStr, List.of(hyphen, "到", "至") );
 
             List<String> list1 = returnVerses(book, StringUtils.replace(array[0], "节", "-200节"));
             List<String> list2 = new ArrayList<>();
-            String chapterWord = "章";
-            if (StringUtils.contains(array[1], "篇")) {
-                chapterWord = "篇";
-            }
+
             list2.addAll(returnVerses(book, array[1]));
 
             int startingChapter = toNumber(StringUtils.split(list1.get(0), ".")[0]);
@@ -237,7 +235,7 @@ public class BibleVerseScraper {
 
     private static String readFromInternet(String bookChapter) throws IOException {
 
-        String url = "https://www.biblegateway.com/passage/?search=" + URLEncoder.encode(bookChapter) + "&version=CUVS";
+        String url = "https://www.biblegateway.com/passage/?search=" + URLEncoder.encode(bookChapter) + "&version="+ AppProperties.getConfig().getProperty("bible_version");
         URL obj = new URL(url);
         HttpURLConnection con = (HttpURLConnection) obj.openConnection();
         con.setRequestProperty("User-Agent", "Mozilla/5.0");
