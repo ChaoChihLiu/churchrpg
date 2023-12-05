@@ -176,7 +176,7 @@ public class GenTelegramExcel {
     }
 
     private static String genAudioLink(Map<String, String> dataRow) {
-        if (appProperties.getProperty("language").equals("zh")) {
+        if (AppProperties.isChinese()) {
             return genChAudioLink(dataRow);
         }
 
@@ -192,7 +192,7 @@ public class GenTelegramExcel {
     }
 
     private static String genArticleLink(Map<String, String> dataRow) {
-        if (appProperties.getProperty("language").equals("zh")) {
+        if (AppProperties.isChinese()) {
             return genChArticleLink(dataRow);
         }
 
@@ -237,7 +237,7 @@ public class GenTelegramExcel {
         int anchorPoint = content.indexOf("<p>&nbsp;</p>");
 
         String p = generateVersePattern();
-        if (appProperties.getProperty("language").equals("zh")) {
+        if (AppProperties.isChinese()) {
             p = generateTopicVersePattern();
         }
         Pattern versePattern = Pattern.compile(p);

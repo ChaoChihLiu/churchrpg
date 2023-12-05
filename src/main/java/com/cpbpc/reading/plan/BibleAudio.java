@@ -127,7 +127,7 @@ public class BibleAudio {
     }
 
     private static String scrapBibleVerse(String book, String verse, String chapterBreak) throws IOException {
-        if( appProperties.getProperty("language").equals("zh") ){
+        if( AppProperties.isChinese() ){
             return com.cpbpc.rpgv2.zh.BibleVerseScraper.scrap(book, verse, chapterBreak);
         }
         return com.cpbpc.rpgv2.en.BibleVerseScraper.scrap(book, verse, chapterBreak);
