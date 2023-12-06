@@ -9,4 +9,6 @@ public interface PhoneticIntf {
     public String convert(String content);
 
     public Map<String, ConfigObj> getPhoneticMap();
+
+    public String reversePhoneticCorrection(String input);
 }

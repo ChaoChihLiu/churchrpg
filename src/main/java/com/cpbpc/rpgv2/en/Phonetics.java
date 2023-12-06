@@ -2,8 +2,10 @@ package com.cpbpc.rpgv2.en;
 
 import com.cpbpc.rpgv2.ConfigObj;
 import com.cpbpc.rpgv2.PhoneticIntf;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -56,6 +58,24 @@ public class Phonetics implements PhoneticIntf {
     @Override
     public Map<String, ConfigObj> getPhoneticMap() {
         return phonetic;
+    }
+
+    @Override
+    public String reversePhoneticCorrection(String text) {
+        if( org.apache.commons.lang3.StringUtils.isEmpty(text) ){
+            return "";
+        }
+        String result = text;
+        Collection<ConfigObj> values = phonetic.values();
+        for( ConfigObj value : values ){
+            String fix = value.getFullWord();
+            if( !StringUtils.contains(result, fix) ){
+                continue;
+            }
+            result = result.replaceAll(fix, value.getShortForm());
+        }
+
+        return result;
     }
 
     private static String lookupCompleteForm(String founded) {

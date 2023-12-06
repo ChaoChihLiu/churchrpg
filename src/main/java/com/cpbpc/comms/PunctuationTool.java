@@ -68,20 +68,27 @@ public class PunctuationTool {
     }
 
     public static String replacePunctuationWithPause(String input){
-        String result = input
-                            .replaceAll("\\.", getPauseTag(800))
-                            .replaceAll(",", getPauseTag(200))
-                            .replaceAll(":", getPauseTag(800))
-                            .replaceAll(";", getPauseTag(400))
-                            .replaceAll("\\?", getPauseTag(800))
-                            .replaceAll("\\!", getPauseTag(800))
-                            .replaceAll("\\(", getPauseTag(200))
-                            .replaceAll("\\)", getPauseTag(200))
-//                            .replaceAll("\"", "")
-                            .replaceAll("”", "")
-                            .replaceAll("“", "")
-                ;
-        return result;
+//        String result = input
+//                            .replaceAll("\\.", getPauseTag(800))
+//                            .replaceAll(",", getPauseTag(200))
+//                            .replaceAll(":", getPauseTag(800))
+//                            .replaceAll(";", getPauseTag(400))
+//                            .replaceAll("\\?", getPauseTag(800))
+//                            .replaceAll("\\!", getPauseTag(800))
+//                            .replaceAll("\\(", getPauseTag(200))
+//                            .replaceAll("\\)", getPauseTag(200))
+////                            .replaceAll("\"", "")
+//                            .replaceAll("”", "")
+//                            .replaceAll("“", "")
+//                ;
+//
+//        if( containHyphen(input) ){
+//            String hyphen = getHyphen(input);
+//            result = result.replaceAll(hyphen, getPauseTag(200));
+//        }
+//
+//        return result;
+        return input;
     }
 
     public static String replacePunctuationWithBreakTag(String input){
@@ -98,6 +105,12 @@ public class PunctuationTool {
                 .replaceAll("”", "")
                 .replaceAll("“", "")
                 ;
+
+//        if( containHyphen(input) ){
+//            String hyphen = getHyphen(input);
+//            result = result.replaceAll(hyphen, pause(200));
+//        }
+
         return result;
     }
 
@@ -145,4 +158,32 @@ public class PunctuationTool {
         return result;
     }
 
+
+    private static Pattern chinese_punctuation_pattern = Pattern.compile("[\\u3000-\\u303F\\uFF01-\\uFF5E]");
+    public static String removeChinesePunctuation(String text) {
+        Matcher matcher = chinese_punctuation_pattern.matcher(text);
+        String result = matcher.replaceAll(" ");
+        return result;
+    }
+    private static Pattern punctuation_pattern = Pattern.compile("[\\p{P}]");
+    public static String removePunctuation(String text) {
+        Matcher matcher = punctuation_pattern.matcher(text);
+        String result = matcher.replaceAll(" ");
+        return result;
+    }
+
+    public static boolean containQuestionMark(String key) {
+        if( StringUtils.contains(key, "?") || StringUtils.contains(key, "？") ){
+            return true;
+        }
+        return false;
+    }
+
+    public static String escapeQuestionMark(String key) {
+        if( StringUtils.contains(key, "?") || StringUtils.contains(key, "？") ){
+            return key.replaceFirst("\\?", "\\\\?").replaceFirst("？", "\\？");
+        }
+
+        return key;
+    }
 }

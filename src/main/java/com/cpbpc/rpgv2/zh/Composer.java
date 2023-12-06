@@ -5,6 +5,7 @@ import com.cpbpc.rpgv2.AbstractArticleParser;
 import com.cpbpc.rpgv2.AbstractComposer;
 import com.cpbpc.rpgv2.ConfigObj;
 import com.cpbpc.rpgv2.VerseIntf;
+import com.github.houbb.opencc4j.util.ZhConverterUtil;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
@@ -58,7 +59,7 @@ public class Composer extends AbstractComposer {
                 for( int i=1; i<refs.size(); i++ ){
                     count++;
                     result.append("圣经经文第" + count + "段").append(pause(200))
-                            .append(processSentence(verse.convert(makeCompleteVerse(book, refs.get(1), refs.get(i))), fixPronu)).append(pause(400))
+                            .append(processSentence(verse.convert(makeCompleteVerse(ZhConverterUtil.toSimple(book), refs.get(1), refs.get(i))), fixPronu)).append(pause(400))
                             .append(processSentence(BibleVerseScraper.scrap(mapBookAbbre(book), makeCompleteVerse(refs.get(1), refs.get(i))), fixPronu))
                     ;
                 }

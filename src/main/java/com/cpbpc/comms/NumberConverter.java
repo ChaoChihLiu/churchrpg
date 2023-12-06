@@ -1,5 +1,6 @@
 package com.cpbpc.comms;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 
 import java.util.Locale;
@@ -16,6 +17,31 @@ public class NumberConverter {
             default:
                 return i + suffixes[i % 10];
         }
+    }
+
+
+    public static String toChineseNumber(String text){
+        if(StringUtils.isEmpty(text) ){
+            return "";
+        }
+
+        String result = "";
+        String temp = "";
+        for( char c : text.toCharArray() ){
+            if( !NumberUtils.isCreatable(String.valueOf(c)) ){
+                if( !StringUtils.isEmpty(temp) ){
+                    result += toChineseNumber(Integer.valueOf(temp));
+                    temp = "";
+                }
+                result += c;
+                continue;
+            }
+
+            temp += c;
+        }
+
+
+        return result;
     }
 
     public static String toChineseNumber(int i) {

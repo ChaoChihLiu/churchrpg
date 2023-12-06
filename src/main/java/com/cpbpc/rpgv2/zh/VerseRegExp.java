@@ -166,8 +166,8 @@ public class VerseRegExp implements VerseIntf {
             String completeVerse = generateCompleteVerses(book, verse_str);
 
             start = m.end();
-            logger.info("orginal " + grabbedVerse);
-            logger.info("completeVerse " + completeVerse);
+//            logger.info("orginal " + grabbedVerse);
+//            logger.info("completeVerse " + completeVerse);
 
             result = result.replaceFirst(grabbedVerse, completeVerse);
         }

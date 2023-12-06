@@ -245,8 +245,8 @@ public class VerseRegExp implements VerseIntf {
             completeVerse = StringUtils.replaceAll(completeVerse, "\\.", "");
 
             start = m.end();
-            logger.info("orginal " + grabbedVerse);
-            logger.info("completeVerse " + completeVerse);
+//            logger.info("orginal " + grabbedVerse);
+//            logger.info("completeVerse " + completeVerse);
 
             result = result.replaceFirst(grabbedVerse, completeVerse);
             if( addPause ){

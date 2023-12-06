@@ -3,6 +3,7 @@ package com.cpbpc.rpgv2.zh;
 
 import com.cpbpc.comms.AppProperties;
 import com.cpbpc.comms.TextUtil;
+import com.github.houbb.opencc4j.util.ZhConverterUtil;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -219,7 +220,7 @@ public class BibleVerseScraper {
         Matcher matcher = p.matcher(text);
         if (matcher.find()) {
 //            System.out.println(matcher.group(2));
-            return StringUtils.remove(removeHtmlTag(matcher.group(2)), " ");
+            return ZhConverterUtil.toSimple(StringUtils.remove(removeHtmlTag(matcher.group(2)), " "));
         }
 
         return "";

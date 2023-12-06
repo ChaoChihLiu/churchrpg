@@ -1,4 +1,4 @@
-package com.cpbpc.rpg;
+package com.cpbpc.comms;
 
 import java.io.UnsupportedEncodingException;
 import java.util.regex.Matcher;
@@ -26,9 +26,9 @@ public class URLShortener {
             String accessKey = "";
 
             // Replace YOUR_LONG_URL with the URL you want to shorten
-//                String longUrl = "https://cpbpc-rpg-audio.s3.ap-southeast-1.amazonaws.com/rpg/"+year+"_"+month+"/arpg"+year+month+date+".mp3";
+                String longUrl = "https://cpbpc-rpg-audio.s3.ap-southeast-1.amazonaws.com/rpg/"+year+"_"+month+"/arpg"+year+month+date+".mp3";
 
-            String longUrl = "https://cpbpc-rpg-audio.s3.ap-southeast-1.amazonaws.com/rpg-chinese/"+year+"_"+month+"/crpg"+year+month+date+ ".mp3";
+//            String longUrl = "https://cpbpc-rpg-audio.s3.ap-southeast-1.amazonaws.com/rpg-chinese/"+year+"_"+month+"/crpg"+year+month+date+ ".mp3";
             System.out.println(longUrl);
 
             // Construct the API endpoint URL

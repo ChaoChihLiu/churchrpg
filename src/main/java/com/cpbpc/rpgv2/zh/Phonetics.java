@@ -1,9 +1,12 @@
 package com.cpbpc.rpgv2.zh;
 
+import com.cpbpc.comms.PunctuationTool;
 import com.cpbpc.rpgv2.ConfigObj;
 import com.cpbpc.rpgv2.PhoneticIntf;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,14 +39,18 @@ public class Phonetics implements PhoneticIntf {
         while (matcher.find()) {
             finds.add(matcher.group(1));
         }
-        logger.info("what is my finds : " + finds.toString());
+            logger.info("what is my finds : " + finds.toString());
 
-        String replaced = content;
-        int start = 0;
-        for (String key : finds) {
-            String completeForm = lookupCompleteForm(key);
-            logger.info("complete form " + completeForm);
-            if (phonetic.get(key).getPaused()) {
+            String replaced = content;
+            int start = 0;
+            for (String key : finds) {
+                String keyTofind = key;
+                if(PunctuationTool.containQuestionMark(key)){
+                    keyTofind = PunctuationTool.escapeQuestionMark(key);
+                }
+                String completeForm = lookupCompleteForm(keyTofind);
+                logger.info("complete form " + completeForm);
+            if (phonetic.get(keyTofind).getPaused()) {
                 replaced = replaced.replace(key, completeForm + "[pause]");
             } else {
                 replaced = replaced.replace(key, completeForm);
@@ -56,6 +63,24 @@ public class Phonetics implements PhoneticIntf {
     @Override
     public Map<String, ConfigObj> getPhoneticMap() {
         return phonetic;
+    }
+
+    @Override
+    public String reversePhoneticCorrection(String text) {
+        if( StringUtils.isEmpty(text) ){
+            return "";
+        }
+        String result = text;
+        Collection<ConfigObj> values = phonetic.values();
+        for( ConfigObj value : values ){
+            String fix = value.getFullWord();
+            if( !StringUtils.contains(result, fix) ){
+                continue;
+            }
+            result = result.replaceAll(fix, value.getShortForm());
+        }
+
+        return result;
     }
 
     private static String lookupCompleteForm(String founded) {

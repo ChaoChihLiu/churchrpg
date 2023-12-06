@@ -6,7 +6,7 @@ import com.cpbpc.comms.ThreadStorage;
 import javax.xml.transform.TransformerException;
 
 import static com.cpbpc.comms.PunctuationTool.replacePauseTag;
-import static com.cpbpc.comms.PunctuationTool.replacePunctuationWithPause;
+import static com.cpbpc.comms.PunctuationTool.replacePunctuationWithBreakTag;
 
 public abstract class AbstractComposer {
 
@@ -27,9 +27,9 @@ public abstract class AbstractComposer {
 
     protected String processSentence(String content, boolean fixPronu) {
         if( fixPronu ){
-            return phonetic.convert(replacePauseTag(replacePunctuationWithPause(content)));
+            return replacePauseTag(replacePunctuationWithBreakTag(phonetic.convert(content)));
         }
-        return replacePauseTag(replacePunctuationWithPause(content));
+        return replacePauseTag(replacePunctuationWithBreakTag(content));
     }
 
     protected abstract String toPolly(boolean fixPronu);

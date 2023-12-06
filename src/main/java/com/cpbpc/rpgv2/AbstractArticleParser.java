@@ -2,6 +2,7 @@ package com.cpbpc.rpgv2;
 
 import com.cpbpc.comms.AppProperties;
 import com.cpbpc.comms.ThreadStorage;
+import com.github.houbb.opencc4j.util.ZhConverterUtil;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -39,8 +40,8 @@ public abstract class AbstractArticleParser {
     protected VerseIntf verse = ThreadStorage.getVerse();
 
     public AbstractArticleParser(String content, String title) {
-        this.content = changeFullCharacter(content);
-        this.title = changeFullCharacter(title);
+        this.content = changeFullCharacter(ZhConverterUtil.toSimple(content));
+        this.title = changeFullCharacter(ZhConverterUtil.toSimple(title));
     }
 
     protected String replaceSpace(String input) {
@@ -90,7 +91,7 @@ public abstract class AbstractArticleParser {
             AbstractArticleParser parser = null;
             AbstractComposer composer = null;
             if( language.equals("chinese") ){
-                parser = new com.cpbpc.rpgv2.zh.ArticleParser(content, "俄陀聂(二)");
+                parser = new com.cpbpc.rpgv2.zh.ArticleParser(content, "你们的生命是什么呢？");
                 composer = new com.cpbpc.rpgv2.zh.Composer(parser);
             } else{
                 parser = new com.cpbpc.rpgv2.en.ArticleParser(content, "GOD’S WORD OVER ME");
