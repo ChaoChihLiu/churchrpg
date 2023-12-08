@@ -6,6 +6,7 @@ import com.cpbpc.rpgv2.PhoneticIntf;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -30,26 +31,27 @@ public class Phonetics implements PhoneticIntf {
             return content;
         }
 
-        String p = generatePattern();
-        logger.info(p);
-        Pattern r = Pattern.compile(p);
-        Matcher matcher = r.matcher(content);
-
+        List<String> ps = generatePattern();
         List<String> finds = new ArrayList<>();
-        while (matcher.find()) {
-            finds.add(matcher.group(1));
+        for( String p: ps ){
+            logger.info(p);
+            Pattern r = Pattern.compile(p);
+            Matcher matcher = r.matcher(content);
+            while (matcher.find()) {
+                finds.add(matcher.group(1));
+            }
         }
-            logger.info("what is my finds : " + finds.toString());
+        logger.info("what is my finds : " + finds.toString());
 
-            String replaced = content;
-            int start = 0;
-            for (String key : finds) {
-                String keyTofind = key;
-                if(PunctuationTool.containQuestionMark(key)){
-                    keyTofind = PunctuationTool.escapeQuestionMark(key);
-                }
-                String completeForm = lookupCompleteForm(keyTofind);
-                logger.info("complete form " + completeForm);
+        String replaced = content;
+        int start = 0;
+        for (String key : finds) {
+            String keyTofind = key;
+            if(PunctuationTool.containQuestionMark(key)){
+                keyTofind = PunctuationTool.escapeQuestionMark(key);
+            }
+            String completeForm = lookupCompleteForm(keyTofind);
+            logger.info("complete form " + completeForm);
             if (phonetic.get(keyTofind).getPaused()) {
                 replaced = replaced.replace(key, completeForm + "[pause]");
             } else {
@@ -98,22 +100,37 @@ public class Phonetics implements PhoneticIntf {
         return "";
     }
 
-    private static String generatePattern() {
+    private static List<String> generatePattern() {
+        List<String> patterns = new ArrayList<>();
 
-//        return "([\\s{1,}|,{1,}](e\\.{0,}g\\.{0,}|i\\.{0,}e\\.{0,}|etc\\.{0,}))([\\s{1,}|,{1,}])";
-        StringBuilder builder = new StringBuilder("(");
-
-        Set<String> keySet = phonetic.keySet();
-        for (String key : keySet) {
-//            String newKey = key.trim().replace(".", "\\.{0,}");
-            String newKey = key.replace(".", "\\.");
-            builder.append(newKey).append("|");
+        List<List<String>> keySet = splitSet(phonetic.keySet());
+        
+        for (List<String> keys : keySet) {
+            StringBuilder builder = new StringBuilder("(");
+            for( String key: keys ){
+                String newKey = key.replace(".", "\\.");
+                builder.append(newKey).append("|");
+            }
+            if (builder.toString().endsWith("|")) {
+                builder.delete(builder.length() - 1, builder.length());
+            }
+            builder.append(")");
+            patterns.add(builder.toString());
         }
-        if (builder.toString().endsWith("|")) {
-            builder.delete(builder.length() - 1, builder.length());
+
+        return patterns;
+    }
+
+    private static List<List<String>> splitSet(Set<String> set){
+        String[] arrayFromSet = set.toArray(new String[0]);
+        List<List<String>> list = new ArrayList<>();
+        int batchSize = 100; 
+        for (int i = 0; i < arrayFromSet.length; i += batchSize) {
+            int endIndex = Math.min(i + batchSize, arrayFromSet.length);
+            String[] subArray = Arrays.copyOfRange(arrayFromSet, i, endIndex);
+            list.add( List.of(subArray) );
         }
 
-        builder.append(")");
-        return builder.toString();
+        return list;
     }
 }
