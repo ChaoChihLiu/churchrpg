@@ -4,6 +4,7 @@ import com.cpbpc.comms.NumberConverter;
 import com.cpbpc.comms.ThreadStorage;
 import com.cpbpc.rpgv2.ConfigObj;
 import com.cpbpc.rpgv2.VerseIntf;
+import com.github.houbb.opencc4j.util.ZhConverterUtil;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
@@ -104,7 +105,7 @@ public class VerseRegExp implements VerseIntf {
         if (builder.toString().endsWith("|")) {
             builder.delete(builder.length() - 1, builder.length());
         }
-        builder.append(")\\s{0,}[0-9一二三四五六七八九十百千零]{1,5}[:|：]{0,}\\){0,})");
+        builder.append(")\\s{0,}[0-9一二三四五六七八九十百千零]{1,5}[:|：]{0,})");
 
 //        logger.info(builder.toString());
 
@@ -164,6 +165,7 @@ public class VerseRegExp implements VerseIntf {
             String grabbedVerse = appendNextCharTillCompleteVerse(line, m.group(0), m.end(), line.length());
             String verse_str = grabbedVerse.replaceFirst(m.group(2), "");
             String completeVerse = generateCompleteVerses(book, verse_str);
+            completeVerse = fix1ChapterBook(book, completeVerse);
 
             start = m.end();
 //            logger.info("orginal " + grabbedVerse);
@@ -173,6 +175,31 @@ public class VerseRegExp implements VerseIntf {
         }
 
         return result;
+    }
+
+    private static List<String> oneChapterBook = List.of("俄", "俄巴底亞書", "門", "腓利門書", "约二", "約翰二書", "约三", "約翰三書", "猶", "猶大書");
+
+    private String fix1ChapterBook(String book, String completeVerse) {
+        String chapterWord = returnChapterWord(book);
+
+        boolean isMatched = false;
+        for( String bookName: oneChapterBook ){
+            if( !StringUtils.equals(ZhConverterUtil.toSimple(book), ZhConverterUtil.toSimple(bookName)) ){
+                continue;
+            }
+            isMatched = true;
+            break;
+        }
+
+        if( !isMatched ){
+            return completeVerse;
+        }
+
+        if( StringUtils.contains(completeVerse, chapterWord)
+                && !StringUtils.contains(ZhConverterUtil.toSimple(completeVerse), ZhConverterUtil.toSimple("節")) ){
+            return completeVerse.replaceAll(chapterWord, ZhConverterUtil.toSimple("節"));
+        }
+        return completeVerse;
     }
 
     //弗6:13-17

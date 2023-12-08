@@ -24,6 +24,13 @@ public class PunctuationTool {
     public static String[] getHyphensUnicode(){
         return hyphens_unicode;
     }
+    public static String[] getHyphens(){
+        List<String> punctuations = new ArrayList<>();
+        for (String hyphen_unicode : hyphens_unicode) {
+            punctuations.add(StringEscapeUtils.unescapeJava(hyphen_unicode));
+        }
+        return punctuations.toArray(new String[]{});
+    }
 
     public static String changeFullCharacter(String input){
         return input.replaceAll("：", ":")
@@ -106,10 +113,20 @@ public class PunctuationTool {
                 .replaceAll("“", "")
                 ;
 
-//        if( containHyphen(input) ){
-//            String hyphen = getHyphen(input);
-//            result = result.replaceAll(hyphen, pause(200));
-//        }
+        if( containHyphen(result) ){
+            Pattern pattern = Pattern.compile("[\\u4E00-\\u9FFF](["+StringUtils.join(getHyphensUnicode())+"])[\\u4E00-\\u9FFF]");
+            Matcher matcher = pattern.matcher(result);
+            int start = 0;
+            String result1 = result;
+            while( matcher.find(start) ){
+                String target = matcher.group(0);
+                String hyphen = getHyphen(target);
+                start = matcher.end();
+                String replacement = StringUtils.replace(target, hyphen, pause(100));
+                result1 = StringUtils.replace(result1, target, replacement);
+            }
+            result = result1;
+        }
 
         return result;
     }

@@ -91,7 +91,7 @@ public abstract class AbstractArticleParser {
             AbstractArticleParser parser = null;
             AbstractComposer composer = null;
             if( language.equals("chinese") ){
-                parser = new com.cpbpc.rpgv2.zh.ArticleParser(content, "你们的生命是什么呢？");
+                parser = new com.cpbpc.rpgv2.zh.ArticleParser(content, "底波拉-巴拉-雅亿（二）");
                 composer = new com.cpbpc.rpgv2.zh.Composer(parser);
             } else{
                 parser = new com.cpbpc.rpgv2.en.ArticleParser(content, "GOD’S WORD OVER ME");

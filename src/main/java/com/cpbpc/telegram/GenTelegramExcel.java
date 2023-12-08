@@ -76,7 +76,7 @@ public class GenTelegramExcel {
     public static void main(String args[]) throws IOException, SQLException {
 
         AppProperties.loadConfig(System.getProperty("app.properties",
-                                                    "/Users/liuchaochih/Documents/GitHub/churchrpg/src/main/resources/app-chinese.properties"));
+                                                    "/Users/liuchaochih/Documents/GitHub/churchrpg/src/main/resources/app-english.properties"));
         initAbbre();
 
         LocalDate currentDate = LocalDate.of(Integer.parseInt(year), Integer.parseInt(month), 01);
@@ -111,6 +111,11 @@ public class GenTelegramExcel {
             cellStyle.setWrapText(true);
             cell.setCellStyle(cellStyle);
         }
+
+        System.out.println( "text url:" );
+        System.out.println(StringUtils.join(textUrls, System.lineSeparator()));
+        System.out.println( "audio url:" );
+        System.out.println(StringUtils.join(audioURLs, System.lineSeparator()));
 
 //        // Save the workbook to a file or stream
         try (FileOutputStream fileOut = new FileOutputStream("example.xlsx")) {
@@ -175,12 +180,18 @@ public class GenTelegramExcel {
         return result;
     }
 
+    private static List<String> audioURLs = new ArrayList<>();
     private static String genAudioLink(Map<String, String> dataRow) {
+        String url = "";
         if (AppProperties.isChinese()) {
-            return genChAudioLink(dataRow);
+            url = genChAudioLink(dataRow);
+            audioURLs.add(url);
+            return url;
         }
 
-        return genEngAudioLink(dataRow);
+        url = genEngAudioLink(dataRow);
+        audioURLs.add(url);
+        return url;
     }
 
     private static String genChAudioLink(Map<String, String> dataRow) {
@@ -191,12 +202,18 @@ public class GenTelegramExcel {
         return "https://cpbpc-rpg-audio.s3.ap-southeast-1.amazonaws.com/rpg/" + dataRow.get("month") + "/arpg" + dataRow.get("date") + ".mp3";
     }
 
+    private static List<String> textUrls = new ArrayList<>();
     private static String genArticleLink(Map<String, String> dataRow) {
+        String url = "";
         if (AppProperties.isChinese()) {
-            return genChArticleLink(dataRow);
+            url = genChArticleLink(dataRow);
+            textUrls.add(url);
+            return url;
         }
 
-        return genEngArticleLink(dataRow);
+        url = genEngArticleLink(dataRow);
+        textUrls.add(url);
+        return url;
     }
 
     //https://calvarypandan.sg/resources/rpg/calendar/eventdetail/69825/86/israel-worshipped-in-thanksgiving
