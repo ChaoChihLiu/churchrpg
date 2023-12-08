@@ -4,6 +4,7 @@ import com.cpbpc.comms.ThreadStorage;
 import com.cpbpc.rpgv2.AbstractArticleParser;
 import com.cpbpc.rpgv2.VerseIntf;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,7 +44,7 @@ public class ArticleParser extends AbstractArticleParser {
                 }
             }
         }catch (Exception e){
-            e.printStackTrace();
+            logger.info(ExceptionUtils.getStackTrace(e));
         }
 
         return result;

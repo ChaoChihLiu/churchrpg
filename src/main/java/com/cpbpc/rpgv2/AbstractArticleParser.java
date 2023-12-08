@@ -6,6 +6,7 @@ import com.github.houbb.opencc4j.util.ZhConverterUtil;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -106,7 +107,7 @@ public abstract class AbstractArticleParser {
 //            AWSUtil.putScriptToS3(script, "2023-12-10");
 
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.info(ExceptionUtils.getStackTrace(e));
         }
     }
 
@@ -193,7 +194,7 @@ public abstract class AbstractArticleParser {
         while (m.find(start)) {
             String target = m.group();
             int position = m.end();
-            start = m.end();
+            start = position;
             if (position > anchorPoint) {
                 break;
             }

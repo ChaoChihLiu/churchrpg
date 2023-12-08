@@ -8,7 +8,7 @@ import com.github.houbb.opencc4j.util.ZhConverterUtil;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -27,7 +27,7 @@ public class VerseRegExp implements VerseIntf {
 
     private Pattern versePattern = null;
 
-    private static final Map<String, ConfigObj> verse = new HashMap();
+    private static final Map<String, ConfigObj> verse = new LinkedHashMap<>();
     public void put(String shortForm, String completeForm, boolean isPaused) {
         verse.put(shortForm, new ConfigObj(shortForm, completeForm, false));
     }
@@ -124,9 +124,12 @@ public class VerseRegExp implements VerseIntf {
         Matcher m = p.matcher(line);
         List<String> result = new ArrayList<>();
         if (m.find()) {
-            String book = mapBookAbbre(m.group(2));
-            String grabbedVerse = appendNextCharTillCompleteVerse(line, m.group(0), m.end(), line.length());
-            String verse_str = grabbedVerse.replaceFirst(m.group(2), "");
+            String group0 = m.group(0);
+            String book_simplied = m.group(2);
+            int matched_end = m.end();
+            String book = mapBookAbbre(book_simplied);
+            String grabbedVerse = appendNextCharTillCompleteVerse(line, group0, matched_end, line.length());
+            String verse_str = grabbedVerse.replaceFirst(book_simplied, "");
             result.add(book);
             if( StringUtils.contains(verse_str, ",") || StringUtils.contains(verse_str, ";")
                     || StringUtils.contains(verse_str, "，") || StringUtils.contains(verse_str, "；")  ){
@@ -161,13 +164,16 @@ public class VerseRegExp implements VerseIntf {
         int start = 0;
         String result = line;
         while (m.find(start)) {
-            String book = mapBookAbbre(m.group(2));
-            String grabbedVerse = appendNextCharTillCompleteVerse(line, m.group(0), m.end(), line.length());
-            String verse_str = grabbedVerse.replaceFirst(m.group(2), "");
+            String group0 = m.group(0);
+            String book_simplied = m.group(2);
+            Integer matched_end = m.end();
+            start = matched_end;
+            String book = mapBookAbbre(book_simplied);
+            String grabbedVerse = appendNextCharTillCompleteVerse(line, group0, matched_end, line.length());
+            String verse_str = grabbedVerse.replaceFirst(book_simplied, "");
             String completeVerse = generateCompleteVerses(book, verse_str);
             completeVerse = fix1ChapterBook(book, completeVerse);
 
-            start = m.end();
 //            logger.info("orginal " + grabbedVerse);
 //            logger.info("completeVerse " + completeVerse);
 

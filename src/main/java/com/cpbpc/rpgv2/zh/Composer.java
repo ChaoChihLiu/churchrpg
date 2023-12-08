@@ -7,14 +7,17 @@ import com.cpbpc.rpgv2.ConfigObj;
 import com.cpbpc.rpgv2.VerseIntf;
 import com.github.houbb.opencc4j.util.ZhConverterUtil;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Logger;
 
 import static com.cpbpc.comms.PunctuationTool.pause;
 
 public class Composer extends AbstractComposer {
+    private static Logger logger = Logger.getLogger(Composer.class.getName());
     public Composer(AbstractArticleParser parser) {
         super(parser);
     }
@@ -65,7 +68,7 @@ public class Composer extends AbstractComposer {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.info(ExceptionUtils.getStackTrace(e));
         }
         result.append(pause(800)).append("結束经文朗读").append(pause(800));
         result.append("引用经文").append(pause(200))
@@ -87,7 +90,7 @@ public class Composer extends AbstractComposer {
             return prettyPrintln(wrapToPolly(result.toString()));
 //            return result.toString();
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.info(ExceptionUtils.getStackTrace(e));
         }
 
         return "";

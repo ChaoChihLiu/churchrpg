@@ -10,7 +10,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -24,7 +24,7 @@ import static com.cpbpc.comms.PunctuationTool.getHyphen;
 
 public class VerseRegExp implements VerseIntf {
     
-    private static final Map<String, ConfigObj> verse = new HashMap();
+    private static final Map<String, ConfigObj> verse = new LinkedHashMap<>();
     private static Logger logger = Logger.getLogger(VerseRegExp.class.getName());
     private final Pattern endWithVerseNumberPattern = Pattern.compile("\\d$");
     private final Pattern endWithPunctuationPattern = Pattern.compile("\\d[,|;|\\.]$");
@@ -238,13 +238,17 @@ public class VerseRegExp implements VerseIntf {
         int start = 0;
         String result = line;
         while (m.find(start)) {
-            String book = mapBookAbbre(m.group(2));
-            String grabbedVerse = appendNextCharTillCompleteVerse(line, m.group(0), m.end(), line.length());
-            String verse_str = grabbedVerse.replaceFirst(m.group(2), "");
+            String group0 = m.group(0);
+            String book_str = m.group(2);
+            int matched_end = m.end();
+            start = matched_end;
+            String book = mapBookAbbre(book_str);
+            String grabbedVerse = appendNextCharTillCompleteVerse(line, group0, matched_end, line.length());
+            String verse_str = grabbedVerse.replaceFirst(book_str, "");
             String completeVerse = generateCompleteVerses(book, verse_str);
             completeVerse = StringUtils.replaceAll(completeVerse, "\\.", "");
 
-            start = m.end();
+
 //            logger.info("orginal " + grabbedVerse);
 //            logger.info("completeVerse " + completeVerse);
 
@@ -283,9 +287,13 @@ public class VerseRegExp implements VerseIntf {
         Matcher m = p.matcher(line);
         List<String> result = new ArrayList<>();
         if (m.find()) {
-            String book = mapBookAbbre(m.group(2));
-            String grabbedVerse = appendNextCharTillCompleteVerse(line, m.group(0), m.end(), line.length());
-            String verse_str = grabbedVerse.replaceFirst(m.group(2), "");
+            String group0 = m.group(0);
+            String book_str = m.group(2);
+            int matched_end = m.end();
+
+            String book = mapBookAbbre(book_str);
+            String grabbedVerse = appendNextCharTillCompleteVerse(line, group0, matched_end, line.length());
+            String verse_str = grabbedVerse.replaceFirst(book_str, "");
             result.add(StringUtils.trim(book));
             result.add(StringUtils.trim(verse_str));
         }
