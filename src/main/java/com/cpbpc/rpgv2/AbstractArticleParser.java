@@ -104,7 +104,7 @@ public abstract class AbstractArticleParser {
             IOUtils.write(removeHtmlTag(script), new FileOutputStream(new File("script-no-tag.txt")));
             System.out.println(script);
 //            OpenAIUtil.textToSpeech(removeHtmlTag("Girgashites"), "echo");
-//            AWSUtil.putScriptToS3(script, "2023-12-10");
+//            AWSUtil.putScriptToS3(script, "2024-01-14");
 
         } catch (Exception e) {
             logger.info(ExceptionUtils.getStackTrace(e));

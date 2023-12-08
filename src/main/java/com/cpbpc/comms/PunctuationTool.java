@@ -10,7 +10,7 @@ import java.util.regex.Pattern;
 
 public class PunctuationTool {
 
-    private static final String[] hyphens_unicode = new String[]{"\\u002d", "\\u2010", "\\u2011", "\\u2012", "\\u2013", "\\u2015", "\\u2212"};
+    private static final String[] hyphens_unicode = new String[]{"\\u002d", "\\u2010", "\\u2011", "\\u2012", "\\u2013", "\\u2015", "\\u2212", "\\u2500"};
 
     public static List<String> getAllowedPunctuations() {
         List<String> punctuations = new ArrayList<>();
