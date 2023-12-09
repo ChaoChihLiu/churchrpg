@@ -7,9 +7,6 @@ import com.cpbpc.comms.NumberConverter;
 import com.cpbpc.comms.OpenAIUtil;
 import com.cpbpc.comms.PunctuationTool;
 import com.cpbpc.comms.TextUtil;
-import com.cpbpc.comms.ThreadStorage;
-import com.cpbpc.rpgv2.PhoneticIntf;
-import com.cpbpc.rpgv2.VerseIntf;
 import com.github.difflib.DiffUtils;
 import com.github.difflib.patch.AbstractDelta;
 import com.github.difflib.patch.Patch;
@@ -90,15 +87,12 @@ public class ProofListener {
         String fromAI = ZhConverterUtil.toSimple(String.valueOf(result.get("text")));
         fromAI = TextUtil.removeMultiSpace(PunctuationTool.removePunctuation(fromAI));
         fromAI = fromAI.replaceAll("圣经 经文第", "圣经经文第");
-
-        VerseIntf verseRegex = ThreadStorage.getVerse();
-        PhoneticIntf phonetics = ThreadStorage.getPhonetics();
+        
         script = NumberConverter.toChineseNumber(ZhConverterUtil.toSimple(
                 TextUtil.removeMultiSpace(
                         PunctuationTool.removePunctuation(
                                         TextUtil.removeLinkBreak(
-                                                TextUtil.removeHtmlTag(
-                                                        phonetics.reversePhoneticCorrection(script), ""))))));
+                                                TextUtil.removeHtmlTag(script, ""))))));
         System.out.println("******Start of "+date+"******");
         System.out.println("original: " + script);
         System.out.println("from AI : " + fromAI);
