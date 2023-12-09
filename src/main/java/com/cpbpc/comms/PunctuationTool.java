@@ -184,8 +184,11 @@ public class PunctuationTool {
     }
     private static Pattern punctuation_pattern = Pattern.compile("[\\p{P}]");
     public static String removePunctuation(String text) {
+        return removePunctuation(text, " ");
+    }
+    public static String removePunctuation(String text, String replacement) {
         Matcher matcher = punctuation_pattern.matcher(text);
-        String result = matcher.replaceAll(" ");
+        String result = matcher.replaceAll(replacement);
         return result;
     }
 

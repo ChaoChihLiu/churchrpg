@@ -111,7 +111,8 @@ dependencies {
     implementation group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.22.0'
     // https://mvnrepository.com/artifact/io.github.java-diff-utils/java-diff-utils
     implementation group: 'io.github.java-diff-utils', name: 'java-diff-utils', version: '4.12'
-
+    // https://mvnrepository.com/artifact/com.belerweb/pinyin4j
+    implementation group: 'com.belerweb', name: 'pinyin4j', version: '2.5.0'
 
 }
 
