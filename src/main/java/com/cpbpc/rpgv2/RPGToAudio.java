@@ -49,6 +49,8 @@ public class RPGToAudio {
             AWSUtil.putScriptToS3(content_modified, convertData.getStartDate());
         }
 
+        AWSUtil.putPLScriptToS3(composer.toPolly(false), convertData.getStartDate());
+
         return true;
     }
 

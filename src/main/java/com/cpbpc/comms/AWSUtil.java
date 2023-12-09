@@ -92,6 +92,27 @@ public class AWSUtil {
 
     }
 
+    public static void putPLScriptToS3(String content, String publishDate_str) throws IOException {
+
+        String bucketName = AppProperties.getConfig().getProperty("pl_bucket");
+        String prefix = AppProperties.getConfig().getProperty("pl_prefix");
+        if (!prefix.endsWith("/")) {
+            prefix += "/";
+        }
+
+        String publishMonth = publishDate_str.split("-")[0] + "_" + publishDate_str.split("-")[1];
+        String nameToBe = AppProperties.getConfig().getProperty("name_prefix") + publishDate_str.replaceAll("-", "");
+        String objectType = AppProperties.getConfig().getProperty("pl_format");
+        String objectKey = prefix + publishMonth + "/" + nameToBe + "." + objectType;
+        String audioKey =  AppProperties.getConfig().getProperty("output_prefix")
+                + publishMonth + "/"
+                + nameToBe + "."
+                + AppProperties.getConfig().getProperty("output_format");
+
+        saveToS3(content, bucketName, objectKey, publishDate_str, audioKey);
+
+    }
+
     public static void putScriptToS3(String content, String publishDate_str) throws IOException {
 
         String bucketName = AppProperties.getConfig().getProperty("script_bucket");
