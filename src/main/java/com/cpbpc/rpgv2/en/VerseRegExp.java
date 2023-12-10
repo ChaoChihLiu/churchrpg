@@ -242,9 +242,9 @@ public class VerseRegExp implements VerseIntf {
             String book_str = m.group(2);
             int matched_end = m.end();
             start = matched_end;
-            String book = mapBookAbbre(book_str);
             String grabbedVerse = appendNextCharTillCompleteVerse(line, group0, matched_end, line.length());
             String verse_str = grabbedVerse.replaceFirst(book_str, "");
+            String book = makeItPlural(mapBookAbbre(book_str), verse_str);
             String completeVerse = generateCompleteVerses(book, verse_str);
             completeVerse = StringUtils.replaceAll(completeVerse, "\\.", "");
 
@@ -259,6 +259,24 @@ public class VerseRegExp implements VerseIntf {
         }
 
         return result;
+    }
+
+    private String makeItPlural(String book, String verseStr) {
+        if( !StringUtils.equalsIgnoreCase(book, "Psalms") && !StringUtils.equalsIgnoreCase(book, "Psalm") ){
+            return book;
+        }
+
+        if( StringUtils.countMatches(verseStr, ":") >=2 ){
+            return "Psalms";
+        }
+        String hyphen = getHyphen(verseStr);
+        if( !StringUtils.isEmpty(hyphen)
+                && StringUtils.countMatches(verseStr, hyphen) >= 1
+                && StringUtils.countMatches(verseStr, ":") <= 0 ){
+            return "Psalms";
+        }
+
+        return "Psalm";
     }
 
     private  String mapBookAbbre(String book) {
