@@ -91,7 +91,7 @@ public class ArticleParser extends AbstractArticleParser {
 
     @Override
     protected Pattern getDatePattern() {
-        return Pattern.compile("[一二三四五六七八九十百千零月日主礼拜,]{8,11}");
+        return Pattern.compile("[一二三四五六七八九十百千零月日主礼拜,]{7,11}");
     }
 
     @Override
