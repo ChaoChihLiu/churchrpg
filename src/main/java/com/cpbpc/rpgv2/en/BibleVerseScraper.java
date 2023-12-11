@@ -63,14 +63,14 @@ public class BibleVerseScraper {
 //                String verseStr = "32:7";
 //        String verseStr = "31:1,7, 9,11";
 //        String verseStr = "3:7-9";
-        String book = "Psalms";
+        String book = "James";
 //        String book = "Proverbs";
 //        String verseStr = "32:7-34";
 //        String verseStr = "32:7-34:9";
 //        String verseStr = "24:1-8";
 //        String verseStr = "24-26:8";
 //        String verseStr = "9";
-        String verseStr = "34-36";
+        String verseStr = "1";
         System.out.println(scrap(book, verseStr));
     }
     public static String scrap(String book, String verseStr) throws IOException {
@@ -116,7 +116,9 @@ public class BibleVerseScraper {
             }
             result.addAll(list2);
 
-        } else {
+        }else if( NumberUtils.isCreatable(StringUtils.trim(verseStr)) ){
+            result.addAll(returnVerses(verseStr+ ":1-200"));
+        }else {
             result.addAll(returnVerses(verseStr));
         }
         return attachBibleVerses(book, result, chapterBreak);

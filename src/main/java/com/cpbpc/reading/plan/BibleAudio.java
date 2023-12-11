@@ -15,14 +15,17 @@ import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.logging.Logger;
 
 import static com.cpbpc.comms.PunctuationTool.replacePauseTag;
 import static com.cpbpc.comms.PunctuationTool.replacePunctuationWithPause;
 import static com.cpbpc.comms.TextUtil.returnChapterWord;
 
 public class BibleAudio {
+    private static Logger logger = Logger.getLogger(BibleAudio.class.getName());
 
     public BibleAudio(){
     }
@@ -31,14 +34,23 @@ public class BibleAudio {
 
     public static void main(String args[]) throws IOException, InvalidFormatException, SQLException, InterruptedException {
         AppProperties.loadConfig(System.getProperty("app.properties",
-                                                    "/Users/liuchaochih/Documents/GitHub/churchrpg/src/main/resources/app-bibleplan-chinese.properties"));
+                                                    "/Users/liuchaochih/Documents/GitHub/churchrpg/src/main/resources/app-bibleplan-english.properties"));
 
         initStorage();
         PhoneticIntf phoneticIntf = ThreadStorage.getPhonetics();
-        File file = new File( appProperties.getProperty("reading_plan") );
+
         BibleAudio bibleAudio = new BibleAudio();
-        List<String> verses = SpreadSheetReader.readVerseFromXlsx(file);
-//        List<String> verses = List.of("创 1章", "太 1章");
+        List<String> verses = new ArrayList<>();
+        if( appProperties.containsKey("reading_plan") ){
+            File file = new File( appProperties.getProperty("reading_plan") );
+            verses.addAll(SpreadSheetReader.readVerseFromXlsx(file));
+        }
+        if( appProperties.containsKey("day_plan") ){
+            verses.addAll(List.of(StringUtils.split(appProperties.getProperty("day_plan"), ",")));
+        }
+
+        logger.info("appProperties : " + appProperties.toString());
+        logger.info("verses : " + verses.toString());
 
         String chapterBreak = "_______";
         for( String verse : verses ){
@@ -92,7 +104,7 @@ public class BibleAudio {
         return result;
     }
 
-    private static void sendToS3(String content, String book, int chapterNum) throws IOException {
+    private static void sendToS3(String content, String book, int chapterNum) throws IOException, InterruptedException {
 
         PhoneticIntf phoneticIntf = ThreadStorage.getPhonetics();
         String toBe = replacePauseTag(replacePunctuationWithPause(content));
@@ -104,8 +116,13 @@ public class BibleAudio {
         String[] verses = StringUtils.split(toBe, System.lineSeparator());
         int verseNum = 1;
         for( String verse : verses ){
-//            Thread.sleep(1000);
-            String script = AWSUtil.toPolly(PunctuationTool.replacePunctuationWithBreakTag(verse));
+            String script = "";
+            if( !StringUtils.equalsIgnoreCase(appProperties.getProperty("engine"), "long-form") ){
+                script = AWSUtil.toPolly(PunctuationTool.replacePunctuationWithBreakTag(verse));
+            }else{
+                Thread.sleep(3000);
+                script = AWSUtil.toPolly(verse);
+            }
 //            System.out.println(script);
             AWSUtil.putBibleScriptToS3(script, book, String.valueOf(chapterNum), String.valueOf(verseNum));
             verseNum++;

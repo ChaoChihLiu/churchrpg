@@ -13,6 +13,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Properties;
 import java.util.logging.Logger;
 
 public class AudioMerger {
@@ -73,8 +74,16 @@ public class AudioMerger {
     public static void main(String[] args) {
 
         try {
-            File file = new File( AppProperties.getConfig().getProperty("reading_plan") );
-            List<String> verses = SpreadSheetReader.readVerseFromXlsx(file);
+            Properties appProperties = AppProperties.getConfig();
+            List<String> verses = new ArrayList<>();
+            if( appProperties.containsKey("reading_plan") ){
+                File file = new File( appProperties.getProperty("reading_plan") );
+                verses.addAll(SpreadSheetReader.readVerseFromXlsx(file));
+            }
+            if( appProperties.containsKey("day_plan") ){
+                verses.addAll(List.of(StringUtils.split(appProperties.getProperty("day_plan"), ",")));
+            }
+
             logger.info("verse size " + verses.size());
             mergeMp3(verses);
         }catch (Exception e){

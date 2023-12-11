@@ -63,6 +63,7 @@ public class AWSUtil {
             tags.add(new Tag("output_bucket", AppProperties.getConfig().getProperty("output_bucket")));
             tags.add(new Tag("output_format", AppProperties.getConfig().getProperty("output_format")));
             tags.add(new Tag("output_prefix", AppProperties.getConfig().getProperty("output_prefix")));
+            tags.add(new Tag("engine", AppProperties.getConfig().getProperty("engine")));
             
             putObjectRequest.setStorageClass(StorageClass.IntelligentTiering);
             putObjectRequest.setTagging(new ObjectTagging(tags));
