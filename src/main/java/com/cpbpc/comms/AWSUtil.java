@@ -39,11 +39,11 @@ public class AWSUtil {
         }
     }
     
-    private static void saveToS3(String content, String bucketName, String objectKey, String audioKey) throws IOException {
+    private static void saveToS3(String content, String bucketName, String objectKey, String audioKey) {
         saveToS3(content, bucketName, objectKey, "", audioKey);
     }
 
-    private static void saveToS3(String content, String bucketName, String objectKey, String publishDate_str, String audioKey) throws IOException {
+    private static void saveToS3(String content, String bucketName, String objectKey, String publishDate_str, String audioKey) {
         try {
             InputStream inputStream = new StringInputStream(content);
             // Upload the file to S3
@@ -57,13 +57,20 @@ public class AWSUtil {
             tags.add(new Tag("voice_id", AppProperties.getConfig().getProperty("voice_id")));
             tags.add(new Tag("category", URLDecoder.decode(AppProperties.getConfig().getProperty("content_category"))));
             tags.add(new Tag("audio_key", audioKey));
-            if( AppProperties.getConfig().containsKey("name_prefix") ){
-                tags.add(new Tag("name_prefix", AppProperties.getConfig().getProperty("name_prefix")));
-            }
+//            if( AppProperties.getConfig().containsKey("name_prefix") ){
+//                tags.add(new Tag("name_prefix", AppProperties.getConfig().getProperty("name_prefix")));
+//            }
             tags.add(new Tag("output_bucket", AppProperties.getConfig().getProperty("output_bucket")));
             tags.add(new Tag("output_format", AppProperties.getConfig().getProperty("output_format")));
             tags.add(new Tag("output_prefix", AppProperties.getConfig().getProperty("output_prefix")));
             tags.add(new Tag("engine", AppProperties.getConfig().getProperty("engine")));
+
+            if( AppProperties.getConfig().containsKey("pl_script_bucket") ){
+                tags.add(new Tag("pl_script_bucket", AppProperties.getConfig().getProperty("pl_script_bucket")));
+                tags.add(new Tag("pl_script", StringUtils.replace(objectKey,
+                                                                            AppProperties.getConfig().getProperty("script_format"),
+                                                                            AppProperties.getConfig().getProperty("pl_format"))));
+            }
             
             putObjectRequest.setStorageClass(StorageClass.IntelligentTiering);
             putObjectRequest.setTagging(new ObjectTagging(tags));
@@ -95,7 +102,7 @@ public class AWSUtil {
 
     public static void putPLScriptToS3(String content, String publishDate_str) throws IOException {
 
-        String bucketName = AppProperties.getConfig().getProperty("pl_bucket");
+        String bucketName = AppProperties.getConfig().getProperty("pl_script_bucket");
         String prefix = AppProperties.getConfig().getProperty("pl_prefix");
         if (!prefix.endsWith("/")) {
             prefix += "/";
