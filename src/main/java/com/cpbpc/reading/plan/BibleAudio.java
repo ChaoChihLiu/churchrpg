@@ -134,6 +134,10 @@ public class BibleAudio {
             return  book + chapterNum + returnChapterWord(book);
         }
 
+        if( StringUtils.equalsIgnoreCase(book, "psalm") || StringUtils.equalsIgnoreCase(book, "psalms") ){
+            return  book + chapterNum;
+        }
+
         return  book +" chapter " + chapterNum;
 
     }
