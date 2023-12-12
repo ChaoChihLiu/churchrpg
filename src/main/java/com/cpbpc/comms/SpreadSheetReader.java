@@ -30,14 +30,16 @@ public class SpreadSheetReader {
         XSSFSheet sheet = xssfWorkbook.getSheetAt(Integer.parseInt(AppProperties.getConfig().getProperty("sheet_index")));
         for( int i = startRow; i<=endRow; i++ ){
             String value = sheet.getRow(i).getCell(cellIndex).getStringCellValue();
-            String chapterWord = TextUtil.returnChapterWord(StringUtils.substring(value, 0, 1));
 
-            if(containHyphen(value)){
-                String hyphen = getHyphen(value);
-                value = StringUtils.substring(value, 0, StringUtils.indexOf(value, hyphen)) + chapterWord
-                        + StringUtils.substring(value, StringUtils.indexOf(value, hyphen)) + chapterWord;
-            }else{
-                value += chapterWord;
+            if( AppProperties.isChinese() ){
+                String chapterWord = TextUtil.returnChapterWord(StringUtils.substring(value, 0, 1));
+                if(containHyphen(value)){
+                    String hyphen = getHyphen(value);
+                    value = StringUtils.substring(value, 0, StringUtils.indexOf(value, hyphen)) + chapterWord
+                            + StringUtils.substring(value, StringUtils.indexOf(value, hyphen)) + chapterWord;
+                }else{
+                    value += chapterWord;
+                }
             }
 
             result.add(value);
