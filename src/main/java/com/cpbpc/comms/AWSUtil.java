@@ -100,7 +100,22 @@ public class AWSUtil {
 
     }
 
-    public static void putPLScriptToS3(String content, String publishDate_str) throws IOException {
+    public static void putBiblePLScriptToS3(String content, String objectKey) {
+
+        String bucketName = AppProperties.getConfig().getProperty("pl_script_bucket");
+        String prefix = AppProperties.getConfig().getProperty("pl_prefix");
+        if (!prefix.endsWith("/")) {
+            prefix += "/";
+        }
+
+        String objectType = AppProperties.getConfig().getProperty("pl_format");
+        objectKey = prefix + objectKey + "/" + "." + objectType;
+
+        saveToS3(content, bucketName, objectKey, "");
+
+    }
+
+    public static void putPLScriptToS3(String content, String publishDate_str) {
 
         String bucketName = AppProperties.getConfig().getProperty("pl_script_bucket");
         String prefix = AppProperties.getConfig().getProperty("pl_prefix");

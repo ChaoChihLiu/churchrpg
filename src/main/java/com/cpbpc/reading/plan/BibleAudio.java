@@ -59,6 +59,8 @@ public class BibleAudio {
             String content = phoneticIntf.convert(scrapBibleVerse(book, result.get(1), chapterBreak));
             String chapterWord = TextUtil.returnChapterWord(book);
 
+            String pl_script = "";
+
             int startChapter = 0;
             if( content.contains(chapterBreak) && PunctuationTool.containHyphen(result.get(1)) ){
                 String hyphen = PunctuationTool.getHyphen(result.get(1));
@@ -66,19 +68,22 @@ public class BibleAudio {
                 startChapter = Integer.valueOf(StringUtils.replace(StringUtils.trim(list[0]), chapterWord, ""));
                 int endChapter = Integer.valueOf(StringUtils.replace(StringUtils.trim(list[1]), chapterWord, ""));
                 String[] chapterContents = content.split(chapterBreak);
-                for( String chapter : chapterContents ){
-                    System.out.println(chapter);
-                }
+
                 int count = 0;
                 for( int i = startChapter; i<=endChapter; i++ ){
                     sendToS3( chapterContents[count], book, i );
                     count++;
                 }
+                pl_script = StringUtils.join(chapterContents, System.lineSeparator());
             }//end of if
             else{
                 String input = content.replace(chapterBreak, "");
+                pl_script = input;
                 sendToS3(input, book, Integer.valueOf(StringUtils.replace(StringUtils.trim(result.get(1)), chapterWord, "")));
             }
+
+            pl_script = AWSUtil.toPolly(PunctuationTool.replacePauseTag(pl_script, ""));
+            AWSUtil.putBiblePLScriptToS3(pl_script, verse);
 
         }//end of for loop verses
 
