@@ -26,6 +26,8 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.logging.Logger;
 
+import static com.cpbpc.comms.PunctuationTool.containHyphen;
+import static com.cpbpc.comms.PunctuationTool.getHyphen;
 import static com.cpbpc.comms.PunctuationTool.replacePauseTag;
 import static com.cpbpc.comms.PunctuationTool.replacePunctuationWithPause;
 import static com.cpbpc.comms.TextUtil.currentDateTime;
@@ -42,9 +44,7 @@ public class BibleAudio {
     public static void main(String args[]) throws IOException, InvalidFormatException, SQLException, InterruptedException {
         AppProperties.loadConfig(System.getProperty("app.properties",
                                                     "/Users/liuchaochih/Documents/GitHub/churchrpg/src/main/resources/app-bibleplan-chinese.properties"));
-
         initStorage();
-        PhoneticIntf phoneticIntf = ThreadStorage.getPhonetics();
 
         BibleAudio bibleAudio = new BibleAudio();
         List<String> verses = new ArrayList<>();
@@ -55,9 +55,6 @@ public class BibleAudio {
         if( appProperties.containsKey("day_plan") ){
             verses.addAll(List.of(StringUtils.split(URLDecoder.decode(appProperties.getProperty("day_plan")), ",")));
         }
-
-        logger.info("appProperties : " + appProperties.toString());
-        logger.info("verses : " + verses.toString());
 
         String chapterBreak = "_______";
         Map<String, Integer> verseCount = new HashMap<>();
@@ -84,9 +81,8 @@ public class BibleAudio {
                 for( int i = startChapter; i<=endChapter; i++ ){
                     AWSUtil.purgeBucket(appProperties.getProperty("output_bucket"), appProperties.getProperty("output_prefix")+book+"/"+i);
                     sendToS3( chapterContents[count], book, i );
-                    count++;
-
                     verseCount.put(book + "," + i, StringUtils.split(chapterContents[count], System.lineSeparator()).length+1);
+                    count++;
                 }
                 pl_script = StringUtils.join(chapterContents, System.lineSeparator());
             }//end of if
@@ -99,8 +95,8 @@ public class BibleAudio {
                 verseCount.put(book + "," + chapterNum, StringUtils.split(input, System.lineSeparator()).length+1);
             }
 
-            pl_script = AWSUtil.toPolly(PunctuationTool.replacePauseTag(pl_script, ""));
-            AWSUtil.putBiblePLScriptToS3(pl_script, verse);
+            pl_script = PunctuationTool.replacePauseTag(pl_script, "");
+            AWSUtil.putBiblePLScriptToS3(pl_script, StringUtils.remove(verse, " "));
 
         }//end of for loop verses
 
@@ -110,9 +106,13 @@ public class BibleAudio {
 
         for( String verse : verses ){
             List<Tag> tags = new ArrayList<>();
+            tags.add(new Tag("output_bucket", appProperties.getProperty("output_bucket")));
+            tags.add(new Tag("output_prefix", appProperties.getProperty("output_prefix")));
+            tags.add(new Tag("output_format", appProperties.getProperty("output_format")));
             tags.add(new Tag("audio_merged_bucket", appProperties.getProperty("audio_merged_bucket")));
             tags.add(new Tag("audio_merged_prefix", appProperties.getProperty("audio_merged_prefix")));
-            tags.add(new Tag("pl_script", AWSUtil.returnPLObjectKey(verse)));
+            tags.add(new Tag("audio_merged_format", appProperties.getProperty("audio_merged_format")));
+            tags.add(new Tag("pl_script", AWSUtil.returnPLObjectKey(StringUtils.remove(verse, " "))));
             tags.add(new Tag("pl_script_bucket", appProperties.getProperty("pl_script_bucket")));
             AWSUtil.uploadS3Object( appProperties.getProperty("script_bucket"),
                     appProperties.getProperty("script_prefix"),
@@ -161,10 +161,31 @@ public class BibleAudio {
 
         if( AppProperties.isChinese() ){
             String book = result.get(0);
+            String verseStr = result.get(1);
             for( int i=1; i<result.size(); i++ ){
                 String chapterWord = returnChapterWord(book);
-                if( !StringUtils.endsWith(result.get(i), chapterWord) ){
+                if( !containHyphen(verseStr) && !StringUtils.endsWith(result.get(i), chapterWord) ){
                     result.set(i, result.get(i)+chapterWord);
+                }
+                if( containHyphen(verseStr) ){
+                    String hyphen = getHyphen(verseStr);
+                    String[] tmp = StringUtils.split(verseStr, hyphen);
+                    StringBuilder builder = new StringBuilder();
+                    for( String input : tmp ){
+                        if( !StringUtils.contains(input, chapterWord) ){
+                            builder.append( input ).append(chapterWord);
+                        }else{
+                            builder.append( input );
+                        }
+                        builder.append(hyphen);
+                    }
+
+                    String output = builder.toString();
+                    if( StringUtils.endsWith(output, hyphen) ){
+                        output = StringUtils.substring(output, 0, output.length()-1);
+                    }
+
+                    result.set(i, output);
                 }
             }
         }

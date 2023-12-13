@@ -69,7 +69,7 @@ public class AWSUtil {
 
             if( AppProperties.getConfig().containsKey("pl_script_bucket") ){
                 tags.add(new Tag("pl_script_bucket", AppProperties.getConfig().getProperty("pl_script_bucket")));
-                tags.add(new Tag("pl_script", StringUtils.replace(objectKey,
+                tags.add(new Tag("pl_script", StringUtils.replace(StringUtils.remove(objectKey, " "),
                                                                             AppProperties.getConfig().getProperty("script_format"),
                                                                             AppProperties.getConfig().getProperty("pl_format"))));
             }
