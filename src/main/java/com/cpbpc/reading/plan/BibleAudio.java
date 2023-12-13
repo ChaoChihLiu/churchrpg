@@ -1,5 +1,7 @@
 package com.cpbpc.reading.plan;
 
+import com.amazonaws.services.s3.model.S3ObjectSummary;
+import com.amazonaws.services.s3.model.Tag;
 import com.cpbpc.comms.AWSUtil;
 import com.cpbpc.comms.AppProperties;
 import com.cpbpc.comms.DBUtil;
@@ -14,14 +16,19 @@ import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URLDecoder;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.logging.Logger;
 
 import static com.cpbpc.comms.PunctuationTool.replacePauseTag;
 import static com.cpbpc.comms.PunctuationTool.replacePunctuationWithPause;
+import static com.cpbpc.comms.TextUtil.currentDateTime;
 import static com.cpbpc.comms.TextUtil.returnChapterWord;
 
 public class BibleAudio {
@@ -34,7 +41,7 @@ public class BibleAudio {
 
     public static void main(String args[]) throws IOException, InvalidFormatException, SQLException, InterruptedException {
         AppProperties.loadConfig(System.getProperty("app.properties",
-                                                    "/Users/liuchaochih/Documents/GitHub/churchrpg/src/main/resources/app-bibleplan-english.properties"));
+                                                    "/Users/liuchaochih/Documents/GitHub/churchrpg/src/main/resources/app-bibleplan-chinese.properties"));
 
         initStorage();
         PhoneticIntf phoneticIntf = ThreadStorage.getPhonetics();
@@ -46,17 +53,21 @@ public class BibleAudio {
             verses.addAll(SpreadSheetReader.readVerseFromXlsx(file));
         }
         if( appProperties.containsKey("day_plan") ){
-            verses.addAll(List.of(StringUtils.split(appProperties.getProperty("day_plan"), ",")));
+            verses.addAll(List.of(StringUtils.split(URLDecoder.decode(appProperties.getProperty("day_plan")), ",")));
         }
 
         logger.info("appProperties : " + appProperties.toString());
         logger.info("verses : " + verses.toString());
 
         String chapterBreak = "_______";
+        Map<String, Integer> verseCount = new HashMap<>();
+        List<String> verse_to_merged = new ArrayList<>();
         for( String verse : verses ){
             List<String> result = analyseVerse(verse);
+            verse_to_merged.add(result.get(0)+"|"+result.get(1));
+
             String book = result.get(0);
-            String content = phoneticIntf.convert(scrapBibleVerse(book, result.get(1), chapterBreak));
+            String content = scrapBibleVerse(book, result.get(1), chapterBreak);
             String chapterWord = TextUtil.returnChapterWord(book);
 
             String pl_script = "";
@@ -71,15 +82,21 @@ public class BibleAudio {
 
                 int count = 0;
                 for( int i = startChapter; i<=endChapter; i++ ){
+                    AWSUtil.purgeBucket(appProperties.getProperty("output_bucket"), appProperties.getProperty("output_prefix")+book+"/"+i);
                     sendToS3( chapterContents[count], book, i );
                     count++;
+
+                    verseCount.put(book + "," + i, StringUtils.split(chapterContents[count], System.lineSeparator()).length+1);
                 }
                 pl_script = StringUtils.join(chapterContents, System.lineSeparator());
             }//end of if
             else{
+                int chapterNum = Integer.valueOf(StringUtils.replace(StringUtils.trim(result.get(1)), chapterWord, ""));
+                AWSUtil.purgeBucket(appProperties.getProperty("output_bucket"), appProperties.getProperty("output_prefix")+book+"/"+chapterNum);
                 String input = content.replace(chapterBreak, "");
                 pl_script = input;
-                sendToS3(input, book, Integer.valueOf(StringUtils.replace(StringUtils.trim(result.get(1)), chapterWord, "")));
+                sendToS3(input, book, chapterNum);
+                verseCount.put(book + "," + chapterNum, StringUtils.split(input, System.lineSeparator()).length+1);
             }
 
             pl_script = AWSUtil.toPolly(PunctuationTool.replacePauseTag(pl_script, ""));
@@ -87,8 +104,54 @@ public class BibleAudio {
 
         }//end of for loop verses
 
-//        Thread.sleep(10 * 60 * 1000);
-//        AudioMerger.mergeMp3(verses);
+        while( !isAllAudioDone(verseCount) ){
+            Thread.sleep(10*1000);
+        }
+
+        for( String verse : verses ){
+            List<Tag> tags = new ArrayList<>();
+            tags.add(new Tag("audio_merged_bucket", appProperties.getProperty("audio_merged_bucket")));
+            tags.add(new Tag("audio_merged_prefix", appProperties.getProperty("audio_merged_prefix")));
+            tags.add(new Tag("pl_script", AWSUtil.returnPLObjectKey(verse)));
+            tags.add(new Tag("pl_script_bucket", appProperties.getProperty("pl_script_bucket")));
+            AWSUtil.uploadS3Object( appProperties.getProperty("script_bucket"),
+                    appProperties.getProperty("script_prefix"),
+                    currentDateTime()+".audioMerge",
+                    StringUtils.join(verse_to_merged, ","),
+                    tags
+            );
+        }
+    }
+
+    private static boolean isAllAudioDone(Map<String, Integer> verseCount) {
+
+        Set<Map.Entry<String, Integer>> entrySet = verseCount.entrySet();
+        for( Map.Entry<String, Integer> entry : entrySet ){
+            String book = StringUtils.trim(StringUtils.split(entry.getKey(), ",")[0]);
+            int chapter = Integer.parseInt(StringUtils.trim(StringUtils.split(entry.getKey(), ",")[1]));
+            int numberOfVerse = entry.getValue();
+
+            if( !isThisChapterDone(book,chapter, numberOfVerse) ){
+                return false;
+            }
+        }
+
+
+        return true;
+    }
+
+    private static boolean isThisChapterDone(String book, int chapter, int numberOfVerse) {
+        List<S3ObjectSummary> summaries = AWSUtil.listS3Objects(appProperties.getProperty("output_bucket"),
+                                                                appProperties.getProperty("output_prefix")+book+"/"+chapter+"/");
+
+        int count = 0;
+        for( S3ObjectSummary summary : summaries ){
+            if( StringUtils.endsWith(summary.getKey(), appProperties.getProperty("output_format")) ){
+                count++;
+            }
+        }
+
+        return count == numberOfVerse;
     }
 
     private static List<String> analyseVerse(String verse) {

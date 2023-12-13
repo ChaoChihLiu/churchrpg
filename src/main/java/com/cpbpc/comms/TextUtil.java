@@ -4,10 +4,24 @@ import com.github.houbb.opencc4j.util.ZhConverterUtil;
 import net.sourceforge.pinyin4j.PinyinHelper;
 import org.apache.commons.lang3.StringUtils;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class TextUtil {
+
+    private static SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
+    public static String currentDateTime(){
+        Date today = new Date();
+        return dateTimeFormat.format(today);
+    }
+
+    private static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+    public static String currentDate(){
+        Date today = new Date();
+        return dateFormat.format(today);
+    }
 
     public static String returnChapterWord(String book){
         if( AppProperties.isChinese() ){

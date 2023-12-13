@@ -3,18 +3,20 @@ package com.cpbpc.comms;
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.ListObjectsV2Request;
 import com.amazonaws.services.s3.model.ListObjectsV2Result;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.ObjectTagging;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.amazonaws.services.s3.model.PutObjectResult;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.amazonaws.services.s3.model.StorageClass;
 import com.amazonaws.services.s3.model.Tag;
 import com.amazonaws.util.IOUtils;
 import com.amazonaws.util.StringInputStream;
-import com.amazonaws.util.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import java.io.File;
@@ -51,7 +53,7 @@ public class AWSUtil {
             PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName, objectKey, inputStream, metadata);
 
             List<Tag> tags = new ArrayList<>();
-            if( !StringUtils.isNullOrEmpty(publishDate_str) ){
+            if( !StringUtils.isEmpty(publishDate_str) ){
                 tags.add(new Tag("publish_date", publishDate_str));
             }
             tags.add(new Tag("voice_id", AppProperties.getConfig().getProperty("voice_id")));
@@ -100,19 +102,22 @@ public class AWSUtil {
 
     }
 
-    public static void putBiblePLScriptToS3(String content, String objectKey) {
-
-        String bucketName = AppProperties.getConfig().getProperty("pl_script_bucket");
+    public static String returnPLObjectKey(String fileName){
         String prefix = AppProperties.getConfig().getProperty("pl_prefix");
         if (!prefix.endsWith("/")) {
             prefix += "/";
         }
 
         String objectType = AppProperties.getConfig().getProperty("pl_format");
-        objectKey = prefix + objectKey + "/" + "." + objectType;
+        String objectKey = prefix + fileName + "." + objectType;
 
+        return objectKey;
+    }
+
+    public static void putBiblePLScriptToS3(String content, String fileName) {
+        String bucketName = AppProperties.getConfig().getProperty("pl_script_bucket");
+        String objectKey = returnPLObjectKey(fileName);
         saveToS3(content, bucketName, objectKey, "");
-
     }
 
     public static void putPLScriptToS3(String content, String publishDate_str) {
@@ -190,7 +195,7 @@ public class AWSUtil {
         List<S3ObjectSummary> objects = listS3Objects(bucketName, outputPrefix);
         for( S3ObjectSummary object: objects ){
             String fileName = object.getKey();
-            System.out.println("object key " + fileName);
+            logger.info("object key " + fileName);
             if( !org.apache.commons.lang3.StringUtils.endsWith(fileName, outputFormat) ){
                 continue;
             }
@@ -204,16 +209,54 @@ public class AWSUtil {
     public static void downloadS3Object(String bucketName, String objectKey, String localFilePath){
 
         try {
-            File audioFile = new File(localFilePath);
-            if( !audioFile.exists() ){
-                audioFile.createNewFile();
+            File localFile = new File(localFilePath);
+            if( !localFile.exists() ){
+                localFile.createNewFile();
             }
 
             S3Object s3Object = s3Client.getObject(bucketName, objectKey);
 
             FileOutputStream fos = new FileOutputStream(localFilePath);
             IOUtils.copy(s3Object.getObjectContent(), fos);
-            System.out.println("Object downloaded successfully to: " + localFilePath);
+            logger.info("Object downloaded successfully to: " + localFilePath);
+        } catch (Exception e) {
+            logger.info(ExceptionUtils.getStackTrace(e));
+        }
+    }
+    public static void uploadS3Object(String bucketName, String prefix, String objectKey, File localFile, List<Tag> tags){
+
+        try {
+            if( !localFile.exists() || !localFile.isFile() ){
+                logger.info(localFile.getAbsolutePath() + " not exist or not a file, skip");
+                return;
+            }
+
+            PutObjectRequest request = new PutObjectRequest(bucketName, prefix+objectKey, localFile);
+            request.setStorageClass(StorageClass.IntelligentTiering);
+            request.setTagging(new ObjectTagging(tags));
+
+            PutObjectResult result = s3Client.putObject(request);
+            logger.info("Object uploaded successfully to S3 bucket: " + localFile.getName());
+        } catch (Exception e) {
+            logger.info(ExceptionUtils.getStackTrace(e));
+        }
+    }
+    public static void uploadS3Object(String bucketName, String prefix, String objectKey, String content, List<Tag> tags){
+
+        try {
+            if( StringUtils.isEmpty(content) ){
+                return;
+            }
+            if( !StringUtils.endsWith(prefix, "/") ){
+                prefix += "/";
+            }
+
+            PutObjectRequest request = new PutObjectRequest(bucketName, prefix+objectKey, new StringInputStream(content), new ObjectMetadata());
+            request.setStorageClass(StorageClass.IntelligentTiering);
+            request.setTagging(new ObjectTagging(tags));
+
+            PutObjectResult result = s3Client.putObject(request);
+            logger.info("Object uploaded successfully to S3 bucket");
         } catch (Exception e) {
             logger.info(ExceptionUtils.getStackTrace(e));
         }
@@ -227,5 +270,13 @@ public class AWSUtil {
         ListObjectsV2Result listObjectsResponse = s3Client.listObjectsV2(listObjectsRequest);
         List<S3ObjectSummary> objects = listObjectsResponse.getObjectSummaries();
         return objects;
+    }
+
+    public static void purgeBucket(String outputBucket, String outputPrefix) {
+        List<S3ObjectSummary> summaries = listS3Objects(outputBucket, outputPrefix);
+        for( S3ObjectSummary summary : summaries ){
+            DeleteObjectRequest request = new DeleteObjectRequest(outputBucket, summary.getKey());
+            s3Client.deleteObject(request);
+        }
     }
 }
