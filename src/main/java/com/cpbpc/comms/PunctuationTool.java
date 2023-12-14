@@ -114,7 +114,7 @@ public class PunctuationTool {
                 ;
 
         if( containHyphen(result) ){
-            Pattern pattern = Pattern.compile("[\\u4E00-\\u9FFF](["+StringUtils.join(getHyphensUnicode())+"]+)[\\u4E00-\\u9FFF]");
+            Pattern pattern = Pattern.compile("[\\u4E00-\\u9FFF](["+StringUtils.join(getHyphensUnicode())+"\\s]+)[\\u4E00-\\u9FFF]");
             Matcher matcher = pattern.matcher(result);
             int start = 0;
             String result1 = result;

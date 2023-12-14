@@ -18,6 +18,7 @@ import java.util.regex.Pattern;
 
 import static com.cpbpc.comms.PunctuationTool.containHyphen;
 import static com.cpbpc.comms.PunctuationTool.getAllowedPunctuations;
+import static com.cpbpc.comms.TextUtil.returnChapterWord;
 
 public class VerseRegExp implements VerseIntf {
 
@@ -88,16 +89,13 @@ public class VerseRegExp implements VerseIntf {
         return builder.toString();
     }
 
-    public Pattern getVersePattern() {
-        if (versePattern != null) {
-            return versePattern;
-        }
-
+    private String buildBibleRefReg(){
         StringBuilder builder = new StringBuilder("((");
 
         Set<String> keySet = ThreadStorage.getVerse().getVerseMap().keySet();
         for (String key : keySet) {
             builder.append(key.toString()).append("|")
+                    .append(ZhConverterUtil.toTraditional(key.toString())).append("|")
                     .append(key.toString()).append("&nbsp;|")
                     .append(key.replace(" ", "&nbsp;")).append("|")
             ;
@@ -107,9 +105,19 @@ public class VerseRegExp implements VerseIntf {
         }
         builder.append(")\\s{0,}[0-9一二三四五六七八九十百千零]{1,5}[:|：]{0,})");
 
+        return builder.toString();
+    }
+
+    public Pattern getVersePattern() {
+        if (versePattern != null) {
+            return versePattern;
+        }
+
+        String pattern = buildBibleRefReg();
+
 //        logger.info(builder.toString());
 
-        versePattern = Pattern.compile(builder.toString());
+        versePattern = Pattern.compile(pattern);
         return versePattern;
     }
 
@@ -118,7 +126,6 @@ public class VerseRegExp implements VerseIntf {
     //弗6;7
     //弗6,7
     //弗6:13
-
     public List<String> analyseVerse(String line) {
         Pattern p = getVersePattern();
         Matcher m = p.matcher(line);
@@ -180,7 +187,81 @@ public class VerseRegExp implements VerseIntf {
             result = result.replaceFirst(grabbedVerse, completeVerse);
         }
 
+        result = convertReference(result);
+
         return result;
+    }
+
+    private String convertReference(String line) {
+        Pattern p = getReferencePattern();
+        Matcher matcher = p.matcher(line);
+
+        String result = line;
+        int start = 0;
+        while(matcher.find(start)){
+            String found = matcher.group();
+            String refWord = matcher.group(2);
+            System.out.println(matcher.group(2));
+            start = matcher.end();
+            int matched_end = start;
+
+            String book = StringUtils.remove(StringUtils.remove(refWord, "参"), ZhConverterUtil.toTraditional("参"));
+            if( StringUtils.isEmpty(book) ){
+                book = findLastMentionedBook(line, matched_end);
+            }
+
+            String grabbedVerse = appendNextCharTillCompleteVerse(line, found, matched_end, line.length());
+            String verse_str = grabbedVerse.replaceFirst(refWord, "");
+            String completeVerse = generateCompleteVerses(book, verse_str);
+            completeVerse = fix1ChapterBook(book, completeVerse);
+            result = result.replaceFirst(grabbedVerse, "參考"+completeVerse);
+        }
+
+        return result;
+    }
+
+    private String findLastMentionedBook(String line, int anchorPoint) {
+        Pattern p = getVersePattern();
+        Matcher m = p.matcher(line);
+        int start = 0;
+        String result = "";
+        while (m.find(start)) {
+            String book_simplied = m.group(2);
+            Integer matched_end = m.end();
+            start = matched_end;
+
+            if( matched_end >= anchorPoint ){
+                return result;
+            }
+
+            result = book_simplied;
+        }
+        
+        return result;
+    }
+
+    //参1:13-15
+    //參1:13-15
+    //參士1:13-15
+    //參士师记1:13-15
+    private Pattern getReferencePattern() {
+
+        StringBuilder builder = new StringBuilder("(([參|参]{1,1}\\s{0,}[");
+
+        Set<String> keySet = ThreadStorage.getVerse().getVerseMap().keySet();
+        for (String key : keySet) {
+            builder.append(key.toString()).append("|")
+                    .append(ZhConverterUtil.toTraditional(key.toString())).append("|")
+                    .append(key.toString()).append("&nbsp;|")
+                    .append(key.replace(" ", "&nbsp;")).append("|")
+            ;
+        }
+        if (builder.toString().endsWith("|")) {
+            builder.delete(builder.length() - 1, builder.length());
+        }
+        builder.append("]{0,})\\s{0,}[0-9一二三四五六七八九十百千零]{1,5}[:|：]{0,})");
+
+        return Pattern.compile(builder.toString());
     }
 
     private static List<String> oneChapterBook = List.of("俄", "俄巴底亞書", "門", "腓利門書", "约二", "約翰二書", "约三", "約翰三書", "猶", "猶大書");
@@ -307,15 +388,5 @@ public class VerseRegExp implements VerseIntf {
         return endWithPunctuationPattern.matcher(input).find();
     }
 
-    private String returnChapterWord(String book) {
-        String chapter = "章";
-        if (StringUtils.equalsIgnoreCase("詩篇", book)
-                || StringUtils.equalsIgnoreCase("诗篇", book)
-                || StringUtils.equalsIgnoreCase("詩", book)
-                || StringUtils.equalsIgnoreCase("诗", book)) {
-            chapter = "篇";
-        }
-        return chapter;
-    }
 
 }

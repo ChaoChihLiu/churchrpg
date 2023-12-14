@@ -25,10 +25,8 @@ public class TextUtil {
 
     public static String returnChapterWord(String book){
         if( AppProperties.isChinese() ){
-            if( StringUtils.equals(book, "詩篇")
-                    || StringUtils.equals(book, "詩")
-                    || StringUtils.equals(book, ZhConverterUtil.toSimple("詩篇"))
-                    || StringUtils.equals(book, ZhConverterUtil.toSimple("詩"))){
+            if( StringUtils.equals(ZhConverterUtil.toSimple(book), ZhConverterUtil.toSimple("詩篇"))
+                    || StringUtils.equals(ZhConverterUtil.toSimple(book), ZhConverterUtil.toSimple("詩"))){
                 return "篇";
             }
             return "章";
