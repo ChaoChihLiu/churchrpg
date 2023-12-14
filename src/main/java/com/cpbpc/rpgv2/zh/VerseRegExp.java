@@ -86,7 +86,7 @@ public class VerseRegExp implements VerseIntf {
             builder.append(nextChar);
         }
 
-        return builder.toString();
+        return StringUtils.trim(builder.toString());
     }
 
     private String buildBibleRefReg(){
