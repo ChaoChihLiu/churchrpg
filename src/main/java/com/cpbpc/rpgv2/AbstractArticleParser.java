@@ -1,6 +1,5 @@
 package com.cpbpc.rpgv2;
 
-import com.cpbpc.comms.AWSUtil;
 import com.cpbpc.comms.AppProperties;
 import com.cpbpc.comms.ThreadStorage;
 import com.github.houbb.opencc4j.util.ZhConverterUtil;
@@ -93,7 +92,7 @@ public abstract class AbstractArticleParser {
             AbstractArticleParser parser = null;
             AbstractComposer composer = null;
             if( language.equals("chinese") ){
-                parser = new com.cpbpc.rpgv2.zh.ArticleParser(content, "底波拉之歌(三)");
+                parser = new com.cpbpc.rpgv2.zh.ArticleParser(content, "士师时代（二）");
                 composer = new com.cpbpc.rpgv2.zh.Composer(parser);
             } else{
                 parser = new com.cpbpc.rpgv2.en.ArticleParser(content, "GOD’S WORD OVER ME");
@@ -105,7 +104,7 @@ public abstract class AbstractArticleParser {
             IOUtils.write(removeHtmlTag(script), new FileOutputStream(new File("script-no-tag.txt")));
             System.out.println(script);
 //            OpenAIUtil.textToSpeech(removeHtmlTag("Girgashites"), "echo");
-            AWSUtil.putScriptToS3(script, "2024-01-07");
+//            AWSUtil.putScriptToS3(script, "2024-01-07");
 
         } catch (Exception e) {
             logger.info(ExceptionUtils.getStackTrace(e));

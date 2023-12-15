@@ -111,6 +111,7 @@ public class PunctuationTool {
 //                .replaceAll("\"", "")
                 .replaceAll("”", "")
                 .replaceAll("“", "")
+//                .replaceAll("…", pause(200))
                 ;
 
         if( containHyphen(result) ){

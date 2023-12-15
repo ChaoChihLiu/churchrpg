@@ -197,7 +197,7 @@ public class BibleVerseScraper {
         }
         buffer
 //                .append(verse).append("節")
-                .append("[pause]")
+//                .append("[pause]")
                 .append(response).append(System.lineSeparator());
 
         int i = verse + 1;

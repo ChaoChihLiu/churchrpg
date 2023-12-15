@@ -300,6 +300,7 @@ public class VerseRegExp implements VerseIntf {
     //弗6:13-17; 14, 19, 20
     //弗6:13;7:19-20
     //弗6:13,7:19-20
+    //士师记17:6至21:25
     protected String generateCompleteVerses(String book, String verse_str) {
         String result = "";
         for (char c : verse_str.toCharArray()) {
