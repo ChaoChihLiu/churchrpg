@@ -23,6 +23,23 @@ public class TextUtil {
         return dateFormat.format(today);
     }
 
+    public static String getChineseWord(String input) {
+
+        String result = "";
+        for( char c : input.toCharArray() ){
+
+            if(ZhConverterUtil.isChinese(c)){
+                result += String.valueOf(c);
+            }
+
+        }
+
+        return result;
+    }
+    public static boolean containsUnicodeEscape(String input) {
+        return input.matches(".*\\\\u[0-9A-Fa-f]{4}.*");
+    }
+
     public static String returnChapterWord(String book){
         if( AppProperties.isChinese() ){
             if( StringUtils.equals(ZhConverterUtil.toSimple(book), ZhConverterUtil.toSimple("詩篇"))

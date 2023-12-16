@@ -16,6 +16,9 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.cpbpc.comms.TextUtil.containsUnicodeEscape;
+import static com.cpbpc.comms.TextUtil.getChineseWord;
+
 public class Phonetics implements PhoneticIntf {
 
     private static final Map<String, ConfigObj> phonetic = new LinkedHashMap<>();
@@ -34,29 +37,29 @@ public class Phonetics implements PhoneticIntf {
         List<String> ps = generatePattern();
         List<String> finds = new ArrayList<>();
         for( String p: ps ){
-            logger.info(p);
             Pattern r = Pattern.compile(p);
             Matcher matcher = r.matcher(content);
             while (matcher.find()) {
                 finds.add(matcher.group(1));
             }
         }
-        logger.info("what is my finds : " + finds.toString());
+        logger.info("fixing phonetics : " + finds.toString());
 
         String replaced = content;
         int start = 0;
         for (String key : finds) {
-            String keyTofind = key;
+            String keyToFind = key;
             if(PunctuationTool.containQuestionMark(key)){
-                keyTofind = PunctuationTool.escapeQuestionMark(key);
+                keyToFind = PunctuationTool.escapeQuestionMark(key);
             }
-            String completeForm = lookupCompleteForm(keyTofind);
+            String completeForm = lookupCompleteForm(keyToFind);
             logger.info("complete form " + completeForm);
-            if (phonetic.get(keyTofind).getPaused()) {
-                replaced = replaced.replace(key, completeForm + "[pause]");
-            } else {
-                replaced = replaced.replace(key, completeForm);
-            }
+//            if (phonetic.containsKey(keyToFind) && phonetic.get(keyToFind).getPaused()) {
+//                replaced = replaced.replace(key, completeForm + "[pause]");
+//            } else {
+//                replaced = replaced.replace(key, completeForm);
+//            }
+            replaced = replaced.replace(key, completeForm);
         }
 
         return replaced;
@@ -91,6 +94,15 @@ public class Phonetics implements PhoneticIntf {
 
             String newFounded = founded.replace(".", "");
             String key = entry.getKey().replace(".", "");
+
+            if( containsUnicodeEscape(key) ){
+                Pattern p = Pattern.compile(key);
+                Matcher matcher = p.matcher(founded);
+                if( matcher.find() ){
+                    String toBeReplaced = getChineseWord(key);
+                    return StringUtils.replace(founded, toBeReplaced, entry.getValue().getFullWord());
+                }
+            }
 
             if (newFounded.equals(key)) {
                 return entry.getValue().getFullWord();

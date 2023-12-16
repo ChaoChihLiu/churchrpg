@@ -97,7 +97,7 @@ public class GenTelegramExcel {
             Cell cell = row.createCell(0);
 
             RichTextString richText = creationHelper.createRichTextString(
-                    genEmojiCross() + " " + theme + "\n" +
+                            genEmojiCross() + " " + theme + "\n" +
                             "\uD83D\uDCAD" + " " + capitalize(StringUtils.lowerCase(dataRow.get("summary"))) + "\n" +
                             "\uD83D\uDCD6" + " " + grepThemeVerses(dataRow) + "\n" +
                             genEmojiWritingHand() + " " + writer + "\n" +
@@ -131,7 +131,7 @@ public class GenTelegramExcel {
         String[] strs = StringUtils.split(summary, " ");
 
         for (String str : strs) {
-            result += " " + StringUtils.capitalize(str);
+            result += StringUtils.capitalize(str);
         }
 
         return result;
