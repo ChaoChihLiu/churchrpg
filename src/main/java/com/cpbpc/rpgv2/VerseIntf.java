@@ -10,6 +10,7 @@ public interface VerseIntf {
 
     public String convert(String content);
     public String convert(String content, boolean addPause);
+    public String convert(String content, Pattern pattern);
 
     public Map<String, ConfigObj> getVerseMap();
 
@@ -17,4 +18,6 @@ public interface VerseIntf {
     public Pattern getVersePattern() ;
 
     public List<String> analyseVerse(String line);
+
+    public List<String> analyseVerse(String line, Pattern pattern);
 }

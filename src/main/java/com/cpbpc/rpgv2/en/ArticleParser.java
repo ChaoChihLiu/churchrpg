@@ -91,7 +91,7 @@ public class ArticleParser extends AbstractArticleParser {
     }
 
     @Override
-    protected Pattern getTopicVersePattern() {
+    public Pattern getTopicVersePattern() {
         return verse.getVersePattern();
     }
     

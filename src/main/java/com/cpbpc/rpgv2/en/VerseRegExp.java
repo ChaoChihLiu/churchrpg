@@ -41,6 +41,12 @@ public class VerseRegExp implements VerseIntf {
     public String convert(String content, boolean addPause) {
         return convertVerse(content, addPause);
     }
+
+    @Override
+    public String convert(String content, Pattern pattern) {
+        return convertVerse(content, false);
+    }
+
     public String convert(String content) {
         return convertVerse(content, false);
     }
@@ -302,7 +308,12 @@ public class VerseRegExp implements VerseIntf {
 
     public List<String> analyseVerse(String line) {
         Pattern p = getVersePattern();
-        Matcher m = p.matcher(line);
+        return analyseVerse(line, p);
+    }
+
+    @Override
+    public List<String> analyseVerse(String line, Pattern pattern) {
+        Matcher m = pattern.matcher(line);
         List<String> result = new ArrayList<>();
         if (m.find()) {
             String group0 = m.group(0);

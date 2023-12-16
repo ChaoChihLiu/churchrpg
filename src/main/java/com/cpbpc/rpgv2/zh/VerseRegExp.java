@@ -49,6 +49,11 @@ public class VerseRegExp implements VerseIntf {
        return convertVerse(content);
 
     }
+    public String convert(String content, Pattern pattern) {
+
+        return convertVerse(content, pattern);
+
+    }
 
     private static String mapBookAbbre(String book) {
 
@@ -103,7 +108,7 @@ public class VerseRegExp implements VerseIntf {
         if (builder.toString().endsWith("|")) {
             builder.delete(builder.length() - 1, builder.length());
         }
-        builder.append(")\\s{0,}[0-9一二三四五六七八九十百千零]{1,5}[:|：]{0,})");
+        builder.append(")\\s{0,}[0-9]{1,5}[:|：]{0,})");
 
         return builder.toString();
     }
@@ -128,7 +133,12 @@ public class VerseRegExp implements VerseIntf {
     //弗6:13
     public List<String> analyseVerse(String line) {
         Pattern p = getVersePattern();
-        Matcher m = p.matcher(line);
+        return analyseVerse(line, p);
+    }
+
+    public List<String> analyseVerse(String line, Pattern pattern) {
+//        Pattern p = getVersePattern();
+        Matcher m = pattern.matcher(line);
         List<String> result = new ArrayList<>();
         if (m.find()) {
             String group0 = m.group(0);
@@ -167,7 +177,12 @@ public class VerseRegExp implements VerseIntf {
 
     public String convertVerse(String line) {
         Pattern p = getVersePattern();
-        Matcher m = p.matcher(line);
+        return convertVerse(line, p);
+    }
+
+    public String convertVerse(String line, Pattern pattern) {
+//        Pattern p = getVersePattern();
+        Matcher m = pattern.matcher(line);
         int start = 0;
         String result = line;
         while (m.find(start)) {

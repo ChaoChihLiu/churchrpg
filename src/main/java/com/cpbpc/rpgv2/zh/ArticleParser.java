@@ -95,7 +95,7 @@ public class ArticleParser extends AbstractArticleParser {
     }
 
     @Override
-    protected Pattern getTopicVersePattern() {
+    public Pattern getTopicVersePattern() {
         VerseIntf verse = ThreadStorage.getVerse();
         StringBuilder builder = new StringBuilder("((");
 

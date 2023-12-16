@@ -244,7 +244,7 @@ public abstract class AbstractArticleParser {
     }
 
 
-    protected abstract Pattern getTopicVersePattern();
+    public abstract Pattern getTopicVersePattern();
 
     protected abstract Pattern getDatePattern();
     

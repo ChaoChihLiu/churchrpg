@@ -57,12 +57,12 @@ public class Composer extends AbstractComposer {
 
         try {
             for (String ref : parser.readTopicVerses()) {
-                List<String> refs = verse.analyseVerse(ref);
+                List<String> refs = verse.analyseVerse(ref, parser.getTopicVersePattern());
                 String book = refs.get(0);
                 for( int i=1; i<refs.size(); i++ ){
                     count++;
                     result.append("圣经经文第" + count + "段").append(pause(200))
-                            .append(processSentence(verse.convert(makeCompleteVerse(ZhConverterUtil.toSimple(book), refs.get(1), refs.get(i))), fixPronu)).append(pause(400))
+                            .append(processSentence(verse.convert(makeCompleteVerse(ZhConverterUtil.toSimple(book), refs.get(1), refs.get(i)), parser.getTopicVersePattern()), fixPronu)).append(pause(400))
                             .append(processSentence(BibleVerseScraper.scrap(mapBookAbbre(book), makeCompleteVerse(refs.get(1), refs.get(i))), fixPronu))
                     ;
                 }
