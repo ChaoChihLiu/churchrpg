@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.net.URLDecoder;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -59,6 +60,7 @@ public class BibleAudio {
         Map<String, Integer> verseCount = new HashMap<>();
         List<String> verse_to_merged = new ArrayList<>();
         for( String verse : verses ){
+            verseCount.clear();
             List<String> result = analyseVerse(verse);
             verse_to_merged.add(result.get(0)+"|"+result.get(1));
 
@@ -95,15 +97,10 @@ public class BibleAudio {
             }
 
             pl_script = PunctuationTool.replacePauseTag(pl_script, "");
-            AWSUtil.putBiblePLScriptToS3(pl_script, StringUtils.remove(verse, " "));
+            while( !isAllAudioDone(verseCount) ){
+                Thread.sleep(10*1000);
+            }
 
-        }//end of for loop verses
-
-        while( !isAllAudioDone(verseCount) ){
-            Thread.sleep(10*1000);
-        }
-
-        for( String verse : verses ){
             List<Tag> tags = new ArrayList<>();
             tags.add(new Tag("output_bucket", appProperties.getProperty("output_bucket")));
             tags.add(new Tag("output_prefix", appProperties.getProperty("output_prefix")));
@@ -111,15 +108,31 @@ public class BibleAudio {
             tags.add(new Tag("audio_merged_bucket", appProperties.getProperty("audio_merged_bucket")));
             tags.add(new Tag("audio_merged_prefix", appProperties.getProperty("audio_merged_prefix")));
             tags.add(new Tag("audio_merged_format", appProperties.getProperty("audio_merged_format")));
-            tags.add(new Tag("pl_script", AWSUtil.returnPLObjectKey(StringUtils.remove(verse, " "))));
-            tags.add(new Tag("pl_script_bucket", appProperties.getProperty("pl_script_bucket")));
+
             AWSUtil.uploadS3Object( appProperties.getProperty("script_bucket"),
                     appProperties.getProperty("script_prefix"),
                     currentDateTime()+".audioMerge",
                     StringUtils.join(verse_to_merged, ","),
                     tags
             );
-        }
+
+            String audioKey = StringUtils.trim(result.get(0))
+                                +"_"+
+                                StringUtils.trim(StringUtils.remove(StringUtils.remove(result.get(1), " "), chapterWord))
+                                +"."+
+                                appProperties.getProperty("audio_merged_format");
+
+            if( AppProperties.isChinese() ){
+                logger.info("wait this file " + audioKey);
+                AWSUtil.waitUntilObjectReady( appProperties.getProperty("audio_merged_bucket"),
+                        appProperties.getProperty("audio_merged_prefix"),
+                        audioKey,
+                        new Date());
+                AWSUtil.putBiblePLScriptToS3(pl_script, StringUtils.remove(verse, " "), appProperties.getProperty("audio_merged_prefix")+audioKey);
+            }
+
+        }//end of for loop verses
+
     }
 
     private static boolean isAllAudioDone(Map<String, Integer> verseCount) {

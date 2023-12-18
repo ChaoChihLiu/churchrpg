@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLDecoder;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -41,18 +42,18 @@ public class AWSUtil {
         }
     }
     
-    private static void saveToS3(String content, String bucketName, String objectKey, String audioKey) {
-        saveToS3(content, bucketName, objectKey, "", audioKey);
+    private static List<Tag> saveToS3(String content, String bucketName, String objectKey, String audioKey) {
+        return saveToS3(content, bucketName, objectKey, "", audioKey);
     }
 
-    private static void saveToS3(String content, String bucketName, String objectKey, String publishDate_str, String audioKey) {
+    private static List<Tag> saveToS3(String content, String bucketName, String objectKey, String publishDate_str, String audioKey) {
+        List<Tag> tags = new ArrayList<>();
         try {
             InputStream inputStream = new StringInputStream(content);
             // Upload the file to S3
             ObjectMetadata metadata = new ObjectMetadata();
             PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName, objectKey, inputStream, metadata);
 
-            List<Tag> tags = new ArrayList<>();
             if( !StringUtils.isEmpty(publishDate_str) ){
                 tags.add(new Tag("publish_date", publishDate_str));
             }
@@ -67,20 +68,23 @@ public class AWSUtil {
             tags.add(new Tag("output_prefix", AppProperties.getConfig().getProperty("output_prefix")));
             tags.add(new Tag("engine", AppProperties.getConfig().getProperty("engine")));
 
-            if( AppProperties.getConfig().containsKey("pl_script_bucket") ){
-                tags.add(new Tag("pl_script_bucket", AppProperties.getConfig().getProperty("pl_script_bucket")));
-                tags.add(new Tag("pl_script", StringUtils.replace(StringUtils.remove(objectKey, " "),
-                                                                            AppProperties.getConfig().getProperty("script_format"),
-                                                                            AppProperties.getConfig().getProperty("pl_format"))));
-            }
+//            if( AppProperties.getConfig().containsKey("pl_script_bucket") ){
+//                tags.add(new Tag("pl_script_bucket", AppProperties.getConfig().getProperty("pl_script_bucket")));
+//                tags.add(new Tag("pl_script", StringUtils.replace(StringUtils.remove(objectKey, " "),
+//                                                                            AppProperties.getConfig().getProperty("script_format"),
+//                                                                            AppProperties.getConfig().getProperty("pl_format"))));
+//            }
             
             putObjectRequest.setStorageClass(StorageClass.IntelligentTiering);
             putObjectRequest.setTagging(new ObjectTagging(tags));
 
             s3Client.putObject(putObjectRequest);
+            return tags;
         } catch (IOException e) {
             logger.info(ExceptionUtils.getStackTrace(e));
         }
+
+        return tags;
     }
 
     public static void putBibleScriptToS3(String content, String book, String chapter, String verseNum) throws IOException {
@@ -114,10 +118,28 @@ public class AWSUtil {
         return objectKey;
     }
 
-    public static void putBiblePLScriptToS3(String content, String fileName) {
+    public static void putBiblePLScriptToS3(String content, String fileName, String audioKey) {
         String bucketName = AppProperties.getConfig().getProperty("pl_script_bucket");
         String objectKey = returnPLObjectKey(fileName);
-        saveToS3(content, bucketName, objectKey, "");
+//        saveToS3(content, bucketName, objectKey, audioKey);
+        List<Tag> tags = new ArrayList<>();
+        try {
+            InputStream inputStream = new StringInputStream(content);
+            // Upload the file to S3
+            ObjectMetadata metadata = new ObjectMetadata();
+            PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName, objectKey, inputStream, metadata);
+            
+            tags.add(new Tag("audio_key", audioKey));
+            tags.add(new Tag("output_bucket", AppProperties.getConfig().getProperty("audio_merged_bucket")));
+            tags.add(new Tag("output_format", AppProperties.getConfig().getProperty("audio_merged_format")));
+            tags.add(new Tag("output_prefix", AppProperties.getConfig().getProperty("audio_merged_prefix")));
+            putObjectRequest.setStorageClass(StorageClass.IntelligentTiering);
+            putObjectRequest.setTagging(new ObjectTagging(tags));
+
+            s3Client.putObject(putObjectRequest);
+        } catch (IOException e) {
+            logger.info(ExceptionUtils.getStackTrace(e));
+        }
     }
 
     public static void putPLScriptToS3(String content, String publishDate_str) {
@@ -141,7 +163,7 @@ public class AWSUtil {
 
     }
 
-    public static void putScriptToS3(String content, String publishDate_str) throws IOException {
+    public static List<Tag> putScriptToS3(String content, String publishDate_str) throws IOException {
 
         String bucketName = AppProperties.getConfig().getProperty("script_bucket");
         String prefix = AppProperties.getConfig().getProperty("script_prefix");
@@ -158,7 +180,7 @@ public class AWSUtil {
                             + nameToBe + "."
                             + AppProperties.getConfig().getProperty("output_format");
 
-        saveToS3(content, bucketName, objectKey, publishDate_str, audioKey);
+        return saveToS3(content, bucketName, objectKey, publishDate_str, audioKey);
 
     }
 
@@ -278,5 +300,22 @@ public class AWSUtil {
             DeleteObjectRequest request = new DeleteObjectRequest(outputBucket, summary.getKey());
             s3Client.deleteObject(request);
         }
+    }
+
+    public static void waitUntilObjectReady( String bucketName, String prefix, String objectKey, Date timeToUpload ) throws InterruptedException {
+
+        List<S3ObjectSummary> summaries = listS3Objects(bucketName, prefix);
+        for( S3ObjectSummary summary : summaries ){
+            if( !StringUtils.equals(summary.getKey(), prefix+objectKey) ){
+                continue;
+            }
+            
+            if( summary.getLastModified().after(timeToUpload) ){
+                return;
+            }
+        }
+
+        Thread.sleep(3000);
+        waitUntilObjectReady(bucketName, prefix, objectKey, timeToUpload);
     }
 }
