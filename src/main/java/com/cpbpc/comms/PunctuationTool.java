@@ -74,30 +74,6 @@ public class PunctuationTool {
         return "[pause" + pause + "]";
     }
 
-    public static String replacePunctuationWithPause(String input){
-//        String result = input
-//                            .replaceAll("\\.", getPauseTag(800))
-//                            .replaceAll(",", getPauseTag(200))
-//                            .replaceAll(":", getPauseTag(800))
-//                            .replaceAll(";", getPauseTag(400))
-//                            .replaceAll("\\?", getPauseTag(800))
-//                            .replaceAll("\\!", getPauseTag(800))
-//                            .replaceAll("\\(", getPauseTag(200))
-//                            .replaceAll("\\)", getPauseTag(200))
-////                            .replaceAll("\"", "")
-//                            .replaceAll("”", "")
-//                            .replaceAll("“", "")
-//                ;
-//
-//        if( containHyphen(input) ){
-//            String hyphen = getHyphen(input);
-//            result = result.replaceAll(hyphen, getPauseTag(200));
-//        }
-//
-//        return result;
-        return input;
-    }
-
     public static String replacePunctuationWithBreakTag(String input){
         String result = input
                 .replaceAll("\\.", pause(800))

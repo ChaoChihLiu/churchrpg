@@ -29,7 +29,6 @@ import java.util.logging.Logger;
 import static com.cpbpc.comms.PunctuationTool.containHyphen;
 import static com.cpbpc.comms.PunctuationTool.getHyphen;
 import static com.cpbpc.comms.PunctuationTool.replacePauseTag;
-import static com.cpbpc.comms.PunctuationTool.replacePunctuationWithPause;
 import static com.cpbpc.comms.TextUtil.currentDateTime;
 import static com.cpbpc.comms.TextUtil.returnChapterWord;
 
@@ -196,7 +195,7 @@ public class BibleAudio {
     private static void sendToS3(String content, String book, int chapterNum) throws IOException, InterruptedException {
 
         PhoneticIntf phoneticIntf = ThreadStorage.getPhonetics();
-        String toBe = replacePauseTag(replacePunctuationWithPause(content));
+        String toBe = replacePauseTag(content);
         toBe = phoneticIntf.convert(toBe);
 
         String title = AWSUtil.toPolly(PunctuationTool.pause(800) + generateTitleAudio(book, chapterNum) + PunctuationTool.pause(800));

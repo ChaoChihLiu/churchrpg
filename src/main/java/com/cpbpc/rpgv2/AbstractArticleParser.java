@@ -27,7 +27,6 @@ import java.util.regex.Pattern;
 
 import static com.cpbpc.comms.PunctuationTool.changeFullCharacter;
 import static com.cpbpc.comms.PunctuationTool.getPauseTag;
-import static com.cpbpc.comms.PunctuationTool.replacePunctuationWithPause;
 import static com.cpbpc.comms.TextUtil.removeHtmlTag;
 
 public abstract class AbstractArticleParser {
@@ -132,7 +131,7 @@ public abstract class AbstractArticleParser {
             if (position > anchorPoint) {
                 return "";
             }
-            String result = replacePunctuationWithPause(removeHtmlTag(replaceWithPause(replaceSpace(targe))));
+            String result = removeHtmlTag(replaceWithPause(replaceSpace(targe)));
             return result;
         }
 

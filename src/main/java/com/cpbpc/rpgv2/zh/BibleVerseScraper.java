@@ -23,7 +23,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.cpbpc.comms.PunctuationTool.changeFullCharacter;
-import static com.cpbpc.comms.PunctuationTool.replacePunctuationWithPause;
 import static com.cpbpc.comms.TextUtil.removeHtmlTag;
 
 
@@ -179,7 +178,7 @@ public class BibleVerseScraper {
         }
 
         String result = buffer.toString();
-        return replacePunctuationWithPause(changeFullCharacter(result));
+        return changeFullCharacter(result);
     }
 
     private static String recurBibleVerse(String grabResult, String book, int chapter, int verse, String chapterBreak) throws IOException {

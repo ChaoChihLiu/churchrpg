@@ -13,7 +13,6 @@ import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
 import static com.cpbpc.comms.PunctuationTool.removeDoubleQuote;
-import static com.cpbpc.comms.PunctuationTool.replacePunctuationWithPause;
 import static com.cpbpc.comms.TextUtil.removeHtmlTag;
 
 public class ArticleParser extends AbstractArticleParser {
@@ -64,7 +63,7 @@ public class ArticleParser extends AbstractArticleParser {
             }
         }
 
-        return replacePunctuationWithPause(verse.convert(replaceSpace(result)));
+        return verse.convert(replaceSpace(result));
     }
 
     @Override
@@ -81,7 +80,7 @@ public class ArticleParser extends AbstractArticleParser {
             }
         }
 
-        return replacePunctuationWithPause(replaceSpace(verse.convert(result)));
+        return replaceSpace(verse.convert(result));
     }
 
     @Override
