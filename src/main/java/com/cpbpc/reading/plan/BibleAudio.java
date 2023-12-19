@@ -30,7 +30,6 @@ import java.util.logging.Logger;
 import static com.cpbpc.comms.PunctuationTool.containHyphen;
 import static com.cpbpc.comms.PunctuationTool.getHyphen;
 import static com.cpbpc.comms.PunctuationTool.replacePauseTag;
-import static com.cpbpc.comms.TextUtil.currentDateTime;
 import static com.cpbpc.comms.TextUtil.returnChapterWord;
 
 public class BibleAudio {
@@ -109,16 +108,18 @@ public class BibleAudio {
             tags.add(new Tag("audio_merged_prefix", appProperties.getProperty("audio_merged_prefix")));
             tags.add(new Tag("audio_merged_format", appProperties.getProperty("audio_merged_format")));
 
+            String fileName = StringUtils.trim(result.get(0))
+                    +"_"+
+                    StringUtils.trim(StringUtils.remove(StringUtils.remove(result.get(1), " "), chapterWord));
+            
             AWSUtil.uploadS3Object( appProperties.getProperty("script_bucket"),
                     appProperties.getProperty("script_prefix"),
-                    currentDateTime()+".audioMerge",
+                    fileName+".audioMerge",
                     StringUtils.join(verse_to_merged, ","),
                     tags
             );
 
-            String audioKey = StringUtils.trim(result.get(0))
-                                +"_"+
-                                StringUtils.trim(StringUtils.remove(StringUtils.remove(result.get(1), " "), chapterWord))
+            String audioKey = fileName
                                 +"."+
                                 appProperties.getProperty("audio_merged_format");
 
