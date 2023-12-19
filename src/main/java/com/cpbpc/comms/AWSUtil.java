@@ -306,7 +306,11 @@ public class AWSUtil {
 
         List<S3ObjectSummary> summaries = listS3Objects(bucketName, prefix);
         for( S3ObjectSummary summary : summaries ){
-            if( !StringUtils.equals(summary.getKey(), prefix+objectKey) ){
+
+            logger.info( "summary.getKey() " + summary.getKey() );
+            logger.info( "object key " + objectKey );
+
+            if( !StringUtils.equals(summary.getKey(), objectKey) ){
                 continue;
             }
             
