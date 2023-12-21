@@ -35,7 +35,7 @@ public class ArticleParser extends AbstractArticleParser {
                 String line = StringUtils.trim(removeHtmlTag(split));
                 line = removeDoubleQuote(line);
                 if (!StringUtils.isEmpty(line)) {
-                    result.add(RomanNumeral.convert(abbr.convert(verse.convert(replaceSpace(line)))));
+                    result.add(RomanNumeral.convert(verse.convert(replaceSpace(line))));
                 }
             }
         }catch (Exception e){
@@ -59,7 +59,7 @@ public class ArticleParser extends AbstractArticleParser {
             }
         }
 
-        return abbr.convert(replaceSpace(verse.convert(result)));
+        return replaceSpace(verse.convert(result));
     }
 
     @Override
@@ -76,7 +76,7 @@ public class ArticleParser extends AbstractArticleParser {
             }
         }
 
-        return abbr.convert(replaceSpace(verse.convert(result)));
+        return replaceSpace(verse.convert(result));
     }
 
     @Override

@@ -40,7 +40,9 @@ public class Phonetics implements PhoneticIntf {
             Pattern r = Pattern.compile(p);
             Matcher matcher = r.matcher(content);
             while (matcher.find()) {
-                finds.add(matcher.group(1));
+                if( !finds.contains(matcher.group(1)) ){
+                    finds.add(matcher.group(1));
+                }
             }
         }
         logger.info("fixing phonetics : " + finds.toString());

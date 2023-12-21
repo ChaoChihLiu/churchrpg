@@ -27,9 +27,9 @@ public abstract class AbstractComposer {
 
     protected String processSentence(String content, boolean fixPronu) {
         if( fixPronu ){
-            return replacePauseTag(replacePunctuationWithBreakTag(phonetic.convert(content)));
+            return replacePauseTag(replacePunctuationWithBreakTag(abbr.convert(phonetic.convert(content))));
         }
-        return replacePauseTag(replacePunctuationWithBreakTag(content));
+        return replacePauseTag(replacePunctuationWithBreakTag(abbr.convert(content)));
     }
 
     protected abstract String toPolly(boolean fixPronu);

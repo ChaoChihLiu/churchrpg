@@ -68,7 +68,9 @@ public class Abbreviation implements AbbreIntf {
 
         List<String> finds = new ArrayList<>();
         while (matcher.find()) {
-            finds.add(matcher.group(1));
+            if( !finds.contains(matcher.group(1)) ){
+                finds.add(matcher.group(1));
+            }
         }
         logger.info("what is my finds : " + finds.toString());
 
