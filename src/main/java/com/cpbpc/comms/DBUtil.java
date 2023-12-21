@@ -34,7 +34,7 @@ public class DBUtil {
         PhoneticIntf phonetic = ThreadStorage.getPhonetics();
         VerseIntf verse = ThreadStorage.getVerse();
 
-        PreparedStatement state = conn.prepareStatement("select * from cpbpc_abbreviation order by seq_no asc, length(short_form) desc");
+        PreparedStatement state = conn.prepareStatement("select * from cpbpc_abbreviation where isEnabled='1' order by seq_no asc, length(short_form) desc");
         ResultSet rs = state.executeQuery();
 
         while (rs.next()) {
