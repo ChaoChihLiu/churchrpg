@@ -1,7 +1,11 @@
 package com.cpbpc.comms;
 
+import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URLDecoder;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -62,7 +66,29 @@ public class AppProperties {
                 }
             }
         }
+    }
 
+    private static Properties bookMapping = new Properties();
+    public static Properties readBibleMapping(){
+        if( !bookMapping.isEmpty() ){
+            return bookMapping;
+        }
+
+        try (InputStream input = AppProperties.class.getClassLoader().getResourceAsStream("bible-mapping.properties")) {
+            // Load properties from the InputStream
+//            bookMapping.load(input);
+
+            BufferedReader br = new BufferedReader(new InputStreamReader(input));
+            String line = null;
+            while( (line = br.readLine()) != null ){
+                String result = URLDecoder.decode(line).trim();
+                bookMapping.put( result.substring(0, result.indexOf("=")), result.substring(result.indexOf("=")+1) );
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return bookMapping;
     }
 
     public static Properties getConfig() {

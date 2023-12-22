@@ -22,7 +22,7 @@ import java.util.regex.Pattern;
 import static com.cpbpc.comms.TextUtil.removeHtmlTag;
 
 
-public class BibleVerseScraper {
+public class BibleVerseGrab {
 
     private static final String[] hyphens_unicode = new String[]{"\\u002d", "\\u2010", "\\u2011", "\\u2012", "\\u2013", "\\u2015", "\\u2212"};
     private static Map<String, String> textCache = new HashMap<>();
@@ -71,13 +71,13 @@ public class BibleVerseScraper {
 //        String verseStr = "24-26:8";
 //        String verseStr = "9";
         String verseStr = "1";
-        System.out.println(scrap(book, verseStr));
+        System.out.println(grab(book, verseStr));
     }
-    public static String scrap(String book, String verseStr) throws IOException {
-        return scrap(book, verseStr, "");
+    public static String grab(String book, String verseStr) throws IOException {
+        return grab(book, verseStr, "");
     }
 
-    public static String scrap(String book, String verseStr, String chapterBreak) throws IOException {
+    public static String grab(String book, String verseStr, String chapterBreak) throws IOException {
         book = convertOrdinalNumber(book);
 
         List<String> result = new ArrayList<>();

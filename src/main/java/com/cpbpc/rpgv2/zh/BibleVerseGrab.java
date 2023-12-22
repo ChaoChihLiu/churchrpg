@@ -13,12 +13,12 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -26,7 +26,7 @@ import static com.cpbpc.comms.PunctuationTool.changeFullCharacter;
 import static com.cpbpc.comms.TextUtil.removeHtmlTag;
 
 
-public class BibleVerseScraper {
+public class BibleVerseGrab {
 
     private static final String[] hyphens_unicode = new String[]{"\\u002d", "\\u2010", "\\u2011", "\\u2012", "\\u2013", "\\u2015", "\\u2212"};
     private static Map<String, String> textCache = new HashMap<>();
@@ -79,18 +79,20 @@ public class BibleVerseScraper {
         //        String verseStr = "三十二篇7-9节";
 //        String verseStr = "31篇7,11节";
 //        String verseStr = "三章7-9节";
-        String book = "詩篇";
+//        String book = "詩篇";
+        String book = "羅馬書";
 //        String verseStr = "三十二篇1节-三十六篇";
 //        String verseStr = "三十四篇7-9节";
 //        String verseStr = "三十四篇";
-        String verseStr = "三十四篇-三十六篇";
-        System.out.println(scrap(book, verseStr));
+//        String verseStr = "三十四篇-三十六篇";
+        String verseStr = "十二章";
+        System.out.println(grab(book, verseStr));
     }
 
-    public static String scrap(String book, String verseStr) throws IOException {
-        return scrap(book, verseStr, "");
+    public static String grab(String book, String verseStr) throws IOException {
+        return grab(book, verseStr, "");
     }
-    public static String scrap(String book, String verseStr, String chapterBreak) throws IOException {
+    public static String grab(String book, String verseStr, String chapterBreak) throws IOException {
         verseStr = StringUtils.trim(verseStr);
         List<String> result = new ArrayList<>();
         String chapterWord = TextUtil.returnChapterWord(book);
@@ -209,7 +211,8 @@ public class BibleVerseScraper {
         if (textCache.containsKey(bookChapter)) {
             text = textCache.get(bookChapter);
         } else {
-            text = readFromInternet(bookChapter);
+            Properties bookMapping = AppProperties.readBibleMapping();
+            text = readFromInternet(Integer.valueOf(bookMapping.getProperty(ZhConverterUtil.toSimple(book))), chapter);
             textCache.put(bookChapter, text);
         }
 
@@ -218,24 +221,27 @@ public class BibleVerseScraper {
         Pattern p = Pattern.compile(versePattern);
         Matcher matcher = p.matcher(text);
         if (matcher.find()) {
-//            System.out.println(matcher.group(2));
-            return ZhConverterUtil.toSimple(StringUtils.remove(removeHtmlTag(matcher.group(2)), " "));
+            System.out.println(matcher.group(1));
+            return ZhConverterUtil.toSimple(StringUtils.remove(removeHtmlTag(matcher.group(1)), " "));
         }
 
         return "";
     }
 
+    /*
+    <td>8:21</td>
+   <td>
+      <div class="verse_list">                                    西巴和撒慕拿说，你自己起来杀我们吧。因为人如何，力量也是如何。基甸就起来，杀了西巴和撒慕拿，夺获他们骆驼项上戴的月牙圈。                                </div>
+   </td>
+     */
     private static String createVersePattern(int chapterNumber, int verseNumber) {
-        if (verseNumber == 1) {
-            return "(<span\\s{1,}class=\"chapternum\">" + chapterNumber + "[\\u00A0|&nbsp;]</span>)([^<>]*)(</span>)";
-        }
-
-        return "(<sup\\s{1,}class=\"versenum\">" + verseNumber + "[\\u00A0|&nbsp;]</sup>)([^<>]*)(</span>)";
+        return "<td>"+chapterNumber+":"+verseNumber+"</td>\\s*<td>\\s*<div\\s+class=\"verse_list\">\\s*([^<]+)\\s*</div>\\s*</td>";
     }
 
-    private static String readFromInternet(String bookChapter) throws IOException {
+    private static String readFromInternet(int bookNumber, int chapterNumber) throws IOException {
 
-        String url = "https://www.biblegateway.com/passage/?search=" + URLEncoder.encode(bookChapter) + "&version="+ AppProperties.getConfig().getProperty("bible_version");
+//        String url = "https://www.biblegateway.com/passage/?search=" + URLEncoder.encode(bookChapter) + "&version="+ AppProperties.getConfig().getProperty("bible_version");
+        String url = "http://www.edzx.com/bible/read/?id=1&volume="+bookNumber+"&chapter="+chapterNumber;
         URL obj = new URL(url);
         HttpURLConnection con = (HttpURLConnection) obj.openConnection();
         con.setRequestProperty("User-Agent", "Mozilla/5.0");

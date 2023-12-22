@@ -63,7 +63,7 @@ public class Composer extends AbstractComposer {
                     count++;
                     result.append("圣经经文第" + count + "段").append(pause(200))
                             .append(processSentence(verse.convert(makeCompleteVerse(ZhConverterUtil.toSimple(book), refs.get(1), refs.get(i)), parser.getTopicVersePattern()), fixPronu)).append(pause(400))
-                            .append(processSentence(BibleVerseScraper.scrap(mapBookAbbre(book), makeCompleteVerse(refs.get(1), refs.get(i))), fixPronu))
+                            .append(processSentence(BibleVerseGrab.grab(mapBookAbbre(book), makeCompleteVerse(refs.get(1), refs.get(i))), fixPronu))
                     ;
                 }
             }

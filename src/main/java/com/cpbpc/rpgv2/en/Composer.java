@@ -34,7 +34,7 @@ public class Composer extends AbstractComposer {
                 List<String> refs = verse.analyseVerse(ref);
                 buffer.append("The " + ordinal(count) + " Bible passage for today is").append(pause(200))
                         .append(processSentence(verse.convert(ref), fixPronu)).append(pause(400))
-                        .append(processSentence(BibleVerseScraper.scrap(refs.get(0), refs.get(1)), fixPronu))
+                        .append(processSentence(BibleVerseGrab.grab(refs.get(0), refs.get(1)), fixPronu))
                 ;
             }
         } catch (Exception e) {

@@ -11,6 +11,7 @@ import com.cpbpc.comms.TextUtil;
 import com.cpbpc.comms.ThreadStorage;
 import com.cpbpc.rpgv2.PhoneticIntf;
 import com.cpbpc.rpgv2.VerseIntf;
+import com.cpbpc.rpgv2.zh.BibleVerseGrab;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 
@@ -251,9 +252,9 @@ public class BibleAudio {
 
     private static String scrapBibleVerse(String book, String verse, String chapterBreak) throws IOException {
         if( AppProperties.isChinese() ){
-            return com.cpbpc.rpgv2.zh.BibleVerseScraper.scrap(book, verse, chapterBreak);
+            return BibleVerseGrab.grab(book, verse, chapterBreak);
         }
-        return com.cpbpc.rpgv2.en.BibleVerseScraper.scrap(book, verse, chapterBreak);
+        return com.cpbpc.rpgv2.en.BibleVerseGrab.grab(book, verse, chapterBreak);
     }
     
 }
