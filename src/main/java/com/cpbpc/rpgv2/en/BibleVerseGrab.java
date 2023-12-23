@@ -176,7 +176,8 @@ public class BibleVerseGrab {
                 }
                 buffer
 //                        .append("verse ").append(verseNum)
-                        .append("[pause]").append(result).append(System.lineSeparator());
+//                        .append("[pause]")
+                        .append(result).append(System.lineSeparator());
             }
         }
 
@@ -198,7 +199,8 @@ public class BibleVerseGrab {
         }
         buffer
 //                .append("verse ").append(verse)
-                .append("[pause]").append(response).append(System.lineSeparator());
+//                .append("[pause]")
+                .append(response).append(System.lineSeparator());
 
         int i = verse + 1;
         return recurBibleVerse(buffer.toString(), book, chapter, i, chapterBreak);
