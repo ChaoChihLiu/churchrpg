@@ -151,9 +151,10 @@ public class AWSUtil {
         }
 
         String publishMonth = publishDate_str.split("-")[0] + "_" + publishDate_str.split("-")[1];
+        String publishDate = publishDate_str.split("-")[2];
         String nameToBe = AppProperties.getConfig().getProperty("name_prefix") + publishDate_str.replaceAll("-", "");
         String objectType = AppProperties.getConfig().getProperty("pl_format");
-        String objectKey = prefix + publishMonth + "/" + nameToBe + "." + objectType;
+        String objectKey = prefix + publishMonth + "/" + publishDate + "/" + nameToBe + "." + objectType;
         String audioKey =  AppProperties.getConfig().getProperty("output_prefix")
                 + publishMonth + "/"
                 + nameToBe + "."
@@ -163,7 +164,29 @@ public class AWSUtil {
 
     }
 
-    public static List<Tag> putScriptToS3(String content, String publishDate_str) throws IOException {
+    public static List<Tag> putZhScriptToS3(String objectName, String content, String publishDate_str) {
+
+        String bucketName = AppProperties.getConfig().getProperty("script_bucket");
+        String prefix = AppProperties.getConfig().getProperty("script_prefix");
+        if (!prefix.endsWith("/")) {
+            prefix += "/";
+        }
+
+        String publishMonth = publishDate_str.split("-")[0] + "_" + publishDate_str.split("-")[1];
+        String publishDate = publishDate_str.split("-")[2];
+        String objectType = AppProperties.getConfig().getProperty("script_format");
+        String objectKey = prefix + publishMonth + "/" + publishDate + "/" + objectName + "." + objectType;
+        String audioKey =  AppProperties.getConfig().getProperty("output_prefix")
+                + publishMonth + "/"
+                + publishDate + "/"
+                + objectName + "."
+                + AppProperties.getConfig().getProperty("output_format");
+
+        return saveToS3(content, bucketName, objectKey, publishDate_str, audioKey);
+
+    }
+
+    public static List<Tag> putScriptToS3(String content, String publishDate_str) {
 
         String bucketName = AppProperties.getConfig().getProperty("script_bucket");
         String prefix = AppProperties.getConfig().getProperty("script_prefix");
@@ -305,10 +328,11 @@ public class AWSUtil {
     public static void waitUntilObjectReady( String bucketName, String prefix, String objectKey, Date timeToUpload ) throws InterruptedException {
 
         List<S3ObjectSummary> summaries = listS3Objects(bucketName, prefix);
+//        String path = prefix.trim();
+//        if( !StringUtils.endsWith(path, "/") ){
+//            path += "/";
+//        }
         for( S3ObjectSummary summary : summaries ){
-
-            logger.info( "summary.getKey() " + summary.getKey() );
-            logger.info( "object key " + objectKey );
 
             if( !StringUtils.equals(summary.getKey(), objectKey) ){
                 continue;

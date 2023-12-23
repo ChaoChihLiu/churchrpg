@@ -1,5 +1,7 @@
 package com.cpbpc.rpgv2.en;
 
+import com.cpbpc.comms.AWSUtil;
+import com.cpbpc.comms.AppProperties;
 import com.cpbpc.comms.RomanNumeral;
 import com.cpbpc.comms.ThreadStorage;
 import com.cpbpc.rpgv2.AbstractArticleParser;
@@ -7,11 +9,16 @@ import com.cpbpc.rpgv2.AbstractComposer;
 import com.cpbpc.rpgv2.VerseIntf;
 
 import java.util.List;
+import java.util.Properties;
+import java.util.logging.Logger;
 
 import static com.cpbpc.comms.NumberConverter.ordinal;
 import static com.cpbpc.comms.PunctuationTool.pause;
 
 public class Composer extends AbstractComposer {
+    private static final Properties appProperties = AppProperties.getConfig();
+
+    private Logger logger = Logger.getLogger(Composer.class.getName());
 
     private static VerseIntf verse = ThreadStorage.getVerse();
     public Composer(AbstractArticleParser parser) {
@@ -19,7 +26,7 @@ public class Composer extends AbstractComposer {
     }
 
     @Override
-    protected String toPolly(boolean fixPronu) {
+    protected String toPolly(boolean fixPronu, String publishDate) {
         StringBuilder buffer = new StringBuilder();
 
         buffer.append(parser.readDate()).append(pause(200));
@@ -57,13 +64,24 @@ public class Composer extends AbstractComposer {
         String result = buffer.toString();
 
         try {
+              String script = prettyPrintln(wrapToPolly(result));
+              sendToPolly(script, publishDate);
 //            return wrapToPolly(result.toString());
-            return prettyPrintln(wrapToPolly(result));
+            return script;
 //            return result.toString();
         } catch (Exception e) {
             e.printStackTrace();
         }
 
         return "";
+    }
+
+    private void sendToPolly(String content, String publishDate){
+        logger.info("use.polly is " + Boolean.valueOf((String) appProperties.getOrDefault("use.polly", "true")));
+        if (Boolean.valueOf((String) appProperties.getOrDefault("use.polly", "false")) != true) {
+            return;
+        }
+        logger.info("send to polly script S3 bucket!");
+        AWSUtil.putScriptToS3(content, publishDate);
     }
 }

@@ -94,11 +94,11 @@ public abstract class AbstractArticleParser {
                 parser = new com.cpbpc.rpgv2.zh.ArticleParser(content, "基甸(八)");
                 composer = new com.cpbpc.rpgv2.zh.Composer(parser);
             } else{
-                parser = new com.cpbpc.rpgv2.en.ArticleParser(content, "GOD’S WORD OVER ME");
+                parser = new com.cpbpc.rpgv2.en.ArticleParser(content, "GOxD’S WORD OVER ME");
                 composer = new com.cpbpc.rpgv2.en.Composer(parser);
             }
             
-            String script = composer.toPolly(true);
+            String script = composer.toPolly(true, "2024-01-27");
             IOUtils.write(script, new FileOutputStream(new File("script.txt")));
             IOUtils.write(removeHtmlTag(script), new FileOutputStream(new File("script-no-tag.txt")));
             System.out.println(script);

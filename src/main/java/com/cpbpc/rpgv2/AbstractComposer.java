@@ -3,8 +3,6 @@ package com.cpbpc.rpgv2;
 import com.cpbpc.comms.AWSUtil;
 import com.cpbpc.comms.ThreadStorage;
 
-import javax.xml.transform.TransformerException;
-
 import static com.cpbpc.comms.PunctuationTool.replacePauseTag;
 import static com.cpbpc.comms.PunctuationTool.replacePunctuationWithBreakTag;
 
@@ -32,10 +30,10 @@ public abstract class AbstractComposer {
         return replacePauseTag(replacePunctuationWithBreakTag(abbr.convert(content)));
     }
 
-    protected abstract String toPolly(boolean fixPronu);
+    protected abstract String toPolly(boolean fixPronu, String publishDate);
     
 
-    protected String prettyPrintln(String input) throws TransformerException {
+    protected String prettyPrintln(String input) {
 //        Source xmlInput = new StreamSource(new StringReader(input));
 //        StringWriter stringWriter = new StringWriter();
 //        StreamResult xmlOutput = new StreamResult(stringWriter);

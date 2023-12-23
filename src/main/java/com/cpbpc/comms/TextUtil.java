@@ -116,4 +116,17 @@ public class TextUtil {
 
         return unicodeString.toString();
     }
+
+    public static String findChapterWord(String verse) {
+
+        if( AppProperties.isChinese() ){
+            if( StringUtils.contains(ZhConverterUtil.toSimple(verse), ZhConverterUtil.toSimple("篇"))){
+                return ZhConverterUtil.toSimple("篇");
+            }
+            return "章";
+        }
+        
+        return "";
+
+    }
 }
