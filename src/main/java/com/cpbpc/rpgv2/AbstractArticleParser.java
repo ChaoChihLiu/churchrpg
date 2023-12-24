@@ -50,7 +50,7 @@ public abstract class AbstractArticleParser {
 
     public static void main(String args[]) {
         try {
-            String language = "chinese";
+            String language = "english";
 
             String propPath = "/Users/liuchaochih/Documents/GitHub/churchrpg/src/main/resources/app-"+language+".properties";
             FileInputStream in = new FileInputStream(propPath);
@@ -94,13 +94,17 @@ public abstract class AbstractArticleParser {
                 parser = new com.cpbpc.rpgv2.zh.ArticleParser(content, "基甸(八)");
                 composer = new com.cpbpc.rpgv2.zh.Composer(parser);
             } else{
-                parser = new com.cpbpc.rpgv2.en.ArticleParser(content, "GOxD’S WORD OVER ME");
+                parser = new com.cpbpc.rpgv2.en.ArticleParser(content, "GOD’S WORD FOR STRANGERS");
                 composer = new com.cpbpc.rpgv2.en.Composer(parser);
             }
-            
-            String script = composer.toPolly(true, "2024-01-27");
+
+            List<ComposerResult> results = composer.toPolly(true, "2024-01-27");
+            StringBuilder script = new StringBuilder();
+            for(ComposerResult result : results){
+                script.append(result.getScript());
+            }
             IOUtils.write(script, new FileOutputStream(new File("script.txt")));
-            IOUtils.write(removeHtmlTag(script), new FileOutputStream(new File("script-no-tag.txt")));
+            IOUtils.write(removeHtmlTag(script.toString()), new FileOutputStream(new File("script-no-tag.txt")));
             System.out.println(script);
 //            OpenAIUtil.textToSpeech(removeHtmlTag("Girgashites"), "echo");
 //            AWSUtil.putScriptToS3(script, "2024-01-07");

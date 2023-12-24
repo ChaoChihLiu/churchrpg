@@ -29,7 +29,7 @@ public class ArticleParser extends AbstractArticleParser {
         String text = StringUtils.substring(content, titlePosition, nextParaPosistion);
 
         List<String> result = new ArrayList<>();
-        List<String> splits = List.of(text.split("<div style=\"text-align: justify;\"> </div>"));
+        List<String> splits = List.of(text.split("<div style=\"text-align: justify;\">[\\s|&nbsp;]{1,}</div>"));
         try{
             for (String split : splits) {
                 String line = StringUtils.trim(removeHtmlTag(split));

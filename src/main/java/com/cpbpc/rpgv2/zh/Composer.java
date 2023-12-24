@@ -1,12 +1,11 @@
 package com.cpbpc.rpgv2.zh;
 
-import com.amazonaws.services.s3.model.Tag;
-import com.cpbpc.comms.AWSUtil;
 import com.cpbpc.comms.AppProperties;
 import com.cpbpc.comms.TextUtil;
 import com.cpbpc.comms.ThreadStorage;
 import com.cpbpc.rpgv2.AbstractArticleParser;
 import com.cpbpc.rpgv2.AbstractComposer;
+import com.cpbpc.rpgv2.ComposerResult;
 import com.cpbpc.rpgv2.ConfigObj;
 import com.cpbpc.rpgv2.VerseIntf;
 import com.github.houbb.opencc4j.util.ZhConverterUtil;
@@ -14,8 +13,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -56,102 +53,28 @@ public class Composer extends AbstractComposer {
     }
 
     @Override
-    protected String toPolly(boolean fixPronu, String publishDate) {
+    protected List<ComposerResult> toPolly(boolean fixPronu, String publishDate) {
+        List<ComposerResult> result = new ArrayList<>();
 
         Map<String, String> scripts = splitPolly(fixPronu);
         Set<Map.Entry<String, String>> entries = scripts.entrySet();
-        Map<String, List<Tag>> tagMap = new HashMap<>();
-        StringBuilder builder = new StringBuilder();
-        List<String> list = new ArrayList<>();
         for( Map.Entry<String, String> entry : entries ){
+            ComposerResult composerResult = new ComposerResult();
+            result.add(composerResult);
+            
             String fileName = entry.getKey();
-            list.add(fileName);
-
             String script = entry.getValue();
-            builder.append(script);
-            tagMap.put(fileName, sendToPolly(fileName, wrapToPolly(prettyPrintln(script)), publishDate));
-        }
 
-        try {
-            waitAllPassageAudio(tagMap);
-            List<Tag> mergeTags = mergeRPG(publishDate, list);
-            waitUntilAudioMerged(mergeTags);
-            AWSUtil.putPLScriptToS3(prettyPrintln(generatePLScript()), publishDate);
-        } catch (InterruptedException e) {
-            logger.info(ExceptionUtils.getStackTrace(e));
+            composerResult.setScript(script);
+            composerResult.setFileName(fileName);
+            composerResult.addTags(sendToPolly(fileName, wrapToPolly(prettyPrintln(script)), publishDate));
         }
         
-        return builder.toString();
+        return result;
     }
-
-    private String generatePLScript() {
-        Map<String, String> scripts = splitPolly(false);
-        Set<Map.Entry<String, String>> entries = scripts.entrySet();
-        StringBuilder builder = new StringBuilder();
-        for( Map.Entry<String, String> entry : entries ){
-            String script = entry.getValue();
-            builder.append(script);
-        }
-
-        return builder.toString();
-    }
-
-    private List<Tag> mergeRPG(String publishDate, List<String> fileNames) {
-        List<Tag> mergeTags = new ArrayList<>();
-        mergeTags.add(new Tag("output_bucket", appProperties.getProperty("output_bucket")));
-        mergeTags.add(new Tag("output_prefix", appProperties.getProperty("output_prefix")));
-        mergeTags.add(new Tag("output_format", appProperties.getProperty("output_format")));
-        mergeTags.add(new Tag("audio_merged_bucket", appProperties.getProperty("audio_merged_bucket")));
-        mergeTags.add(new Tag("audio_merged_prefix", appProperties.getProperty("audio_merged_prefix")));
-        mergeTags.add(new Tag("audio_merged_format", appProperties.getProperty("audio_merged_format")));
-        mergeTags.add(new Tag("name_prefix", appProperties.getProperty("name_prefix")));
-        mergeTags.add(new Tag("publish_date", publishDate));
-
-        String nameToBe = AppProperties.getConfig().getProperty("name_prefix") + publishDate.replaceAll("-", "");
-        mergeTags.add(new Tag("audio_key", appProperties.getProperty("audio_merged_prefix")+publishDate.split("-")[0]+"_"+publishDate.split("-")[1]+"/"+nameToBe+"."+appProperties.getProperty("audio_merged_format")));
-
-        AWSUtil.uploadS3Object( appProperties.getProperty("script_bucket"),
-                appProperties.getProperty("script_prefix")+publishDate.split("-")[0]+"_"+publishDate.split("-")[1]+"/"+publishDate.split("-")[2],
-                nameToBe+".audioMerge",
-                StringUtils.join(fileNames, ","),
-                mergeTags
-        );
-
-        return mergeTags;
-    }
-
-    private void waitAllPassageAudio(Map<String, List<Tag>> tagMap) throws InterruptedException {
-
-        Set<Map.Entry<String, List<Tag>>> entries = tagMap.entrySet();
-        Date uploadTime = new Date(System.currentTimeMillis());
-        for( Map.Entry<String, List<Tag>> entry : entries ){
-            String fileName = entry.getKey();
-            List<Tag> tags = entry.getValue();
-            if( tags.isEmpty() ){
-                continue;
-            }
-            AWSUtil.waitUntilObjectReady( appProperties.getProperty("output_bucket"),
-                    appProperties.getProperty("output_prefix"),
-                    findAudioKey( entry.getValue() ),
-                    uploadTime);
-
-        }//end of for loop
-
-    }//end of waitAllPassageAudio
-
-    private String findAudioKey(List<Tag> tags) {
-         for( Tag tag : tags ){
-            if( StringUtils.equals("audio_key", tag.getKey()) ){
-                return tag.getValue();
-            }
-         }
-
-        return "";
-    }
-
-    private Map<String, String> splitPolly(boolean fixPronu) {
+    
+    protected Map<String, String> splitPolly(boolean fixPronu) {
         Map<String, String> scripts = new LinkedHashMap<>();
-
         int scriptCounter = 1;
 
         StringBuilder result = new StringBuilder();
@@ -255,45 +178,5 @@ public class Composer extends AbstractComposer {
         }
 
         return book + chapter + verse;
-    }
-
-    private List<Tag> sendToPolly(String fileName, String content, String publishDate){
-
-        List<Tag> tags = new ArrayList<>();
-        logger.info("use.polly is " + Boolean.valueOf((String) appProperties.getOrDefault("use.polly", "true")));
-        if (Boolean.valueOf((String) appProperties.getOrDefault("use.polly", "false")) != true) {
-            return tags;
-        }
-
-        logger.info("send to polly script S3 bucket!");
-        tags.addAll( AWSUtil.putZhScriptToS3(fileName, content, publishDate) );
-//        waitUntilAudioMerged(tags);
-//        AWSUtil.putPLScriptToS3(toPolly(false, publishDate), publishDate);
-
-        return tags;
-    }
-
-    private void waitUntilAudioMerged(List<Tag> tags) {
-        String bucketName = "";
-        String prefix = "";
-        String objectKey = "";
-        for( Tag tag : tags ){
-            if(software.amazon.awssdk.utils.StringUtils.equals(tag.getKey(), "output_bucket") ){
-                bucketName = tag.getValue();
-            }
-            if(software.amazon.awssdk.utils.StringUtils.equals(tag.getKey(), "output_prefix") ){
-                prefix = tag.getValue();
-            }
-            if(software.amazon.awssdk.utils.StringUtils.equals(tag.getKey(), "audio_key") ){
-                objectKey = tag.getValue();
-            }
-        }
-
-        try {
-            AWSUtil.waitUntilObjectReady(bucketName, prefix, objectKey, new Date());
-        } catch (InterruptedException e) {
-            logger.info(ExceptionUtils.getStackTrace(e));
-        }
-
     }
 }
