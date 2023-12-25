@@ -9,6 +9,7 @@ import com.cpbpc.comms.PunctuationTool;
 import com.cpbpc.comms.SpreadSheetReader;
 import com.cpbpc.comms.TextUtil;
 import com.cpbpc.comms.ThreadStorage;
+import com.cpbpc.comms.URLShortener;
 import com.cpbpc.rpgv2.AbbreIntf;
 import com.cpbpc.rpgv2.PhoneticIntf;
 import com.cpbpc.rpgv2.VerseIntf;
@@ -19,6 +20,7 @@ import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import java.io.File;
 import java.io.IOException;
 import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -47,8 +49,8 @@ public class BibleAudio {
                                                     "/Users/liuchaochih/Documents/GitHub/churchrpg/src/main/resources/app-bibleplan-chinese.properties"));
         initStorage();
 
-        BibleAudio bibleAudio = new BibleAudio();
         List<String> verses = new ArrayList<>();
+        List<String> objectURLs = new ArrayList<>();
         if( appProperties.containsKey("reading_plan") ){
             File file = new File( appProperties.getProperty("reading_plan") );
             verses.addAll(SpreadSheetReader.readVerseFromXlsx(file));
@@ -136,7 +138,16 @@ public class BibleAudio {
                 AWSUtil.putBiblePLScriptToS3(pl_script, StringUtils.remove(verse, " "), objectKey);
             }
 
+            String url = "https://"+appProperties.getProperty("audio_merged_bucket")+".s3."+appProperties.getProperty("region")+".amazonaws.com/"+appProperties.getProperty("audio_merged_prefix")+ URLEncoder.encode(verse) +".mp3";
+            if( !StringUtils.equals(appProperties.getProperty("shorten_url"), "true") ){
+                objectURLs.add(url);
+            }else{
+                objectURLs.add(URLShortener.shorten(url));
+            }
+            
         }//end of for loop verses
+
+        logger.info("all links " + StringUtils.join(objectURLs, System.lineSeparator()));
 
     }
 
