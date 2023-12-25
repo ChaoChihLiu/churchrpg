@@ -36,6 +36,10 @@ public class ArticleParser extends AbstractArticleParser {
         List<String> splits = List.of(text.split("</p>"));
         try{
             for (String split : splits) {
+                if( StringUtils.contains(split, thoughtWord)
+                        || StringUtils.contains(split, prayerWord) ){
+                    continue;
+                }
                 String line = StringUtils.trim(removeHtmlTag(split));
                 line = removeDoubleQuote(line);
                 if (!StringUtils.isEmpty(line)) {
@@ -49,6 +53,7 @@ public class ArticleParser extends AbstractArticleParser {
         return result;
     }
 
+    private static String thoughtWord = "<strong>默想</strong>";
     @Override
     public String readThought() {
         String[] lines = StringUtils.split(content, System.lineSeparator());
@@ -58,7 +63,7 @@ public class ArticleParser extends AbstractArticleParser {
                 continue;
             }
             line = removeDoubleQuote(line);
-            if (StringUtils.contains(line, "<strong>默想</strong>")) {
+            if (StringUtils.contains(line, thoughtWord)) {
                 result = removeHtmlTag(line).trim();
             }
         }
@@ -66,6 +71,7 @@ public class ArticleParser extends AbstractArticleParser {
         return verse.convert(replaceSpace(result));
     }
 
+    private static String prayerWord = "<strong>祷告</strong>";
     @Override
     public String readPrayer() {
         String[] lines = StringUtils.split(content, System.lineSeparator());
@@ -75,7 +81,7 @@ public class ArticleParser extends AbstractArticleParser {
                 continue;
             }
             line = removeDoubleQuote(line);
-            if (StringUtils.contains(line, "<strong>祷告</strong>")) {
+            if (StringUtils.contains(line, prayerWord)) {
                 result = removeHtmlTag(line).trim();
             }
         }
