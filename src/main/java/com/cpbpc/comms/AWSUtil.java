@@ -334,6 +334,9 @@ public class AWSUtil {
 //        }
         for( S3ObjectSummary summary : summaries ){
 
+//            logger.info("summary.getKey() "+ summary.getKey());
+//            logger.info("objectKey "+ objectKey);
+
             if( !StringUtils.equals(summary.getKey(), objectKey) ){
                 continue;
             }

@@ -7,7 +7,7 @@ import java.net.URLEncoder;
 public class Encoder {
 
     public static  void main(String args[]){
-        System.out.println(URLEncoder.encode(ZhConverterUtil.toSimple("創1-3")));
+        System.out.println(URLEncoder.encode(ZhConverterUtil.toSimple("士1-3")));
     }
 
 }

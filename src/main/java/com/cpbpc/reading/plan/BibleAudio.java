@@ -9,6 +9,7 @@ import com.cpbpc.comms.PunctuationTool;
 import com.cpbpc.comms.SpreadSheetReader;
 import com.cpbpc.comms.TextUtil;
 import com.cpbpc.comms.ThreadStorage;
+import com.cpbpc.rpgv2.AbbreIntf;
 import com.cpbpc.rpgv2.PhoneticIntf;
 import com.cpbpc.rpgv2.VerseIntf;
 import com.cpbpc.rpgv2.zh.BibleVerseGrab;
@@ -109,9 +110,10 @@ public class BibleAudio {
             tags.add(new Tag("audio_merged_prefix", appProperties.getProperty("audio_merged_prefix")));
             tags.add(new Tag("audio_merged_format", appProperties.getProperty("audio_merged_format")));
 
-            String fileName = StringUtils.trim(result.get(0))
-                    +"_"+
-                    StringUtils.trim(StringUtils.remove(StringUtils.remove(result.get(1), " "), chapterWord));
+//            String fileName = StringUtils.trim(result.get(0))
+//                    +"_"+
+//                    StringUtils.trim(StringUtils.remove(StringUtils.remove(result.get(1), " "), chapterWord));
+            String fileName = verse;
             
             AWSUtil.uploadS3Object( appProperties.getProperty("script_bucket"),
                     appProperties.getProperty("script_prefix"),
@@ -120,17 +122,18 @@ public class BibleAudio {
                     tags
             );
 
-            String audioKey = fileName
+            String objectKey = appProperties.getProperty("audio_merged_prefix")
+                                + fileName
                                 +"."+
                                 appProperties.getProperty("audio_merged_format");
 
             if( AppProperties.isChinese() ){
-                logger.info("wait this file " + audioKey);
+                logger.info("wait this file " + objectKey);
                 AWSUtil.waitUntilObjectReady( appProperties.getProperty("audio_merged_bucket"),
                         appProperties.getProperty("audio_merged_prefix"),
-                        audioKey,
+                        objectKey,
                         new Date());
-                AWSUtil.putBiblePLScriptToS3(pl_script, StringUtils.remove(verse, " "), appProperties.getProperty("audio_merged_prefix")+audioKey);
+                AWSUtil.putBiblePLScriptToS3(pl_script, StringUtils.remove(verse, " "), objectKey);
             }
 
         }//end of for loop verses
@@ -210,8 +213,9 @@ public class BibleAudio {
     private static void sendToS3(String content, String book, int chapterNum) throws IOException, InterruptedException {
 
         PhoneticIntf phoneticIntf = ThreadStorage.getPhonetics();
+        AbbreIntf abbreIntf = ThreadStorage.getAbbreviation();
         String toBe = replacePauseTag(content);
-        toBe = phoneticIntf.convert(toBe);
+        toBe = phoneticIntf.convert(abbreIntf.convert(toBe));
 
         String title = AWSUtil.toPolly(PunctuationTool.pause(800) + generateTitleAudio(book, chapterNum) + PunctuationTool.pause(800));
         AWSUtil.putBibleScriptToS3(title, book, String.valueOf(chapterNum), "0");
