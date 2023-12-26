@@ -360,5 +360,9 @@ public class AWSUtil {
         bucketName = AppProperties.getConfig().getProperty("output_bucket");
         prefix = AppProperties.getConfig().getProperty("output_prefix")+publishMonth+"/"+publishDate+"/";
         purgeBucket( bucketName, prefix );
+
+        bucketName = AppProperties.getConfig().getProperty("audio_merged_bucket");
+        prefix = AppProperties.getConfig().getProperty("audio_merged_prefix")+publishMonth+"/"+publishDate+"/";
+        purgeBucket( bucketName, prefix );
     }
 }
