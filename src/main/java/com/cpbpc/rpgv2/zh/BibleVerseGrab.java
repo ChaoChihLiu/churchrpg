@@ -96,12 +96,11 @@ public class BibleVerseGrab {
         verseStr = StringUtils.trim(verseStr);
         List<String> result = new ArrayList<>();
         String chapterWord = TextUtil.returnChapterWord(book);
-        if ( StringUtils.countMatches(verseStr, chapterWord) >= 2
-                && (containHyphen(verseStr) || verseStr.contains("到") || verseStr.contains("至"))) {
+        if ( hasMultipleChapter(verseStr, chapterWord) ) {
             String hyphen = getHyphen(verseStr);
             String[] array = splitVerses( verseStr, List.of(hyphen, "到", "至") );
 
-            List<String> list1 = returnVerses(book, StringUtils.replace(array[0], "节", "-200节"));
+            List<String> list1 = returnVerses(book, StringUtils.replace(appendChapterWord(array[0], chapterWord), "节", "-200节"));
             List<String> list2 = new ArrayList<>();
 
             list2.addAll(returnVerses(book, array[1]));
@@ -121,6 +120,49 @@ public class BibleVerseGrab {
             result.addAll(returnVerses(book, verseStr));
         }
         return attachBibleVerses(book, result, chapterBreak);
+    }
+
+    private static String appendChapterWord(String input, String chapterWord) {
+        String result = input;
+        if( !StringUtils.endsWith(result, chapterWord) ){
+            return  result+chapterWord;
+        }
+
+        return result;
+    }
+
+    private static boolean hasMultipleChapter(String verseStr, String chapterWord) {
+
+        if( StringUtils.countMatches(verseStr, chapterWord) >= 2
+                && (containHyphen(verseStr) || verseStr.contains("到") || verseStr.contains("至")) ){
+            return true;
+        }
+
+        int hyphenPos = indexOfHyphen(verseStr);
+        int chapterWordPos = StringUtils.indexOf(verseStr, chapterWord);
+        if( StringUtils.countMatches(verseStr, chapterWord) == 1
+                && chapterWordPos > hyphenPos ){
+            return true;
+        }
+
+        return false;
+    }
+
+    private static int indexOfHyphen(String verseStr) {
+        if( containHyphen(verseStr) ){
+            String hyphen = getHyphen(verseStr);
+            return StringUtils.indexOf(verseStr, hyphen);
+        }
+
+        if( StringUtils.contains(verseStr, "到") ){
+            return StringUtils.indexOf(verseStr, "到");
+        }
+
+        if( StringUtils.contains(verseStr, "至") ){
+            return StringUtils.indexOf(verseStr, "至");
+        }
+
+        return -1;
     }
 
     private static String[] splitVerses(String verseStr, List<String> spliters) {
