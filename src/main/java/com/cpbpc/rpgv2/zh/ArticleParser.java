@@ -114,7 +114,7 @@ public class ArticleParser extends AbstractArticleParser {
         if (builder.toString().endsWith("|")) {
             builder.delete(builder.length() - 1, builder.length());
         }
-        builder.append(")\\s{0,}[0-9一二三四五六七八九十百千零]{1,}\\s{0,}[章|篇])");
+        builder.append(")\\s{0,}[0-9一二三四五六七八九十百千零至到]{1,}\\s{0,}[章|篇])");
 
         return Pattern.compile(builder.toString());
 
