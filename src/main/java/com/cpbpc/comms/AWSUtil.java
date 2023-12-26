@@ -356,5 +356,9 @@ public class AWSUtil {
         String bucketName = AppProperties.getConfig().getProperty("script_bucket");
         String prefix = AppProperties.getConfig().getProperty("script_prefix")+publishMonth+"/"+publishDate+"/";
         purgeBucket( bucketName, prefix );
+
+        bucketName = AppProperties.getConfig().getProperty("output_bucket");
+        prefix = AppProperties.getConfig().getProperty("output_prefix")+publishMonth+"/"+publishDate+"/";
+        purgeBucket( bucketName, prefix );
     }
 }
