@@ -349,4 +349,12 @@ public class AWSUtil {
         Thread.sleep(3000);
         waitUntilObjectReady(bucketName, prefix, objectKey, timeToUpload);
     }
+
+    public static void emptyTargetFolder(String date_str) {
+        String publishMonth = date_str.split("-")[0] + "_" + date_str.split("-")[1];
+        String publishDate =  date_str.split("-")[2];
+        String bucketName = AppProperties.getConfig().getProperty("script_bucket");
+        String prefix = AppProperties.getConfig().getProperty("script_prefix")+publishMonth+"/"+publishDate+"/";
+        purgeBucket( bucketName, prefix );
+    }
 }

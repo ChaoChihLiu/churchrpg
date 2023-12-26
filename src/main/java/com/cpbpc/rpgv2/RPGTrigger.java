@@ -1,5 +1,6 @@
 package com.cpbpc.rpgv2;
 
+import com.amazonaws.internal.ExceptionUtils;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.cpbpc.comms.AppProperties;
@@ -137,7 +138,7 @@ public class RPGTrigger implements RequestHandler {
 
             return true;
         } catch (SQLException | InterruptedException | UnsupportedEncodingException | ExecutionException e) {
-            logger.info(e.getMessage());
+            logger.info(ExceptionUtils.exceptionStackTrace(e));
             return false;
         } finally {
             try {

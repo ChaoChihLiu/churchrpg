@@ -6,7 +6,6 @@ import com.cpbpc.comms.AppProperties;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
-import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Date;
@@ -28,13 +27,15 @@ public class RPGToAudio {
 
     //    @Override
 //    public Boolean handleRequest( Object input, Context context) {
-    public Boolean handleRequest(Article convertData) throws IOException {
+    public Boolean handleRequest(Article convertData) {
 
-        if (null == convertData.getContent()) {
+        if (StringUtils.isEmpty(convertData.getContent())) {
             logger.info("No records found");
             return false;
         }
         logger.info("original : " + convertData.getContent());
+
+        AWSUtil.emptyTargetFolder(convertData.getStartDate());
 
         AbstractComposer composer = initComposer(appProperties.getProperty("language"), convertData.getContent(), convertData.getTitle());
         List<ComposerResult> results = composer.toPolly(true, convertData.getStartDate());
