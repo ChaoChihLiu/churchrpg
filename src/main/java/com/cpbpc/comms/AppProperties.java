@@ -18,13 +18,13 @@ public class AppProperties {
     }
 
     public static boolean isChinese(){
-        if( appProperties.getProperty("language").equals("zh") ){
+        if( "zh".equals(appProperties.getProperty("language")) ){
             return true;
         }
         return false;
     }
     public static boolean isEnglish(){
-        if( appProperties.getProperty("language").equals("en") ){
+        if( "en".equals(appProperties.getProperty("language")) ){
             return true;
         }
         return false;

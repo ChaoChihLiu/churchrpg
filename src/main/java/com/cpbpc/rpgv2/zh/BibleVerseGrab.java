@@ -9,6 +9,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 
 import java.io.BufferedReader;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
@@ -76,16 +77,22 @@ public class BibleVerseGrab {
     }
 
     public static void main(String[] args) throws IOException {
+        String language = "chinese";
+        String propPath = "/Users/liuchaochih/Documents/GitHub/churchrpg/src/main/resources/app-"+language+".properties";
+        FileInputStream in = new FileInputStream(propPath);
+        AppProperties.getConfig().load(in);
         //        String verseStr = "三十二篇7-9节";
-//        String verseStr = "31篇7,11节";
+        String verseStr = "31篇7,11节";
 //        String verseStr = "三章7-9节";
-//        String book = "詩篇";
-        String book = "羅馬書";
+        String book = "詩篇";
+//        String book = "羅馬書";
+//        String book = "列王纪上";
 //        String verseStr = "三十二篇1节-三十六篇";
+//        String verseStr = "十八章41至十九章7节";
 //        String verseStr = "三十四篇7-9节";
 //        String verseStr = "三十四篇";
 //        String verseStr = "三十四篇-三十六篇";
-        String verseStr = "十二章";
+//        String verseStr = "十二章";
         System.out.println(grab(book, verseStr));
     }
 
@@ -100,14 +107,14 @@ public class BibleVerseGrab {
             String hyphen = getHyphen(verseStr);
             String[] array = splitVerses( verseStr, List.of(hyphen, "到", "至") );
 
-            List<String> list1 = returnVerses(book, StringUtils.replace(appendChapterWord(array[0], chapterWord), "节", "-200节"));
-            List<String> list2 = new ArrayList<>();
+            List<String> list1 = returnVerses(book, toEndVerses(array[0], chapterWord));
+            result.addAll(list1);
 
-            list2.addAll(returnVerses(book, array[1]));
+            List<String> list2 = new ArrayList<>();
+            list2.addAll(returnVerses(book, fromStartVerses(array[1], chapterWord)));
 
             int startingChapter = toNumber(StringUtils.split(list1.get(0), ".")[0]);
             int endingChapter = toNumber(StringUtils.split(list2.get(0), ".")[0]);
-            result.addAll(list1);
             Locale chineseNumbers = new Locale("C@numbers=hans");
             com.ibm.icu.text.NumberFormat formatter =
                     com.ibm.icu.text.NumberFormat.getInstance(chineseNumbers);
@@ -122,9 +129,30 @@ public class BibleVerseGrab {
         return attachBibleVerses(book, result, chapterBreak);
     }
 
+    private static String fromStartVerses(String verseStr, String chapterWord) {
+        String result = verseStr;
+        if( StringUtils.endsWith(result, chapterWord) ){
+            result += "1-200节";
+        }else if( StringUtils.endsWith(ZhConverterUtil.toSimple(result), "节") ){
+            result = StringUtils.substring(verseStr, 0, verseStr.indexOf(chapterWord)+1)+"1-"+StringUtils.substring(verseStr, verseStr.indexOf(chapterWord)+1);
+        }
+        
+        return result;
+    }
+
+    private static String toEndVerses(String verseStr, String chapterWord) {
+
+        String result = StringUtils.replace(appendChapterWord(verseStr, chapterWord), "节", "-200节");
+        if( !StringUtils.endsWith(result, chapterWord) && !StringUtils.endsWith(ZhConverterUtil.toSimple(result), "节") ){
+            result += "-200节";
+        }
+        
+        return result;
+    }
+
     private static String appendChapterWord(String input, String chapterWord) {
         String result = input;
-        if( !StringUtils.endsWith(result, chapterWord) ){
+        if( !StringUtils.contains(result, chapterWord) ){
             return  result+chapterWord;
         }
 
@@ -140,7 +168,7 @@ public class BibleVerseGrab {
 
         int hyphenPos = indexOfHyphen(verseStr);
         int chapterWordPos = StringUtils.indexOf(verseStr, chapterWord);
-        if( StringUtils.countMatches(verseStr, chapterWord) == 1
+        if( containHyphen(verseStr) && StringUtils.countMatches(verseStr, chapterWord) == 1
                 && chapterWordPos > hyphenPos ){
             return true;
         }
