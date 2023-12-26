@@ -91,7 +91,7 @@ public abstract class AbstractArticleParser {
             AbstractArticleParser parser = null;
             AbstractComposer composer = null;
             if( language.equals("chinese") ){
-                parser = new com.cpbpc.rpgv2.zh.ArticleParser(content, "参孙(二)");
+                parser = new com.cpbpc.rpgv2.zh.ArticleParser(content, "关于种子与土壤");
                 composer = new com.cpbpc.rpgv2.zh.Composer(parser);
             } else{
                 parser = new com.cpbpc.rpgv2.en.ArticleParser(content, "GOD’S WORD FOR STRANGERS");
@@ -125,6 +125,7 @@ public abstract class AbstractArticleParser {
     public abstract String readPrayer();
 
     public String readFocusScripture() {
+        VerseIntf verseIntf = ThreadStorage.getVerse();
         String content_removed = removeUnwantedBetweenQuotes(content);
         int anchorPoint = StringUtils.indexOf(content_removed, title);
         Pattern pattern = getFocusScripturePattern();
@@ -136,7 +137,7 @@ public abstract class AbstractArticleParser {
                 return "";
             }
             String result = removeHtmlTag(replaceWithPause(replaceSpace(targe)));
-            return result;
+            return verseIntf.convert(result);
         }
 
         return "";
