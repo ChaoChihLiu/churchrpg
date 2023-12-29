@@ -44,7 +44,7 @@ import java.util.regex.Pattern;
 
 public class GenTelegramExcel {
     private static final Properties appProperties = AppProperties.getConfig();
-    private static final String theme = "Psalm 119:God’s Word Magnified";
+    private static final String theme = "Psalm 119: God’s Word Magnified";
     private static final String writer = "Rev Dr Jose Trinipil G. Lagapa";
     private static final String year = "2024";
     private static final String month = "01";
@@ -123,6 +123,16 @@ public class GenTelegramExcel {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private static String formatSummary(String input) {
+        String result = input;
+
+        if( StringUtils.contains(result, ":") ){
+            result = result.replace(":", ": ");
+        }
+
+        return result;
     }
 
     private static String capitalize(String summary) {

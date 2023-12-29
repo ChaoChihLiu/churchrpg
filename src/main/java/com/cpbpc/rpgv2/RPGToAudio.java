@@ -41,6 +41,10 @@ public class RPGToAudio {
         List<ComposerResult> results = composer.toPolly(true, convertData.getStartDate());
         updatePollyCount( results );
 
+        if (Boolean.valueOf((String) AppProperties.getConfig().getOrDefault("use.polly", "false")) != true) {
+            return true;
+        }
+        
         try {
             waitAllPassageAudio(results);
             List<Tag> mergeTags = mergeRPG(convertData.getStartDate(), results);
