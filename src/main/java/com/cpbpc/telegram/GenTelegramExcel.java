@@ -44,11 +44,13 @@ import java.util.regex.Pattern;
 
 public class GenTelegramExcel {
     private static final Properties appProperties = AppProperties.getConfig();
-    private static final String theme = "Psalm 119: God’s Word Magnified";
-    private static final String writer = "Rev Dr Jose Trinipil G. Lagapa";
+    private static final String theme = "神所使用的人：基于士师的人生";
+    private static final String writer = "纳尔逊•恩乌诺牧师博士";
     private static final String year = "2024";
-    private static final String month = "01";
-    private static final boolean isTest = true;
+    private static final String month = "02";
+
+    private static final String language = "chinese";
+    private static final boolean isTest = false;
 
     /*
     ✝️ 你们在基督里是完整的
@@ -70,13 +72,14 @@ public class GenTelegramExcel {
             "     left join cpbpc_categories cc on cc.id = cj.catid\n" +
             "     left join cpbpc_jevents_repetition cjr on cjr.eventdetail_id  = cjv.evdet_id\n" +
             "     where  cc.title =? \n" +
+//            "     and DATE_FORMAT(cjr.startrepeat, \"%Y-%m-%d\")=? \n" +
             "     and DATE_FORMAT(cjr.startrepeat, \"%Y-%m\")=? \n" +
             "     order by cjr.startrepeat asc \n";
 
     public static void main(String args[]) throws IOException, SQLException {
 
         AppProperties.loadConfig(System.getProperty("app.properties",
-                                                    "/Users/liuchaochih/Documents/GitHub/churchrpg/src/main/resources/app-english.properties"));
+                                                    "/Users/liuchaochih/Documents/GitHub/churchrpg/src/main/resources/app-"+language+".properties"));
         initAbbre();
 
         LocalDate currentDate = LocalDate.of(Integer.parseInt(year), Integer.parseInt(month), 01);
@@ -261,7 +264,8 @@ public class GenTelegramExcel {
     private static String grepThemeVerses(Map<String, String> dataRow) {
         List<String> result = new ArrayList<>();
         String content = dataRow.get("description");
-        int anchorPoint = content.indexOf("<p>&nbsp;</p>");
+        String summary = dataRow.get("summary");
+        int anchorPoint = content.indexOf(summary);
 
         String p = generateVersePattern();
         if (AppProperties.isChinese()) {
@@ -287,6 +291,7 @@ public class GenTelegramExcel {
 
     private static String generateTopicVersePattern() {
         //雅各书一章1节    使徒行传十二章1-2节  哥林多后书6章14-7章1节
+        //诗篇一百二十七至一百二十八篇
         StringBuilder builder = new StringBuilder("((");
 
         Set<String> keySet = abbre.keySet();
@@ -299,7 +304,7 @@ public class GenTelegramExcel {
         if (builder.toString().endsWith("|")) {
             builder.delete(builder.length() - 1, builder.length());
         }
-        builder.append(")\\s{0,}[0-9一二三四五六七八九十百千零]{1,}\\s{0,}[章|篇])");
+        builder.append(")\\s{0,}[0-9一二三四五六七八九十百千零至到]{1,}\\s{0,}[章|篇])");
 
         System.out.println(builder.toString());
         return builder.toString();
@@ -389,6 +394,7 @@ public class GenTelegramExcel {
         PreparedStatement stat = conn.prepareStatement(query);
         stat.setString(1, category);
         stat.setString(2, year + "-" + month);
+//        stat.setString(2, "2024-02-10");
 
         ResultSet rs = stat.executeQuery();
         while (rs.next()) {
