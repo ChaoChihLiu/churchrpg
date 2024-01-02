@@ -88,7 +88,7 @@ public class RPGTrigger implements RequestHandler {
             PreparedStatement state = generateQueryStatement(conn, sql);
 
             ResultSet rs = state.executeQuery();
-            int current_process_id = 0;
+//            int current_process_id = 0;
 
             String previousDate = "";
             int count = 0;
@@ -107,15 +107,15 @@ public class RPGTrigger implements RequestHandler {
                                 rs.getString("alias"),
                                 count),
                         currentUsage);
-                current_process_id = rs.getInt("evdet_id");
+//                current_process_id = rs.getInt("evdet_id");
             }
 
-            if ((appProperties.getOrDefault("publish.date", "0").equals("0")
-                    || appProperties.getOrDefault("publish.month", "0").equals("0"))
-                    && current_process_id > 0
-                    && Boolean.valueOf((String) appProperties.getOrDefault("use.polly", "true"))) {
-                updateProcessId(current_process_id, conn);
-            }
+//            if ((appProperties.getOrDefault("publish.date", "0").equals("0")
+//                    || appProperties.getOrDefault("publish.month", "0").equals("0"))
+//                    && current_process_id > 0
+//                    && Boolean.valueOf((String) appProperties.getOrDefault("use.polly", "true"))) {
+//                updateProcessId(current_process_id, conn);
+//            }
             if (Boolean.valueOf((String) appProperties.getOrDefault("use.polly", "true"))) {
                 updatePollyUsageCurrentMonth(AppProperties.getTotalLength(), conn);
             }
