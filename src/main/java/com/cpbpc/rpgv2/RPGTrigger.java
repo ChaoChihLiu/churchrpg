@@ -81,27 +81,11 @@ public class RPGTrigger implements RequestHandler {
                 logger.info("reached Polly Limit!");
                 return false;
             }
-
-            PreparedStatement state = null;
+            
             logger.info(" last process id is " + process_id);
-            String sql = SEARCH_CONTENT_BY_ID + " cc.title in ( '" + URLDecoder.decode(appProperties.getProperty("content_category")) + "' ) ";
-            if (!appProperties.getOrDefault("publish.date", "0").equals("0")) {
-                sql += " and DATE_FORMAT(cjr.startrepeat, \"%Y-%m-%d\")=? ";
-            } else if (!appProperties.getOrDefault("publish.month", "0").equals("0")) {
-                sql += " and DATE_FORMAT(cjr.startrepeat, \"%Y-%m\")=? ";
-            } else {
-                sql += " and cjv.evdet_id>? ";
-            }
+            String sql = generateQuery();
             logger.info(" sql: " + sql);
-            state = conn.prepareStatement(sql);
-            if (!appProperties.getOrDefault("publish.date", "0").equals("0")) {
-                state.setString(1, appProperties.getProperty("publish.date"));
-            } else if (!appProperties.getOrDefault("publish.month", "0").equals("0")) {
-                state.setString(1, appProperties.getProperty("publish.month"));
-            } else {
-                state.setInt(1, process_id);
-                logger.info(" state: " + state.toString());
-            }
+            PreparedStatement state = generateQueryStatement(conn, sql);
 
             ResultSet rs = state.executeQuery();
             int current_process_id = 0;
@@ -151,6 +135,50 @@ public class RPGTrigger implements RequestHandler {
             return true;
         }
 
+    }
+
+    private PreparedStatement generateQueryStatement(Connection conn, String sql) throws SQLException {
+
+        PreparedStatement state = conn.prepareStatement(sql);
+        if( appProperties.get("date_from") != null
+                && appProperties.get("date_to") != null ){
+
+            state.setString(1, appProperties.getProperty("date_from"));
+            state.setString(2, appProperties.getProperty("date_to"));
+            return state;
+        }
+        if (!appProperties.getOrDefault("publish.date", "0").equals("0")) {
+            state.setString(1, appProperties.getProperty("publish.date"));
+        } else if (!appProperties.getOrDefault("publish.month", "0").equals("0")) {
+            state.setString(1, appProperties.getProperty("publish.month"));
+        }
+//        else {
+//            state.setInt(1, process_id);
+//            logger.info(" state: " + state.toString());
+//        }
+        return state;
+    }
+
+    private String generateQuery() {
+
+        String sql = SEARCH_CONTENT_BY_ID + " cc.title in ( '" + URLDecoder.decode(appProperties.getProperty("content_category")) + "' ) ";
+
+        if( appProperties.get("date_from") != null
+                && appProperties.get("date_to") != null ){
+            sql += " and DATE_FORMAT(cjr.startrepeat, \"%Y-%m-%d\") between ? and ? ";
+
+            return sql;
+        }
+
+        if (!appProperties.getOrDefault("publish.date", "0").equals("0")) {
+            sql += " and DATE_FORMAT(cjr.startrepeat, \"%Y-%m-%d\")=? ";
+        } else if (!appProperties.getOrDefault("publish.month", "0").equals("0")) {
+            sql += " and DATE_FORMAT(cjr.startrepeat, \"%Y-%m\")=? ";
+        } else {
+            sql += " and cjv.evdet_id>? ";
+        }
+
+        return sql;
     }
 
     private void updatePollyUsageCurrentMonth(long totalLength, Connection conn) throws SQLException {
