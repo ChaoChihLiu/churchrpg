@@ -50,7 +50,7 @@ public abstract class AbstractArticleParser {
 
     public static void main(String args[]) {
         try {
-            String language = "chinese";
+            String language = "english";
 
             String propPath = "/Users/liuchaochih/Documents/GitHub/churchrpg/src/main/resources/app-"+language+".properties";
             FileInputStream in = new FileInputStream(propPath);
@@ -94,11 +94,11 @@ public abstract class AbstractArticleParser {
                 parser = new com.cpbpc.rpgv2.zh.ArticleParser(content, "关于种子与土壤");
                 composer = new com.cpbpc.rpgv2.zh.Composer(parser);
             } else{
-                parser = new com.cpbpc.rpgv2.en.ArticleParser(content, "GOD’S WORD FOR STRANGERS");
+                parser = new com.cpbpc.rpgv2.en.ArticleParser(content, "GOD’S WORD MAKES ONE WISER");
                 composer = new com.cpbpc.rpgv2.en.Composer(parser);
             }
 
-            List<ComposerResult> results = composer.toPolly(true, "2024-02-10");
+            List<ComposerResult> results = composer.toPolly(true, "2024-02-21");
             StringBuilder script = new StringBuilder();
             for(ComposerResult result : results){
                 script.append(result.getScript());
@@ -208,11 +208,11 @@ public abstract class AbstractArticleParser {
     }
 
     public int getAnchorPointAfterScriptureFocus() {
-        String tag = getParagraphTag();
-        if (StringUtils.isEmpty(content) || !StringUtils.contains(content, tag)) {
-            return 0;
-        }
-        return StringUtils.indexOf(content, tag, 0);
+//        String tag = getParagraphTag();
+//        if (StringUtils.isEmpty(content) || !StringUtils.contains(content, tag)) {
+//            return 0;
+//        }
+        return StringUtils.indexOf(content, title, 0)+title.length();
     }
 
     protected int getAnchorPointAfterTitle() {
