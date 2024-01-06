@@ -140,17 +140,20 @@ public class RPGTrigger implements RequestHandler {
     private PreparedStatement generateQueryStatement(Connection conn, String sql) throws SQLException {
 
         PreparedStatement state = conn.prepareStatement(sql);
+        if (!appProperties.getOrDefault("publish.date", "0").equals("0")) {
+            state.setString(1, appProperties.getProperty("publish.date"));
+            return state;
+        }
+        if (!appProperties.getOrDefault("publish.month", "0").equals("0")) {
+            state.setString(1, appProperties.getProperty("publish.month"));
+            return state;
+        }
         if( appProperties.get("date_from") != null
                 && appProperties.get("date_to") != null ){
 
             state.setString(1, appProperties.getProperty("date_from"));
             state.setString(2, appProperties.getProperty("date_to"));
             return state;
-        }
-        if (!appProperties.getOrDefault("publish.date", "0").equals("0")) {
-            state.setString(1, appProperties.getProperty("publish.date"));
-        } else if (!appProperties.getOrDefault("publish.month", "0").equals("0")) {
-            state.setString(1, appProperties.getProperty("publish.month"));
         }
 //        else {
 //            state.setInt(1, process_id);
@@ -163,19 +166,23 @@ public class RPGTrigger implements RequestHandler {
 
         String sql = SEARCH_CONTENT_BY_ID + " cc.title in ( '" + URLDecoder.decode(appProperties.getProperty("content_category")) + "' ) ";
 
+        if (!appProperties.getOrDefault("publish.date", "0").equals("0")) {
+            sql += " and DATE_FORMAT(cjr.startrepeat, \"%Y-%m-%d\")=? ";
+            return sql;
+        }
+        if (!appProperties.getOrDefault("publish.month", "0").equals("0")) {
+            sql += " and DATE_FORMAT(cjr.startrepeat, \"%Y-%m\")=? ";
+            return sql;
+        }
+//        else {
+//            sql += " and cjv.evdet_id>? ";
+//        }
+
         if( appProperties.get("date_from") != null
                 && appProperties.get("date_to") != null ){
             sql += " and DATE_FORMAT(cjr.startrepeat, \"%Y-%m-%d\") between ? and ? ";
 
             return sql;
-        }
-
-        if (!appProperties.getOrDefault("publish.date", "0").equals("0")) {
-            sql += " and DATE_FORMAT(cjr.startrepeat, \"%Y-%m-%d\")=? ";
-        } else if (!appProperties.getOrDefault("publish.month", "0").equals("0")) {
-            sql += " and DATE_FORMAT(cjr.startrepeat, \"%Y-%m\")=? ";
-        } else {
-            sql += " and cjv.evdet_id>? ";
         }
 
         return sql;
