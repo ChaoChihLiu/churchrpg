@@ -4,12 +4,15 @@ import com.amazonaws.services.s3.model.Tag;
 import com.cpbpc.comms.AWSUtil;
 import com.cpbpc.comms.AppProperties;
 import com.cpbpc.comms.ThreadStorage;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static com.cpbpc.comms.PunctuationTool.replacePauseTag;
 import static com.cpbpc.comms.PunctuationTool.replacePunctuationWithBreakTag;
@@ -54,6 +57,27 @@ public abstract class AbstractComposer {
     }
 
     protected abstract Map<String, String> splitPolly(boolean fixPronu);
+
+
+    private final Pattern redundantTagPattern = Pattern.compile("(<break\\s+time='800ms'/>\\.{0,}[\\n|\\r\\n]{0,}){1,}");
+    protected Map<String, String> houseKeepRedundantTag(Map<String, String> scripts) {
+        Set<Map.Entry<String, String>> entries = scripts.entrySet();
+        for( Map.Entry<String, String> entry : entries ){
+            String script = entry.getValue();
+            StringBuffer result = new StringBuffer();
+            Matcher matcher = redundantTagPattern.matcher(script);
+            while( matcher.find() ){
+                String matched = matcher.group(0);
+                if(StringUtils.countMatches(matched, "break") > 1){
+                    matcher.appendReplacement(result, matcher.group(1));
+                }
+            }
+            matcher.appendTail(result);
+            scripts.put(entry.getKey(), result.toString());
+        }
+
+        return scripts;
+    }
     
 
     protected String prettyPrintln(String input) {

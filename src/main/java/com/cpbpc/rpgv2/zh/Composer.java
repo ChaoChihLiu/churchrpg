@@ -21,6 +21,8 @@ import java.util.Set;
 import java.util.logging.Logger;
 
 import static com.cpbpc.comms.PunctuationTool.pause;
+import static com.cpbpc.comms.PunctuationTool.replaceCHPunctuationWithBreakTag;
+import static com.cpbpc.comms.PunctuationTool.replacePauseTag;
 
 public class Composer extends AbstractComposer {
 
@@ -57,6 +59,7 @@ public class Composer extends AbstractComposer {
         List<ComposerResult> result = new ArrayList<>();
 
         Map<String, String> scripts = splitPolly(fixPronu);
+        scripts = houseKeepRedundantTag(scripts);
         Set<Map.Entry<String, String>> entries = scripts.entrySet();
         for( Map.Entry<String, String> entry : entries ){
             ComposerResult composerResult = new ComposerResult();
@@ -178,5 +181,12 @@ public class Composer extends AbstractComposer {
         }
 
         return book + chapter + verse;
+    }
+
+    protected String processSentence(String content, boolean fixPronu) {
+        if( fixPronu ){
+            return replacePauseTag(phonetic.convert(replaceCHPunctuationWithBreakTag(abbr.convert(content))));
+        }
+        return replacePauseTag(replaceCHPunctuationWithBreakTag(abbr.convert(content)));
     }
 }

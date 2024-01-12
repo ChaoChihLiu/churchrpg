@@ -1,6 +1,7 @@
 package com.cpbpc.rpgv2;
 
 import com.cpbpc.comms.AppProperties;
+import com.cpbpc.comms.DBUtil;
 import com.cpbpc.comms.ThreadStorage;
 import com.github.houbb.opencc4j.util.ZhConverterUtil;
 import org.apache.commons.io.IOUtils;
@@ -12,10 +13,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.nio.file.Files;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -50,38 +47,17 @@ public abstract class AbstractArticleParser {
 
     public static void main(String args[]) {
         try {
-            String language = "english";
+            String language = "chinese";
 
             String propPath = "/Users/liuchaochih/Documents/GitHub/churchrpg/src/main/resources/app-"+language+".properties";
             FileInputStream in = new FileInputStream(propPath);
             AppProperties.getConfig().load(in);
 
             try {
-                Connection conn = DriverManager.getConnection(AppProperties.getConfig().getProperty("db_url"),
-                        AppProperties.getConfig().getProperty("db_username"),
-                        AppProperties.getConfig().getProperty("db_password"));
-                AbbreIntf abbr = ThreadStorage.getAbbreviation();
-                PhoneticIntf phonetic = ThreadStorage.getPhonetics();
-                VerseIntf verse = ThreadStorage.getVerse();
-
-                PreparedStatement state = conn.prepareStatement("select * from cpbpc_abbreviation order by seq_no asc, length(short_form) desc");
-                ResultSet rs = state.executeQuery();
-
-                while (rs.next()) {
-                    String group = rs.getString("group");
-                    String shortForm = rs.getString("short_form");
-                    String completeForm = rs.getString("complete_form");
-                    String isPaused = rs.getString("is_paused");
-
-                    if ("bible".toLowerCase().equals(group.toLowerCase())) {
-                        verse.put(shortForm, completeForm, (isPaused.equals("1")) ? true : false);
-                    } else if ("pronunciation".toLowerCase().equals(group.toLowerCase())) {
-                        phonetic.put(shortForm, completeForm, (isPaused.equals("1")) ? true : false);
-                    } else {
-                        abbr.put(shortForm, completeForm, (isPaused.equals("1")) ? true : false);
-                    }
-
-                }
+//                Connection conn = DriverManager.getConnection(AppProperties.getConfig().getProperty("db_url"),
+//                        AppProperties.getConfig().getProperty("db_username"),
+//                        AppProperties.getConfig().getProperty("db_password"));
+                DBUtil.initStorage(AppProperties.getConfig());
             } catch (Exception e) {
                 logger.info(e.getMessage());
             }
@@ -91,14 +67,14 @@ public abstract class AbstractArticleParser {
             AbstractArticleParser parser = null;
             AbstractComposer composer = null;
             if( language.equals("chinese") ){
-                parser = new com.cpbpc.rpgv2.zh.ArticleParser(content, "关于种子与土壤");
+                parser = new com.cpbpc.rpgv2.zh.ArticleParser(content, "参孙(十)");
                 composer = new com.cpbpc.rpgv2.zh.Composer(parser);
             } else{
                 parser = new com.cpbpc.rpgv2.en.ArticleParser(content, "GOD’S WORD MAKES ONE WISER");
                 composer = new com.cpbpc.rpgv2.en.Composer(parser);
             }
 
-            List<ComposerResult> results = composer.toPolly(true, "2024-02-21");
+            List<ComposerResult> results = composer.toPolly(true, "2024-02-18");
             StringBuilder script = new StringBuilder();
             for(ComposerResult result : results){
                 script.append(result.getScript());
