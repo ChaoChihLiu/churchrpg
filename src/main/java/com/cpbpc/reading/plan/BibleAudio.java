@@ -46,7 +46,7 @@ public class BibleAudio {
 
     public static void main(String args[]) throws IOException, InvalidFormatException, SQLException, InterruptedException {
         AppProperties.loadConfig(System.getProperty("app.properties",
-                                                    "/Users/liuchaochih/Documents/GitHub/churchrpg/src/main/resources/app-bibleplan-chinese.properties"));
+                                                    "/Users/liuchaochih/Documents/GitHub/churchrpg/src/main/resources/app-bibleplan-english.properties"));
         initStorage();
 
         List<String> verses = new ArrayList<>();
@@ -61,10 +61,10 @@ public class BibleAudio {
 
         String chapterBreak = "_______";
         Map<String, Integer> verseCount = new HashMap<>();
-        List<String> verse_to_merged = new ArrayList<>();
         for( String verse : verses ){
             verseCount.clear();
             List<String> result = analyseVerse(verse);
+            List<String> verse_to_merged = new ArrayList<>();
             verse_to_merged.add(result.get(0)+"|"+result.get(1));
 
             String book = result.get(0);
