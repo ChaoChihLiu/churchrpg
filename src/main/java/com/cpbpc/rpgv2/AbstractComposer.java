@@ -7,6 +7,7 @@ import com.cpbpc.comms.ThreadStorage;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -77,6 +78,46 @@ public abstract class AbstractComposer {
         }
 
         return scripts;
+    }
+
+    protected List<String> grabAndSplitVerse(String content) {
+        content = StringUtils.trim(content);
+        List<String> result = new ArrayList<>();
+        if(StringUtils.isEmpty(content) ){
+            return result;
+        }
+
+        String[] splits = content.split(System.lineSeparator());
+        int lineNumber = splits.length;
+        int quotient = Math.floorDiv(lineNumber, 10);
+        int remainder = lineNumber%10;
+
+        if( quotient <= 0 ){
+            result.add(content);
+            return result;
+        }
+
+        if( quotient == 1 ){
+            int splitNumber = lineNumber/2;
+            result.add(StringUtils.join(Arrays.copyOfRange(splits, 0, splitNumber), System.lineSeparator()));
+            result.add(StringUtils.join(Arrays.copyOfRange(splits, splitNumber, lineNumber), System.lineSeparator()));
+        }
+
+        if( quotient > 1 ){
+            for( int i=1; i<=quotient+1; i++ ){
+                int start = (i-1)*10;
+                int end = i*10;
+
+                if( end <= lineNumber ){
+                    result.add(StringUtils.join(Arrays.copyOfRange(splits, start, end), System.lineSeparator()));
+                }else{
+                    result.add(StringUtils.join(Arrays.copyOfRange(splits, start, lineNumber), System.lineSeparator()));
+                }
+
+            }
+        }
+
+        return result;
     }
     
 

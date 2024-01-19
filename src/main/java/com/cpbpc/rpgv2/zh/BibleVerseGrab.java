@@ -85,7 +85,7 @@ public class BibleVerseGrab {
         FileInputStream in = new FileInputStream(propPath);
         AppProperties.getConfig().load(in);
         //        String verseStr = "三十二篇7-9节";
-        String verseStr = "31篇7,11节";
+//        String verseStr = "31篇7,11节";
 //        String verseStr = "三章7-9节";
         String book = "詩篇";
 //        String book = "羅馬書";
@@ -95,6 +95,7 @@ public class BibleVerseGrab {
 //        String verseStr = "三十四篇7-9节";
 //        String verseStr = "三十四篇";
 //        String verseStr = "三十四篇-三十六篇";
+        String verseStr = "一百二十七至一百二十八篇";
 //        String verseStr = "十二章";
         System.out.println(grab(book, verseStr));
     }
@@ -103,9 +104,9 @@ public class BibleVerseGrab {
         return grab(book, verseStr, "");
     }
     public static String grab(String book, String verseStr, String chapterBreak) throws IOException {
+
         isFromBackup.set(Boolean.FALSE);
-        isSkipBackup.set(Boolean.FALSE);
-        
+
         verseStr = StringUtils.trim(verseStr);
         List<String> result = new ArrayList<>();
         String chapterWord = TextUtil.returnChapterWord(book);
@@ -174,7 +175,8 @@ public class BibleVerseGrab {
 
         int hyphenPos = indexOfHyphen(verseStr);
         int chapterWordPos = StringUtils.indexOf(verseStr, chapterWord);
-        if( containHyphen(verseStr) && StringUtils.countMatches(verseStr, chapterWord) == 1
+        if( (containHyphen(verseStr) || verseStr.contains("到") || verseStr.contains("至"))
+                && StringUtils.countMatches(verseStr, chapterWord) == 1
                 && chapterWordPos > hyphenPos ){
             return true;
         }
@@ -282,42 +284,42 @@ public class BibleVerseGrab {
     }
 
     private static ThreadLocal isFromBackup = new ThreadLocal();
-    private static ThreadLocal isSkipBackup = new ThreadLocal();
     private static String grabBibleVerse(String book, int chapter, int verse) throws IOException {
-        boolean fromBackup = (Boolean)isFromBackup.get();
-
         String bookChapter = book + chapter;
         String text = "";
         if (textCache.containsKey(bookChapter)) {
             text = textCache.get(bookChapter);
         } else {
             Properties bookMapping = AppProperties.readBibleMapping();
-            text = readFromInternet(book, Integer.valueOf(bookMapping.getProperty(ZhConverterUtil.toSimple(book))), chapter, fromBackup);
+            text = readFromInternet(book, Integer.valueOf(bookMapping.getProperty(ZhConverterUtil.toSimple(book))), chapter, false);
+            if( !verifyVerse(text, chapter, verse, false) ){
+                text = readFromInternet(book, Integer.valueOf(bookMapping.getProperty(ZhConverterUtil.toSimple(book))), chapter, true);
+                isFromBackup.set(Boolean.TRUE);
+            }
             textCache.put(bookChapter, text);
         }
 
-        String versePattern = createVersePattern(chapter, verse, fromBackup);
-
+        String versePattern = createVersePattern(chapter, verse, (Boolean)isFromBackup.get());
         Pattern p = Pattern.compile(versePattern);
         Matcher matcher = p.matcher(text);
         String result = "";
         int groupId = 1;
-        if( fromBackup ){
+        if( (Boolean)isFromBackup.get() ){
             groupId+=1;
         }
         if (matcher.find()) {
             logger.info(matcher.group(groupId));
-            isSkipBackup.set(Boolean.TRUE);
             result = ZhConverterUtil.toSimple(StringUtils.remove(removeHtmlTag(matcher.group(groupId)), " "));
-        }else{
-            if( Boolean.FALSE.equals(isSkipBackup.get()) ){
-                textCache.remove(bookChapter);
-                isFromBackup.set(Boolean.TRUE);
-                result = grabBibleVerse(book, chapter, verse);
-            }
         }
 
         return result;
+    }
+
+    private static boolean verifyVerse(String text, int chapter, int verse, boolean isFormBackup) {
+        String versePattern = createVersePattern(chapter, verse, isFormBackup);
+        Pattern p = Pattern.compile(versePattern);
+        Matcher matcher = p.matcher(text);
+        return matcher.find();
     }
 
     /*

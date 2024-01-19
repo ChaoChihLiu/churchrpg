@@ -21,8 +21,8 @@ import java.util.Set;
 import java.util.logging.Logger;
 
 import static com.cpbpc.comms.PunctuationTool.pause;
-import static com.cpbpc.comms.PunctuationTool.replaceCHPunctuationWithBreakTag;
 import static com.cpbpc.comms.PunctuationTool.replacePauseTag;
+import static com.cpbpc.comms.PunctuationTool.replacePunctuationWithBreakTag;
 
 public class Composer extends AbstractComposer {
 
@@ -98,11 +98,18 @@ public class Composer extends AbstractComposer {
                     count++;
                     result.append("圣经经文第" + count + "段").append(pause(200))
                             .append(processSentence(verse.convert(makeCompleteVerse(ZhConverterUtil.toSimple(book), refs.get(1), refs.get(i)), parser.getTopicVersePattern()), fixPronu)).append(pause(400))
-                            .append(processSentence(BibleVerseGrab.grab(mapBookAbbre(book), makeCompleteVerse(refs.get(1), refs.get(i))), fixPronu))
+//                            .append(processSentence(BibleVerseGrab.grab(mapBookAbbre(book), makeCompleteVerse(refs.get(1), refs.get(i))), fixPronu))
                     ;
-
-                    scripts.put(scriptCounter+"_biblePassage_"+count, result.toString());
-                    scriptCounter++;
+                    List<String> verseContents = grabAndSplitVerse(BibleVerseGrab.grab(mapBookAbbre(book), makeCompleteVerse(refs.get(1), refs.get(i))));
+                    for( String verseContent : verseContents ){
+                        if(verseContents.indexOf(verseContent) == 0){
+                            result.append(processSentence(verseContent, fixPronu));
+                            scripts.put(scriptCounter+"_biblePassage_"+count+"_"+(verseContents.indexOf(verseContent)+1), result.toString());
+                        }else{
+                            scripts.put(scriptCounter+"_biblePassage_"+count+"_"+(verseContents.indexOf(verseContent)+1), processSentence(verseContent, fixPronu));
+                        }
+                        scriptCounter++;
+                    }
                 }
             }
         } catch (Exception e) {
@@ -185,8 +192,8 @@ public class Composer extends AbstractComposer {
 
     protected String processSentence(String content, boolean fixPronu) {
         if( fixPronu ){
-            return replacePauseTag(phonetic.convert(replaceCHPunctuationWithBreakTag(abbr.convert(content))));
+            return replacePauseTag(phonetic.convert(replacePunctuationWithBreakTag(abbr.convert(content))));
         }
-        return replacePauseTag(replaceCHPunctuationWithBreakTag(abbr.convert(content)));
+        return replacePauseTag(replacePunctuationWithBreakTag(abbr.convert(content)));
     }
 }

@@ -70,12 +70,19 @@ public class Composer extends AbstractComposer {
                 buffer = new StringBuilder();
                 count++;
                 List<String> refs = verse.analyseVerse(ref);
+                List<String> verseContents = grabAndSplitVerse(BibleVerseGrab.grab(refs.get(0), refs.get(1)));
                 buffer.append("The " + ordinal(count) + " Bible passage for today is").append(pause(200))
                         .append(processSentence(verse.convert(ref), fixPronu)).append(pause(400))
-                        .append(processSentence(BibleVerseGrab.grab(refs.get(0), refs.get(1)), fixPronu))
                 ;
-                scripts.put(scriptCounter+"_biblePassage_"+count, buffer.toString());
-                scriptCounter++;
+                for( String verseContent : verseContents ){
+                    if(verseContents.indexOf(verseContent) == 0){
+                        buffer.append(processSentence(verseContent, fixPronu));
+                        scripts.put(scriptCounter+"_biblePassage_"+count+"_"+(verseContents.indexOf(verseContent)+1), buffer.toString());
+                    }else{
+                        scripts.put(scriptCounter+"_biblePassage_"+count+"_"+(verseContents.indexOf(verseContent)+1), processSentence(verseContent, fixPronu));
+                    }
+                    scriptCounter++;
+                }
             }
         } catch (Exception e) {
             logger.info(ExceptionUtils.getStackTrace(e));
@@ -120,7 +127,7 @@ public class Composer extends AbstractComposer {
 //        return "";
         return scripts;
     }
-
+    
 //    @Override
 //    private void sendToPolly(String content, String publishDate){
 //        logger.info("use.polly is " + Boolean.valueOf((String) appProperties.getOrDefault("use.polly", "true")));
