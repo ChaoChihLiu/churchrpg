@@ -43,9 +43,10 @@ public class Phonetics implements PhoneticIntf {
         String replaced = content;
         int start = 0;
         for (String key : finds) {
+            key = StringUtils.trim(key);
             String completeForm = lookupCompleteForm(key);
             logger.info("complete form " + completeForm);
-            if (phonetic.get(key).getPaused()) {
+            if (phonetic.get(key) != null && phonetic.get(key).getPaused()) {
                 replaced = replaced.replace(key, completeForm + "[pause]");
             } else {
                 replaced = replaced.replace(key, completeForm);
@@ -102,7 +103,8 @@ public class Phonetics implements PhoneticIntf {
         for (String key : keySet) {
 //            String newKey = key.trim().replace(".", "\\.{0,}");
             String newKey = key.replace(".", "\\.");
-            builder.append(newKey).append("|");
+            builder.append("[\\s|&nbsp;]{1,}").append(newKey).append("[\\s|&nbsp;]{1,}|")
+            ;
         }
         if (builder.toString().endsWith("|")) {
             builder.delete(builder.length() - 1, builder.length());
