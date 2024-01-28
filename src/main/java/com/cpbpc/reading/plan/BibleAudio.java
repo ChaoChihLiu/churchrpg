@@ -91,7 +91,7 @@ public class BibleAudio {
                     sendToS3( chapterContents[count], book, i );
                     verseCount.put(book + "," + i, StringUtils.split(chapterContents[count], System.lineSeparator()).length+1);
 
-                    singleChapters.put( extractBook(verse)+i, result.get(0)+"|"+result.get(1) );
+                    singleChapters.put( extractBook(verse)+i, result.get(0)+"|"+i );
 
                     count++;
                 }
