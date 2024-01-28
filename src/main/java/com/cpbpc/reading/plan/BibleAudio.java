@@ -162,7 +162,13 @@ public class BibleAudio {
 
     private static String extractBook(String verse) {
 
-        Pattern pattern = Pattern.compile("[\u4e00-\u9fa5]+");
+        Pattern pattern = null;
+        if( AppProperties.isChinese() ){
+            pattern = Pattern.compile("[\u4e00-\u9fa5]+");
+        }else{
+            pattern = Pattern.compile("[A-Za-z]+");
+        }
+
         Matcher matcher = pattern.matcher(verse);
         if (matcher.find()) {
             return matcher.group();
