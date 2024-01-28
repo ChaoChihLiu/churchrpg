@@ -11,7 +11,7 @@ public class Encoder {
         System.out.println(URLEncoder.encode(ZhConverterUtil.toSimple("歌林多前書")));
         System.out.println(URLEncoder.encode(ZhConverterUtil.toSimple("歌林多後書")));
 
-        System.out.println(URLDecoder.decode("%E6%9E%97%E5%89%8D"));
+        System.out.println(URLDecoder.decode("%E5%A3%AB4"));
     }
 
 }

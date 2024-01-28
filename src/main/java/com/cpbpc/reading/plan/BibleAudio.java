@@ -30,6 +30,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static com.cpbpc.comms.PunctuationTool.containHyphen;
 import static com.cpbpc.comms.PunctuationTool.getHyphen;
@@ -67,6 +69,8 @@ public class BibleAudio {
             List<String> verse_to_merged = new ArrayList<>();
             verse_to_merged.add(result.get(0)+"|"+result.get(1));
 
+            Map<String, String> singleChapters = new HashMap<>();
+
             String book = result.get(0);
             String content = scrapBibleVerse(book, result.get(1), chapterBreak);
             String chapterWord = TextUtil.returnChapterWord(book);
@@ -86,6 +90,9 @@ public class BibleAudio {
                     AWSUtil.purgeBucket(appProperties.getProperty("output_bucket"), appProperties.getProperty("output_prefix")+book+"/"+i);
                     sendToS3( chapterContents[count], book, i );
                     verseCount.put(book + "," + i, StringUtils.split(chapterContents[count], System.lineSeparator()).length+1);
+
+                    singleChapters.put( extractBook(verse)+i, result.get(0)+"|"+result.get(1) );
+
                     count++;
                 }
                 pl_script = StringUtils.join(chapterContents, System.lineSeparator());
@@ -124,6 +131,8 @@ public class BibleAudio {
                     tags
             );
 
+            breakToSingleChapter(singleChapters, tags);
+
             String objectKey = appProperties.getProperty("audio_merged_prefix")
                                 + fileName
                                 +"."+
@@ -149,6 +158,30 @@ public class BibleAudio {
 
         logger.info("all links " + StringUtils.join(objectURLs, System.lineSeparator()));
 
+    }
+
+    private static String extractBook(String verse) {
+
+        Pattern pattern = Pattern.compile("[\u4e00-\u9fa5]+");
+        Matcher matcher = pattern.matcher(verse);
+        if (matcher.find()) {
+            return matcher.group();
+        }
+
+        return "";
+    }
+
+    private static void breakToSingleChapter(Map<String, String> chapters, List<Tag> tags) {
+
+        Set<Map.Entry<String, String>> entries = chapters.entrySet();
+        for( Map.Entry<String, String> entry : entries ){
+            AWSUtil.uploadS3Object( appProperties.getProperty("script_bucket"),
+                    appProperties.getProperty("script_prefix"),
+                    entry.getKey()+".audioMerge",
+                    StringUtils.join(entry.getValue(), ","),
+                    tags
+            );
+        }
     }
 
     private static boolean isAllAudioDone(Map<String, Integer> verseCount) {
