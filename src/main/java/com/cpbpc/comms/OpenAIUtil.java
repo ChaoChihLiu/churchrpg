@@ -27,6 +27,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
@@ -86,10 +87,19 @@ public class OpenAIUtil {
         return pinyin;
     }
 
+    public static String summarise(String text) throws IOException {
+        String question = "could you summarise this article for me?"+text;
+//        String question = "could you tell me when is the Chinese New Year in 2024?";
+
+        String response = createCompletions(question);
+        System.out.println(response);
+        return response;
+    }
+
     private static String createCompletions(String prompt) throws IOException {
         String apiKey = SecretUtil.getOPENAPIKey();
-        String apiUrl = "https://api.openai.com/v1/completions";
-//        String apiUrl = "https://api.openai.com/v1/chat/completions";
+//        String apiUrl = "https://api.openai.com/v1/completions";
+        String apiUrl = "https://api.openai.com/v1/chat/completions";
 //        String apiUrl = "https://api.openai.com/v1/threads/"+createThread()+"/messages";
 
         URL url = new URL(apiUrl);
@@ -145,13 +155,22 @@ public class OpenAIUtil {
 
     private static String genCompletionJsonInput(String text) {
 
+//        String requestData = "{\"messages\": [{\"role\": \"system\", \"content\": \"You are a helpful assistant.\"}, {\"role\": \"user\", \"content\": \"" + prompt + "\"}]}";
 
-        SortedMap<String, Object> elements = new TreeMap();
+        Map<String, Object> elements = new LinkedHashMap<>();
 //        elements.put("model", "gpt-3.5-turbo");
-        elements.put("model", "gpt-3.5-turbo-instruct");
+//        elements.put("model", "gpt-3.5-turbo-instruct");
+        elements.put("model", "gpt-4");
 //        elements.put("model", "text-davinci-003");
-        elements.put("prompt", text);
-        elements.put("max_tokens", 100);
+//        elements.put("prompt", text);
+        List<Map<String, String>> list = new ArrayList<>();
+        Map<String, String> input = new HashMap<>();
+        input.put("role", "user");
+        input.put("content", text);
+        list.add(input);
+
+        elements.put("messages", list);
+//        elements.put("max_tokens", 100);
 //        elements.put("temperature", 0.7);
 //        elements.put("n", "1");
 //        elements.put("max_tokens", "16");
