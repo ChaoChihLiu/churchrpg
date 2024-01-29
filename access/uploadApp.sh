@@ -1,1 +1,1 @@
-scp  -i /Users/liuchaochih/Documents/GitHub/churchrpg/access/calvarypandan-it-admin.pem /Users/liuchaochih/Documents/GitHub/churchrpg/build/libs/churchrpg-1.0-SNAPSHOT.jar ec2-user@rpg-7f76ccf078caba5f.elb.ap-southeast-1.amazonaws.com:~/churchrpg-v2.jar
+scp  -i /Users/liuchaochih/Documents/GitHub/churchrpg/access/calvarypandan-it-admin.pem /Users/liuchaochih/Documents/GitHub/churchrpg/build/libs/churchrpg-1.0-SNAPSHOT.jar ec2-user@54.169.11.100:~/churchrpg-v2.jar

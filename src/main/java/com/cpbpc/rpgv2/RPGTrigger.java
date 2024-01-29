@@ -7,12 +7,12 @@ import com.cpbpc.comms.AppProperties;
 import com.cpbpc.comms.DBUtil;
 
 import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
+import java.util.Locale;
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Logger;
@@ -38,6 +38,10 @@ public class RPGTrigger implements RequestHandler {
     private Logger logger = Logger.getLogger(RPGTrigger.class.getName());
 
     public static void main(String[] args) {
+
+        if( AppProperties.isChinese() ){
+            Locale.setDefault(new Locale("zh", "CN"));
+        }
 
         AppProperties.loadConfig(System.getProperty("app.properties", "/Users/liuchaochih/Documents/GitHub/churchrpg/src/main/resources/app-english.properties"));
         if (null != System.getProperty("publish.date") && System.getProperty("publish.date").trim().length() > 0) {
@@ -84,8 +88,8 @@ public class RPGTrigger implements RequestHandler {
             
             logger.info(" last process id is " + process_id);
             String sql = generateQuery();
-            logger.info(" sql: " + sql);
             PreparedStatement state = generateQueryStatement(conn, sql);
+            logger.info(" sql: " + state.toString());
 
             ResultSet rs = state.executeQuery();
 //            int current_process_id = 0;
@@ -164,7 +168,11 @@ public class RPGTrigger implements RequestHandler {
 
     private String generateQuery() {
 
-        String sql = SEARCH_CONTENT_BY_ID + " cc.title in ( '" + URLDecoder.decode(appProperties.getProperty("content_category")) + "' ) ";
+//        logger.info( "content_category : " + URLDecoder.decode(appProperties.getProperty("content_category"), StandardCharsets.UTF_8) );
+
+        String sql = SEARCH_CONTENT_BY_ID
+                + " cc.id in ( '" + appProperties.getProperty("content_category") + "' ) "
+                ;
 
         if (!appProperties.getOrDefault("publish.date", "0").equals("0")) {
             sql += " and DATE_FORMAT(cjr.startrepeat, \"%Y-%m-%d\")=? ";

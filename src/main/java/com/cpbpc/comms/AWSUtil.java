@@ -1,5 +1,6 @@
 package com.cpbpc.comms;
 
+import com.amazonaws.AmazonServiceException;
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
@@ -332,22 +333,39 @@ public class AWSUtil {
 //        if( !StringUtils.endsWith(path, "/") ){
 //            path += "/";
 //        }
-        for( S3ObjectSummary summary : summaries ){
-
+//        for( S3ObjectSummary summary : summaries ){
+//
 //            logger.info("summary.getKey() "+ summary.getKey());
 //            logger.info("objectKey "+ objectKey);
-
-            if( !StringUtils.equals(summary.getKey(), objectKey) ){
-                continue;
+//
+//            if( !StringUtils.equals(summary.getKey(), objectKey) ){
+//                continue;
+//            }
+//
+//            logger.info("summary  getLastModified "+ summary.getLastModified().getTime());
+//            logger.info("timeToUpload "+ timeToUpload.getTime());
+//            if( summary.getLastModified().getTime() >= timeToUpload.getTime() ){
+//                return;
+//            }
+//        }
+        logger.info("bucket "+ bucketName);
+        logger.info("objectKey "+ objectKey);
+        try{
+            S3Object s3Object = s3Client.getObject(bucketName, objectKey);
+            if( s3Object != null ){
+                if( s3Object.getObjectMetadata().getLastModified().getTime() >= timeToUpload.getTime() ){
+                    return;
+                }
             }
-            
-            if( summary.getLastModified().after(timeToUpload) ){
-                return;
+        }catch (AmazonServiceException e){
+            if( e.getStatusCode() == 404 ){
+                Thread.sleep(3000);
+                waitUntilObjectReady(bucketName, prefix, objectKey, timeToUpload);
+            } else {
+                logger.info(ExceptionUtils.getStackTrace(e));
             }
         }
 
-        Thread.sleep(3000);
-        waitUntilObjectReady(bucketName, prefix, objectKey, timeToUpload);
     }
 
     public static void emptyTargetFolder(String date_str) {

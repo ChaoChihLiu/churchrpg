@@ -46,11 +46,16 @@ public class RPGToAudio {
         }
         
         try {
+            logger.info( "wait all audios ready" );
             waitAllPassageAudio(results);
+            logger.info( "all audios are ready to merge" );
             List<Tag> mergeTags = mergeRPG(convertData.getStartDate(), results);
             if( AppProperties.isChinese() ){
+                logger.info( "wait for merged audio" );
                 waitUntilAudioMerged(mergeTags);
+                logger.info( "merged audio is done and ready for PL" );
                 AWSUtil.putPLScriptToS3(composer.generatePLScript(), convertData.getStartDate());
+                logger.info( "PL is uploaded" );
             }
         } catch (InterruptedException e) {
             logger.info(ExceptionUtils.getStackTrace(e));
