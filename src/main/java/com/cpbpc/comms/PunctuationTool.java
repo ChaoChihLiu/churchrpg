@@ -90,19 +90,20 @@ public class PunctuationTool {
 ////                .replaceAll("…", pause(200))
 //                ;
         String result = input
-                .replaceAll("\\.\\.\\.", "."+pause(800))
-                .replaceAll("\\.", "."+pause(800))
-//                .replaceAll(",", pause(200))
-                .replaceAll(":", ":"+pause(200))
+                .replaceAll("\\.\\.\\.", "."+pause(500))
+                .replaceAll("\\.", "."+pause(500))
+                .replaceAll(",", pause(200))
+                .replaceAll(":", ":"+pause(100))
+                .replaceAll(";", ";"+pause(100))
 //                .replaceAll(";", pause(400))
-                .replaceAll("\\?", "?"+pause(800))
-                .replaceAll("\\!", "!"+pause(800))
-                .replaceAll("\\(", pause(200)+"(")
-                .replaceAll("\\)", ")"+pause(200))
+                .replaceAll("\\?", "?"+pause(500))
+                .replaceAll("\\!", "!"+pause(500))
+                .replaceAll("\\(", pause(100)+"(")
+                .replaceAll("\\)", ")"+pause(100))
 //                .replaceAll("\"", "")
                 .replaceAll("”", "")
                 .replaceAll("“", "")
-                .replaceAll("…", "…"+pause(200))
+//                .replaceAll("…", "…"+pause(200))
                 ;
 
         if( containHyphen(result) ){
