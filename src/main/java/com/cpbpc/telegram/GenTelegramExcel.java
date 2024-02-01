@@ -44,13 +44,13 @@ import java.util.regex.Pattern;
 
 public class GenTelegramExcel {
     private static final Properties appProperties = AppProperties.getConfig();
-    private static final String theme = "神所使用的人：基于士师的人生";
-    private static final String writer = "纳尔逊•恩乌诺牧师博士";
+    private static final String theme = "“Psalm 119: God’s Word Magnified";
+    private static final String writer = "Rev Dr Jose Trinipil G. Lagapa";
     private static final String year = "2024";
     private static final String month = "03";
 
     private static final String language = "english";
-    private static final boolean isTest = true;
+    private static final boolean isTest = false;
 
     /*
     ✝️ 你们在基督里是完整的
@@ -71,7 +71,7 @@ public class GenTelegramExcel {
             "     left join cpbpc_jevents_vevent cj on cj.ev_id = cjv.evdet_id\n" +
             "     left join cpbpc_categories cc on cc.id = cj.catid\n" +
             "     left join cpbpc_jevents_repetition cjr on cjr.eventdetail_id  = cjv.evdet_id\n" +
-            "     where  cc.title =? \n" +
+            "     where  cc.id =? \n" +
 //            "     and DATE_FORMAT(cjr.startrepeat, \"%Y-%m-%d\")=? \n" +
             "     and DATE_FORMAT(cjr.startrepeat, \"%Y-%m\")=? \n" +
             "     order by cjr.startrepeat asc \n";

@@ -254,20 +254,30 @@ public class AWSUtil {
 
     public static void downloadS3Object(String bucketName, String objectKey, String localFilePath){
 
+        S3Object s3Object = null;
         try {
             File localFile = new File(localFilePath);
             if( !localFile.exists() ){
                 localFile.createNewFile();
             }
 
-            S3Object s3Object = s3Client.getObject(bucketName, objectKey);
+            s3Object = s3Client.getObject(bucketName, objectKey);
 
             FileOutputStream fos = new FileOutputStream(localFilePath);
             IOUtils.copy(s3Object.getObjectContent(), fos);
             logger.info("Object downloaded successfully to: " + localFilePath);
         } catch (Exception e) {
             logger.info(ExceptionUtils.getStackTrace(e));
+        }finally{
+            if( s3Object != null ){
+                try {
+                    s3Object.close();
+                } catch (IOException e) {
+                    logger.info(ExceptionUtils.getStackTrace(e));
+                }
+            }
         }
+
     }
     public static void uploadS3Object(String bucketName, String prefix, String objectKey, File localFile, List<Tag> tags){
 
@@ -328,7 +338,7 @@ public class AWSUtil {
 
     public static void waitUntilObjectReady( String bucketName, String prefix, String objectKey, Date timeToUpload ) throws InterruptedException {
 
-        List<S3ObjectSummary> summaries = listS3Objects(bucketName, prefix);
+//        List<S3ObjectSummary> summaries = listS3Objects(bucketName, prefix);
 //        String path = prefix.trim();
 //        if( !StringUtils.endsWith(path, "/") ){
 //            path += "/";
@@ -348,12 +358,14 @@ public class AWSUtil {
 //                return;
 //            }
 //        }
-        logger.info("bucket "+ bucketName);
-        logger.info("objectKey "+ objectKey);
+//        logger.info("bucket "+ bucketName);
+//        logger.info("objectKey "+ objectKey);
+        S3Object s3Object = null;
         try{
-            S3Object s3Object = s3Client.getObject(bucketName, objectKey);
+            s3Object = s3Client.getObject(bucketName, objectKey);
             if( s3Object != null ){
                 if( s3Object.getObjectMetadata().getLastModified().getTime() >= timeToUpload.getTime() ){
+                    s3Object.close();
                     return;
                 }
             }
@@ -363,6 +375,16 @@ public class AWSUtil {
                 waitUntilObjectReady(bucketName, prefix, objectKey, timeToUpload);
             } else {
                 logger.info(ExceptionUtils.getStackTrace(e));
+            }
+        } catch (IOException e) {
+            logger.info(ExceptionUtils.getStackTrace(e));
+        } finally{
+            if( s3Object != null ){
+                try {
+                    s3Object.close();
+                } catch (IOException e) {
+                    logger.info(ExceptionUtils.getStackTrace(e));
+                }
             }
         }
 

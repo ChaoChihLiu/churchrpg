@@ -70,11 +70,11 @@ public abstract class AbstractArticleParser {
                 parser = new com.cpbpc.rpgv2.zh.ArticleParser(content, "参孙(十)");
                 composer = new com.cpbpc.rpgv2.zh.Composer(parser);
             } else{
-                parser = new com.cpbpc.rpgv2.en.ArticleParser(content, "GOD’S WORD AGAINST THE WICKED");
+                parser = new com.cpbpc.rpgv2.en.ArticleParser(content, "THE PURPOSE OF LEVITICAL LAWS");
                 composer = new com.cpbpc.rpgv2.en.Composer(parser);
             }
 
-            List<ComposerResult> results = composer.toPolly(true, "2024-03-02");
+            List<ComposerResult> results = composer.toPolly(true, "2024-04-01");
             StringBuilder script = new StringBuilder();
             for(ComposerResult result : results){
                 script.append(result.getScript());
@@ -213,7 +213,15 @@ public abstract class AbstractArticleParser {
             return 0;
         }
 
-        return StringUtils.indexOf(content, "<strong>THOUGHT:</strong>", start);
+        if( StringUtils.contains(content, "<strong>THOUGHT:</strong>") ){
+            return StringUtils.indexOf(content, "<strong>THOUGHT:</strong>", start);
+        }
+
+        if( StringUtils.contains(content, "<strong>MEMORISATION:</strong>") ){
+            return StringUtils.indexOf(content, "<strong>MEMORISATION:</strong>", start);
+        }
+
+        return -1;
     }
 
     protected String getParagraphTag() {

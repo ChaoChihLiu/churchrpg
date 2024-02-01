@@ -5,12 +5,15 @@ import com.cpbpc.comms.ThreadStorage;
 import com.cpbpc.rpgv2.AbstractArticleParser;
 import com.cpbpc.rpgv2.VerseIntf;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
+import static com.cpbpc.comms.PunctuationTool.pause;
 import static com.cpbpc.comms.PunctuationTool.removeDoubleQuote;
 import static com.cpbpc.comms.TextUtil.removeHtmlTag;
 
@@ -19,7 +22,7 @@ public class ArticleParser extends AbstractArticleParser {
     public ArticleParser(String content, String title) {
         super(content, title);
     }
-    private VerseIntf verse = ThreadStorage.getVerse();
+    private VerseIntf verseIntf = ThreadStorage.getVerse();
 
     @Override
     public List<String> readParagraphs() {
@@ -35,7 +38,7 @@ public class ArticleParser extends AbstractArticleParser {
                 String line = StringUtils.trim(removeHtmlTag(split));
                 line = removeDoubleQuote(line);
                 if (!StringUtils.isEmpty(line)) {
-                    result.add(RomanNumeral.convert(verse.convert(replaceSpace(line))));
+                    result.add(RomanNumeral.convert(verseIntf.convert(replaceSpace(line))));
                 }
             }
         }catch (Exception e){
@@ -56,10 +59,23 @@ public class ArticleParser extends AbstractArticleParser {
             line = removeDoubleQuote(line);
             if (StringUtils.contains(line, "<strong>THOUGHT:</strong>")) {
                 result = removeHtmlTag(line).trim();
+                result = replaceSpace(verseIntf.convert(result));
+            }
+
+            if (StringUtils.contains(line, "<strong>MEMORISATION:</strong>")) {
+                result = removeHtmlTag(line).trim();
+                String ref = result.replace("MEMORISATION:", "").trim();
+                List<String> refs = verseIntf.analyseVerse(ref);
+                try {
+                    String verse = BibleVerseGrab.grab(refs.get(0), refs.get(1));
+                    result = replaceSpace(verseIntf.convert(result)) + pause(400) + verse;
+                } catch (IOException e) {
+                    logger.info(ExceptionUtils.getStackTrace(e));
+                }
             }
         }
 
-        return replaceSpace(verse.convert(result));
+        return result;
     }
 
     @Override
@@ -76,7 +92,7 @@ public class ArticleParser extends AbstractArticleParser {
             }
         }
 
-        return replaceSpace(verse.convert(result));
+        return replaceSpace(verseIntf.convert(result));
     }
 
     @Override
@@ -91,7 +107,7 @@ public class ArticleParser extends AbstractArticleParser {
 
     @Override
     public Pattern getTopicVersePattern() {
-        return verse.getVersePattern();
+        return verseIntf.getVersePattern();
     }
     
 }
