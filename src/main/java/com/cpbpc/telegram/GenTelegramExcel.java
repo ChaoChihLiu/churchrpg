@@ -47,10 +47,10 @@ public class GenTelegramExcel {
     private static final String theme = "“Psalm 119: God’s Word Magnified";
     private static final String writer = "Rev Dr Jose Trinipil G. Lagapa";
     private static final String year = "2024";
-    private static final String month = "03";
+    private static final String month = "04";
 
     private static final String language = "english";
-    private static final boolean isTest = false;
+    private static final boolean isTest = true;
 
     /*
     ✝️ 你们在基督里是完整的

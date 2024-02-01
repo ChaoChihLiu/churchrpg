@@ -72,7 +72,7 @@ public class Composer extends AbstractComposer {
                 List<String> refs = verse.analyseVerse(ref);
                 List<String> verseContents = grabAndSplitVerse(BibleVerseGrab.grab(refs.get(0), refs.get(1)));
                 buffer.append("The " + ordinal(count) + " Bible passage for today is").append(pause(200))
-                        .append(processSentence(verse.convert(ref), fixPronu)).append(pause(400))
+                        .append(processSentence(" "+verse.convert(ref), fixPronu)).append(pause(400))
                 ;
                 for( String verseContent : verseContents ){
                     if(verseContents.indexOf(verseContent) == 0){

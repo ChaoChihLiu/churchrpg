@@ -70,11 +70,11 @@ public abstract class AbstractArticleParser {
                 parser = new com.cpbpc.rpgv2.zh.ArticleParser(content, "参孙(十)");
                 composer = new com.cpbpc.rpgv2.zh.Composer(parser);
             } else{
-                parser = new com.cpbpc.rpgv2.en.ArticleParser(content, "THE PURPOSE OF LEVITICAL LAWS");
+                parser = new com.cpbpc.rpgv2.en.ArticleParser(content, "GOD’S WORD FOR THE LAWLESS");
                 composer = new com.cpbpc.rpgv2.en.Composer(parser);
             }
 
-            List<ComposerResult> results = composer.toPolly(true, "2024-04-01");
+            List<ComposerResult> results = composer.toPolly(true, "2024-03-06");
             StringBuilder script = new StringBuilder();
             for(ComposerResult result : results){
                 script.append(result.getScript());
