@@ -93,7 +93,7 @@ public class PunctuationTool {
                 .replaceAll("\\.\\.\\.", "."+pause(800))
                 .replaceAll("\\.", "."+pause(800))
                 .replaceAll(",", pause(200))
-                .replaceAll(":", ":"+pause(200))
+                .replaceAll(":", ":"+pause(100))
                 .replaceAll(";", ";"+pause(200))
 //                .replaceAll(";", pause(400))
                 .replaceAll("\\?", "?"+pause(800))
