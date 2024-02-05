@@ -113,7 +113,8 @@ dependencies {
     implementation group: 'io.github.java-diff-utils', name: 'java-diff-utils', version: '4.12'
     // https://mvnrepository.com/artifact/com.belerweb/pinyin4j
     implementation group: 'com.belerweb', name: 'pinyin4j', version: '2.5.0'
-
+// https://mvnrepository.com/artifact/com.microsoft.cognitiveservices.speech/client-sdk
+//    implementation 'com.microsoft.cognitiveservices.speech:client-sdk:1.34.1'
 }
 
 task buildZip(type: Zip) {

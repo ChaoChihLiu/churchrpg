@@ -1,6 +1,5 @@
 package com.cpbpc.comms;
 
-import com.cpbpc.rpgv2.VerseIntf;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 

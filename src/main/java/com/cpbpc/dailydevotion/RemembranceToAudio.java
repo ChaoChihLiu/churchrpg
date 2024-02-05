@@ -1,4 +1,4 @@
-package com.cpbpc.rpgv2;
+package com.cpbpc.dailydevotion;
 
 import com.amazonaws.services.s3.model.Tag;
 import com.cpbpc.comms.AWSUtil;
@@ -10,23 +10,18 @@ import com.cpbpc.comms.ComposerResult;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
-import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 import java.util.logging.Logger;
 
-public class RPGToAudio {
+public class RemembranceToAudio {
 
     private static final Properties appProperties = AppProperties.getConfig();
-    private long previousUsage = 0;
-    private long pollyLimit = 0;
-    private Logger logger = Logger.getLogger(RPGToAudio.class.getName());
+    private Logger logger = Logger.getLogger(RemembranceToAudio.class.getName());
 
-    public RPGToAudio(long previousUsage, long pollyLimit) {
-        this.previousUsage = previousUsage;
-        this.pollyLimit = pollyLimit;
+    public RemembranceToAudio() {
     }
 
     //    @Override
@@ -37,15 +32,15 @@ public class RPGToAudio {
             logger.info("No records found");
             return false;
         }
-        logger.info("original : " + convertData.getContent());
+        logger.info("original title : " + convertData.getTitle());
+        logger.info("original content : " + convertData.getContent());
 
-        String publishMonth = convertData.getStartDate().split("-")[0] + "_" + convertData.getStartDate().split("-")[1];
-        String publishDate =  convertData.getStartDate().split("-")[2];
-        AWSUtil.emptyTargetFolder(publishMonth, publishDate);
+        String month = convertData.getStartDate().split(" ")[0];
+        String date =  convertData.getStartDate().split(" ")[1];
+        AWSUtil.emptyTargetFolder(month, date);
 
-        AbstractComposer composer = initComposer(appProperties.getProperty("language"), convertData);
+        AbstractComposer composer = initComposer(convertData);
         List<ComposerResult> results = composer.toTTS(true, convertData.getStartDate());
-        updatePollyCount( results );
 
         if (Boolean.valueOf((String) AppProperties.getConfig().getOrDefault("use.polly", "false")) != true) {
             return true;
@@ -55,19 +50,10 @@ public class RPGToAudio {
             logger.info( "wait all audios ready" );
             waitAllPassageAudio(results);
             logger.info( "all audios are ready to merge" );
-            List<Tag> mergeTags = mergeRPG(convertData.getStartDate(), results);
-            if( AppProperties.isChinese() ){
-                logger.info( "wait for merged audio" );
-                waitUntilAudioMerged(mergeTags);
-                logger.info( "merged audio is done and ready for PL" );
-
-                String month_str = convertData.getStartDate().split("-")[0] + "_" + convertData.getStartDate().split("-")[1];
-                String date_str = convertData.getStartDate().split("-")[2];
-
-                AWSUtil.putPLScriptToS3(composer.generatePLScript(), month_str, date_str);
-                logger.info( "PL is uploaded" );
-            }
+            merge(convertData, results);
+            
         } catch (InterruptedException e) {
+            e.printStackTrace();
             logger.info(ExceptionUtils.getStackTrace(e));
         }
         
@@ -97,23 +83,8 @@ public class RPGToAudio {
         }
 
     }
-
-    private void updatePollyCount(List<ComposerResult> results) {
-        StringBuilder builder = new StringBuilder();
-        for( ComposerResult result: results ){
-            builder.append(result.getScript());
-        }
-
-        if (AppProperties.getTotalLength() + builder.length() + previousUsage >= pollyLimit) {
-            logger.info("reached Polly Limit");
-            return;
-        }
-
-        AppProperties.addTotalLength(builder.length());
-        logger.info(" total length " + AppProperties.getTotalLength());
-    }
     
-    private List<Tag> mergeRPG(String publishDate, List<ComposerResult> results) {
+    private List<Tag> merge(Article article, List<ComposerResult> results) {
 
         List<String> fileNames = new ArrayList<>();
         for( ComposerResult result: results ){
@@ -128,13 +99,14 @@ public class RPGToAudio {
         mergeTags.add(new Tag("audio_merged_prefix", appProperties.getProperty("audio_merged_prefix")));
         mergeTags.add(new Tag("audio_merged_format", appProperties.getProperty("audio_merged_format")));
         mergeTags.add(new Tag("name_prefix", appProperties.getProperty("name_prefix")));
-        mergeTags.add(new Tag("publish_date", publishDate));
+        mergeTags.add(new Tag("publish_date", article.getStartDate()));
 
-        String nameToBe = AppProperties.getConfig().getProperty("name_prefix") + publishDate.replaceAll("-", "");
-        mergeTags.add(new Tag("audio_key", appProperties.getProperty("audio_merged_prefix")+publishDate.split("-")[0]+"_"+publishDate.split("-")[1]+"/"+nameToBe+"."+appProperties.getProperty("audio_merged_format")));
+        String nameToBe = AppProperties.getConfig().getProperty("name_prefix") + "_" + article.getStartDate().replaceAll(" ", "_")+"_" + article.getTiming();
+        String audioKey = appProperties.getProperty("audio_merged_prefix")+article.getStartDate().split(" ")[0]+"/"+nameToBe+"."+appProperties.getProperty("audio_merged_format");
+        mergeTags.add(new Tag("audio_key", audioKey));
 
         AWSUtil.uploadS3Object( appProperties.getProperty("script_bucket"),
-                appProperties.getProperty("script_prefix")+publishDate.split("-")[0]+"_"+publishDate.split("-")[1]+"/"+publishDate.split("-")[2],
+                appProperties.getProperty("script_prefix")+article.getStartDate().split(" ")[0]+"/"+article.getStartDate().split(" ")[1],
                 nameToBe+".audioMerge",
                 StringUtils.join(fileNames, ","),
                 mergeTags
@@ -170,36 +142,13 @@ public class RPGToAudio {
         return "";
     }
     
-    private AbstractComposer initComposer(String language, Article article) {
-        String packageName = "com.cpbpc.rpgv2." + language;
-        AbstractArticleParser parser = initParser(language, article);
-        try {
-            Class<?> clazz = Class.forName(packageName + ".Composer");
-            Constructor<?> constructor = clazz.getConstructor(AbstractArticleParser.class);
-            Object obj = constructor.newInstance(parser);
-            if( obj instanceof AbstractComposer ){
-                return (AbstractComposer)obj;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
+    private AbstractComposer initComposer(Article article) {
+        AbstractArticleParser parser = initParser(article);
+        return new Composer(parser);
     }
 
-    private AbstractArticleParser initParser(String language, Article article) {
-
-        String packageName = "com.cpbpc.rpgv2." + language;
-        try {
-            Class<?> clazz = Class.forName(packageName + ".ArticleParser");
-            Constructor<?> constructor = clazz.getConstructor(Article.class);
-            Object obj = constructor.newInstance(article);
-            if( obj instanceof AbstractArticleParser){
-                return (AbstractArticleParser)obj;
-            } 
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
+    private AbstractArticleParser initParser(Article article) {
+        return new ArticleParser(article);
 
     }
 

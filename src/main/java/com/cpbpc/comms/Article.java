@@ -1,8 +1,9 @@
-package com.cpbpc.rpgv2;
+package com.cpbpc.comms;
 
 public class Article {
 
     private String startDate;
+    private String timing;
     private String content;
     private String title;
     private String category;
@@ -11,6 +12,15 @@ public class Article {
 
     public Article(String startDate, String desc, String title, String category, int counter) {
         this.startDate = startDate;
+        this.content = desc;
+        this.title = title;
+        this.category = category;
+        this.counter = counter;
+    }
+
+    public Article(String startDate, String timing, String desc, String title, String category, int counter) {
+        this.startDate = startDate;
+        this.timing = timing;
         this.content = desc;
         this.title = title;
         this.category = category;
@@ -39,6 +49,10 @@ public class Article {
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public String getTiming(){
+        return timing;
     }
 
     public String getCategory() {

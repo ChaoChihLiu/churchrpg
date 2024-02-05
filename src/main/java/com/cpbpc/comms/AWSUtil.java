@@ -44,10 +44,10 @@ public class AWSUtil {
     }
     
     private static List<Tag> saveToS3(String content, String bucketName, String objectKey, String audioKey) {
-        return saveToS3(content, bucketName, objectKey, "", audioKey);
+        return saveToS3(content, bucketName, objectKey, "", "", audioKey);
     }
 
-    private static List<Tag> saveToS3(String content, String bucketName, String objectKey, String publishDate_str, String audioKey) {
+    private static List<Tag> saveToS3(String content, String bucketName, String objectKey, String month, String date, String audioKey) {
         List<Tag> tags = new ArrayList<>();
         try {
             InputStream inputStream = new StringInputStream(content);
@@ -55,8 +55,8 @@ public class AWSUtil {
             ObjectMetadata metadata = new ObjectMetadata();
             PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName, objectKey, inputStream, metadata);
 
-            if( !StringUtils.isEmpty(publishDate_str) ){
-                tags.add(new Tag("publish_date", publishDate_str));
+            if( !StringUtils.isEmpty(month) && !StringUtils.isEmpty(date) ){
+                tags.add(new Tag("publish_date", month + "_" + date));
             }
             tags.add(new Tag("voice_id", AppProperties.getConfig().getProperty("voice_id")));
             tags.add(new Tag("category", URLDecoder.decode(AppProperties.getConfig().getProperty("content_category"))));
@@ -143,7 +143,7 @@ public class AWSUtil {
         }
     }
 
-    public static void putPLScriptToS3(String content, String publishDate_str) {
+    public static void putPLScriptToS3(String content, String month, String date) {
 
         String bucketName = AppProperties.getConfig().getProperty("pl_script_bucket");
         String prefix = AppProperties.getConfig().getProperty("pl_prefix");
@@ -151,21 +151,22 @@ public class AWSUtil {
             prefix += "/";
         }
 
-        String publishMonth = publishDate_str.split("-")[0] + "_" + publishDate_str.split("-")[1];
-        String publishDate = publishDate_str.split("-")[2];
+//        String publishMonth = publishDate_str.split("-")[0] + "_" + publishDate_str.split("-")[1];
+//        String publishDate = publishDate_str.split("-")[2];
+        String publishDate_str = month.replaceAll("-", "").replace("_", "")+date;
         String nameToBe = AppProperties.getConfig().getProperty("name_prefix") + publishDate_str.replaceAll("-", "");
         String objectType = AppProperties.getConfig().getProperty("pl_format");
-        String objectKey = prefix + publishMonth + "/" + publishDate + "/" + nameToBe + "." + objectType;
+        String objectKey = prefix + month + "/" + date + "/" + nameToBe + "." + objectType;
         String audioKey =  AppProperties.getConfig().getProperty("output_prefix")
-                + publishMonth + "/"
+                + month + "/"
                 + nameToBe + "."
                 + AppProperties.getConfig().getProperty("output_format");
 
-        saveToS3(content, bucketName, objectKey, publishDate_str, audioKey);
+        saveToS3(content, bucketName, objectKey, month, date, audioKey);
 
     }
 
-    public static List<Tag> putScriptToS3(String objectName, String content, String publishDate_str) {
+    public static List<Tag> putScriptToS3(String objectName, String content, String month, String date) {
 
         String bucketName = AppProperties.getConfig().getProperty("script_bucket");
         String prefix = AppProperties.getConfig().getProperty("script_prefix");
@@ -173,17 +174,17 @@ public class AWSUtil {
             prefix += "/";
         }
 
-        String publishMonth = publishDate_str.split("-")[0] + "_" + publishDate_str.split("-")[1];
-        String publishDate = publishDate_str.split("-")[2];
+//        String publishMonth = publishDate_str.split("-")[0] + "_" + publishDate_str.split("-")[1];
+//        String publishDate = publishDate_str.split("-")[2];
         String objectType = AppProperties.getConfig().getProperty("script_format");
-        String objectKey = prefix + publishMonth + "/" + publishDate + "/" + objectName + "." + objectType;
+        String objectKey = prefix + month + "/" + date + "/" + objectName + "." + objectType;
         String audioKey =  AppProperties.getConfig().getProperty("output_prefix")
-                + publishMonth + "/"
-                + publishDate + "/"
+                + month + "/"
+                + date + "/"
                 + objectName + "."
                 + AppProperties.getConfig().getProperty("output_format");
 
-        return saveToS3(content, bucketName, objectKey, publishDate_str, audioKey);
+        return saveToS3(content, bucketName, objectKey, month, date, audioKey);
 
     }
 
@@ -323,13 +324,22 @@ public class AWSUtil {
         listObjectsRequest.setBucketName(bucketName);
         listObjectsRequest.setPrefix(prefix);
 
-        ListObjectsV2Result listObjectsResponse = s3Client.listObjectsV2(listObjectsRequest);
-        List<S3ObjectSummary> objects = listObjectsResponse.getObjectSummaries();
-        return objects;
+        try{
+            ListObjectsV2Result listObjectsResponse = s3Client.listObjectsV2(listObjectsRequest);
+            List<S3ObjectSummary> objects = listObjectsResponse.getObjectSummaries();
+            return objects;
+        }catch(Exception e){
+//            e.printStackTrace();
+//            logger.info(ExceptionUtils.getStackTrace(e));
+            return null;
+        }
     }
 
     public static void purgeBucket(String outputBucket, String outputPrefix) {
         List<S3ObjectSummary> summaries = listS3Objects(outputBucket, outputPrefix);
+        if( summaries == null ){
+            return;
+        }
         for( S3ObjectSummary summary : summaries ){
             DeleteObjectRequest request = new DeleteObjectRequest(outputBucket, summary.getKey());
             s3Client.deleteObject(request);
@@ -390,19 +400,18 @@ public class AWSUtil {
 
     }
 
-    public static void emptyTargetFolder(String date_str) {
-        String publishMonth = date_str.split("-")[0] + "_" + date_str.split("-")[1];
-        String publishDate =  date_str.split("-")[2];
+    public static void emptyTargetFolder(String month, String date) {
+
         String bucketName = AppProperties.getConfig().getProperty("script_bucket");
-        String prefix = AppProperties.getConfig().getProperty("script_prefix")+publishMonth+"/"+publishDate+"/";
+        String prefix = AppProperties.getConfig().getProperty("script_prefix")+month+"/"+date+"/";
         purgeBucket( bucketName, prefix );
 
         bucketName = AppProperties.getConfig().getProperty("output_bucket");
-        prefix = AppProperties.getConfig().getProperty("output_prefix")+publishMonth+"/"+publishDate+"/";
+        prefix = AppProperties.getConfig().getProperty("output_prefix")+month+"/"+date+"/";
         purgeBucket( bucketName, prefix );
 
         bucketName = AppProperties.getConfig().getProperty("audio_merged_bucket");
-        prefix = AppProperties.getConfig().getProperty("audio_merged_prefix")+publishMonth+"/"+publishDate+"/";
+        prefix = AppProperties.getConfig().getProperty("audio_merged_prefix")+month+"/"+date+"/";
         purgeBucket( bucketName, prefix );
     }
 }

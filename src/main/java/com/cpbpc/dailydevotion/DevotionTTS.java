@@ -1,14 +1,14 @@
 package com.cpbpc.dailydevotion;
 
 import com.cpbpc.comms.AWSUtil;
+import com.cpbpc.comms.AbbreIntf;
 import com.cpbpc.comms.AppProperties;
 import com.cpbpc.comms.DBUtil;
 import com.cpbpc.comms.OpenAIUtil;
+import com.cpbpc.comms.PhoneticIntf;
 import com.cpbpc.comms.PunctuationTool;
 import com.cpbpc.comms.ThreadStorage;
-import com.cpbpc.rpgv2.AbbreIntf;
-import com.cpbpc.rpgv2.PhoneticIntf;
-import com.cpbpc.rpgv2.VerseIntf;
+import com.cpbpc.comms.VerseIntf;
 import com.itextpdf.text.pdf.PdfReader;
 import com.itextpdf.text.pdf.parser.PdfTextExtractor;
 import org.apache.commons.lang3.RegExUtils;

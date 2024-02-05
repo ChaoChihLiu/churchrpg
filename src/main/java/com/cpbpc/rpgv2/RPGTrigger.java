@@ -4,6 +4,7 @@ import com.amazonaws.internal.ExceptionUtils;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.cpbpc.comms.AppProperties;
+import com.cpbpc.comms.Article;
 import com.cpbpc.comms.DBUtil;
 
 import java.io.UnsupportedEncodingException;
@@ -50,10 +51,11 @@ public class RPGTrigger implements RequestHandler {
         if (null != System.getProperty("publish.month") && System.getProperty("publish.month").trim().length() > 0) {
             appProperties.setProperty("publish.month", System.getProperty("publish.month"));
         }
-        appProperties.setProperty("use.polly", "false");
+        appProperties.setProperty("use.polly", "true");
         if (null != System.getProperty("use.polly") && Boolean.valueOf(System.getProperty("use.polly")) == true) {
             appProperties.setProperty("use.polly", System.getProperty("use.polly"));
         }
+
 
         RPGTrigger trigger = new RPGTrigger();
         trigger.handleRequest(null, null);

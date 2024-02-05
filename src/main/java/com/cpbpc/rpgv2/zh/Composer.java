@@ -1,13 +1,13 @@
 package com.cpbpc.rpgv2.zh;
 
+import com.cpbpc.comms.AbstractArticleParser;
+import com.cpbpc.comms.AbstractComposer;
 import com.cpbpc.comms.AppProperties;
+import com.cpbpc.comms.ComposerResult;
+import com.cpbpc.comms.ConfigObj;
 import com.cpbpc.comms.TextUtil;
 import com.cpbpc.comms.ThreadStorage;
-import com.cpbpc.rpgv2.AbstractArticleParser;
-import com.cpbpc.rpgv2.AbstractComposer;
-import com.cpbpc.rpgv2.ComposerResult;
-import com.cpbpc.rpgv2.ConfigObj;
-import com.cpbpc.rpgv2.VerseIntf;
+import com.cpbpc.comms.VerseIntf;
 import com.github.houbb.opencc4j.util.ZhConverterUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -55,7 +55,7 @@ public class Composer extends AbstractComposer {
     }
 
     @Override
-    protected List<ComposerResult> toPolly(boolean fixPronu, String publishDate) {
+    public List<ComposerResult> toTTS(boolean fixPronu, String publishDate) {
         List<ComposerResult> result = new ArrayList<>();
 
         Map<String, String> scripts = splitPolly(fixPronu);
@@ -70,7 +70,7 @@ public class Composer extends AbstractComposer {
 
             composerResult.setScript(script);
             composerResult.setFileName(fileName);
-            composerResult.addTags(sendToPolly(fileName, wrapToPolly(prettyPrintln(script)), publishDate));
+            composerResult.addTags(sendToTTS(fileName, wrapToPolly(prettyPrintln(script)), publishDate));
         }
         
         return result;

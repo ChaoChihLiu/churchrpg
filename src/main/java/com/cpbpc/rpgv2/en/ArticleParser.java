@@ -1,9 +1,10 @@
 package com.cpbpc.rpgv2.en;
 
+import com.cpbpc.comms.AbstractArticleParser;
+import com.cpbpc.comms.Article;
 import com.cpbpc.comms.RomanNumeral;
 import com.cpbpc.comms.ThreadStorage;
-import com.cpbpc.rpgv2.AbstractArticleParser;
-import com.cpbpc.rpgv2.VerseIntf;
+import com.cpbpc.comms.VerseIntf;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
@@ -19,8 +20,8 @@ import static com.cpbpc.comms.TextUtil.removeHtmlTag;
 
 public class ArticleParser extends AbstractArticleParser {
     private static Logger logger = Logger.getLogger(ArticleParser.class.getName());
-    public ArticleParser(String content, String title) {
-        super(content, title);
+    public ArticleParser(Article article) {
+        super(article);
     }
     private VerseIntf verseIntf = ThreadStorage.getVerse();
 
@@ -93,6 +94,11 @@ public class ArticleParser extends AbstractArticleParser {
         }
 
         return replaceSpace(verseIntf.convert(result));
+    }
+
+    @Override
+    public String readEnd() {
+        return "";
     }
 
     @Override

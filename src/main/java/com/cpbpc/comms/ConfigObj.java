@@ -1,4 +1,4 @@
-package com.cpbpc.rpgv2;
+package com.cpbpc.comms;
 
 public class ConfigObj {
 

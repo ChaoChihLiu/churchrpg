@@ -1,9 +1,9 @@
 package com.cpbpc.rpgv2.zh;
 
+import com.cpbpc.comms.ConfigObj;
 import com.cpbpc.comms.NumberConverter;
 import com.cpbpc.comms.ThreadStorage;
-import com.cpbpc.rpgv2.ConfigObj;
-import com.cpbpc.rpgv2.VerseIntf;
+import com.cpbpc.comms.VerseIntf;
 import com.github.houbb.opencc4j.util.ZhConverterUtil;
 import org.apache.commons.lang3.StringUtils;
 

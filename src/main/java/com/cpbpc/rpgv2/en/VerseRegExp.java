@@ -1,9 +1,9 @@
 package com.cpbpc.rpgv2.en;
 
+import com.cpbpc.comms.ConfigObj;
 import com.cpbpc.comms.PunctuationTool;
 import com.cpbpc.comms.ThreadStorage;
-import com.cpbpc.rpgv2.ConfigObj;
-import com.cpbpc.rpgv2.VerseIntf;
+import com.cpbpc.comms.VerseIntf;
 import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;

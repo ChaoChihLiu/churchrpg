@@ -1,8 +1,9 @@
 package com.cpbpc.rpgv2.zh;
 
+import com.cpbpc.comms.AbstractArticleParser;
+import com.cpbpc.comms.Article;
 import com.cpbpc.comms.ThreadStorage;
-import com.cpbpc.rpgv2.AbstractArticleParser;
-import com.cpbpc.rpgv2.VerseIntf;
+import com.cpbpc.comms.VerseIntf;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
@@ -20,8 +21,8 @@ public class ArticleParser extends AbstractArticleParser {
     
     private static VerseIntf verse = ThreadStorage.getVerse();
 
-    public ArticleParser(String content, String title) {
-        super(content, title);
+    public ArticleParser(Article article) {
+        super(article);
     }
 
     @Override
@@ -87,6 +88,11 @@ public class ArticleParser extends AbstractArticleParser {
         }
 
         return replaceSpace(verse.convert(result));
+    }
+
+    @Override
+    public String readEnd() {
+        return "";
     }
 
     @Override

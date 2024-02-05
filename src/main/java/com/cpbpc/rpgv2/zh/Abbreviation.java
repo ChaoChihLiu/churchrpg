@@ -1,7 +1,7 @@
 package com.cpbpc.rpgv2.zh;
 
-import com.cpbpc.rpgv2.AbbreIntf;
-import com.cpbpc.rpgv2.ConfigObj;
+import com.cpbpc.comms.AbbreIntf;
+import com.cpbpc.comms.ConfigObj;
 
 import java.util.ArrayList;
 import java.util.HashMap;

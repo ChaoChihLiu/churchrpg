@@ -1,9 +1,6 @@
-package com.cpbpc.rpgv2;
+package com.cpbpc.comms;
 
 import com.amazonaws.services.s3.model.Tag;
-import com.cpbpc.comms.AWSUtil;
-import com.cpbpc.comms.AppProperties;
-import com.cpbpc.comms.ThreadStorage;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
@@ -43,7 +40,7 @@ public abstract class AbstractComposer {
         return replacePauseTag(replacePunctuationWithBreakTag(abbr.convert(content)));
     }
 
-    protected abstract List<ComposerResult> toPolly(boolean fixPronu, String publishDate);
+    public abstract List<ComposerResult> toTTS(boolean fixPronu, String publishDate);
 
     public String generatePLScript() {
         Map<String, String> scripts = splitPolly(false);
@@ -137,7 +134,7 @@ public abstract class AbstractComposer {
         return input.replaceAll("<break", System.lineSeparator()+"<break");
     }
 
-    protected List<Tag> sendToPolly(String fileName, String content, String publishDate){
+    protected List<Tag> sendToTTS(String fileName, String content, String publishDate){
 
         List<Tag> tags = new ArrayList<>();
         logger.info("use.polly is " + Boolean.valueOf((String) AppProperties.getConfig().getOrDefault("use.polly", "true")));
@@ -146,9 +143,19 @@ public abstract class AbstractComposer {
         }
 
         logger.info("send to polly script S3 bucket!");
-        tags.addAll( AWSUtil.putScriptToS3(fileName, content, publishDate) );
+        tags.addAll( AWSUtil.putScriptToS3(fileName, content, getPublishMonth(publishDate), getPublishDate(publishDate)) );
 
         return tags;
+    }
+
+    public String getPublishDate(String input){
+        String publishDate = input.split("-")[2];
+        return publishDate;
+    }
+
+    public String getPublishMonth(String input){
+        String publishMonth = input.split("-")[0] + "_" + input.split("-")[1];
+        return publishMonth;
     }
 
 }

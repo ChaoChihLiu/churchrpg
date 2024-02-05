@@ -1,9 +1,5 @@
 package com.cpbpc.comms;
 
-import com.cpbpc.rpgv2.AbbreIntf;
-import com.cpbpc.rpgv2.PhoneticIntf;
-import com.cpbpc.rpgv2.VerseIntf;
-
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;

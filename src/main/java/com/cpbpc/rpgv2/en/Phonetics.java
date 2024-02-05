@@ -1,7 +1,7 @@
 package com.cpbpc.rpgv2.en;
 
-import com.cpbpc.rpgv2.ConfigObj;
-import com.cpbpc.rpgv2.PhoneticIntf;
+import com.cpbpc.comms.ConfigObj;
+import com.cpbpc.comms.PhoneticIntf;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;

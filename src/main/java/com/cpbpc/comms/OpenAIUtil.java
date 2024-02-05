@@ -88,7 +88,7 @@ public class OpenAIUtil {
     }
 
     public static String summarise(String text) throws IOException {
-        String question = "could you summarise this article for me?"+text;
+        String question = "This is the content of Q n A, could you summarise the answer? Do keep Bible verses in summary if there has any"+text;
 //        String question = "could you tell me when is the Chinese New Year in 2024?";
 
         String response = createCompletions(question);

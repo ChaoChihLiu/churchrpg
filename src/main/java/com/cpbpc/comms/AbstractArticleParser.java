@@ -1,8 +1,5 @@
-package com.cpbpc.rpgv2;
+package com.cpbpc.comms;
 
-import com.cpbpc.comms.AppProperties;
-import com.cpbpc.comms.DBUtil;
-import com.cpbpc.comms.ThreadStorage;
 import com.github.houbb.opencc4j.util.ZhConverterUtil;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.RegExUtils;
@@ -32,13 +29,14 @@ public abstract class AbstractArticleParser {
 
     protected String content;
     protected String title;
-
-    protected AbbreIntf abbr = ThreadStorage.getAbbreviation();
+    protected Article article;
+    
     protected VerseIntf verse = ThreadStorage.getVerse();
 
-    public AbstractArticleParser(String content, String title) {
-        this.content = changeFullCharacter(ZhConverterUtil.toSimple(content));
-        this.title = changeFullCharacter(ZhConverterUtil.toSimple(title));
+    public AbstractArticleParser(Article article) {
+        this.article = article;
+        this.content = changeFullCharacter(ZhConverterUtil.toSimple(article.getContent()));
+        this.title = changeFullCharacter(ZhConverterUtil.toSimple(article.getTitle()));
     }
 
     protected String replaceSpace(String input) {
@@ -67,14 +65,15 @@ public abstract class AbstractArticleParser {
             AbstractArticleParser parser = null;
             AbstractComposer composer = null;
             if( language.equals("chinese") ){
-                parser = new com.cpbpc.rpgv2.zh.ArticleParser(content, "参孙(十)");
+                parser = new com.cpbpc.rpgv2.zh.ArticleParser(new Article("2024-03-06", content, "参孙(十)", "", 1));
                 composer = new com.cpbpc.rpgv2.zh.Composer(parser);
             } else{
-                parser = new com.cpbpc.rpgv2.en.ArticleParser(content, "GOD’S WORD FOR THE LAWLESS");
+
+                parser = new com.cpbpc.rpgv2.en.ArticleParser(new Article("2024-03-06", content,  "GOD’S WORD FOR THE LAWLESS", "", 1));
                 composer = new com.cpbpc.rpgv2.en.Composer(parser);
             }
 
-            List<ComposerResult> results = composer.toPolly(true, "2024-03-06");
+            List<ComposerResult> results = composer.toTTS(true, "2024-03-06");
             StringBuilder script = new StringBuilder();
             for(ComposerResult result : results){
                 script.append(result.getScript());
@@ -93,12 +92,16 @@ public abstract class AbstractArticleParser {
     public String getTitle() {
         return title;
     }
+    public Article getArticle() {
+        return article;
+    }
 
     public abstract List<String> readParagraphs();
 
     public abstract String readThought();
 
     public abstract String readPrayer();
+    public abstract String readEnd();
 
     public String readFocusScripture() {
         VerseIntf verseIntf = ThreadStorage.getVerse();
@@ -164,11 +167,11 @@ public abstract class AbstractArticleParser {
         return "";
     }
 
-    public List<String> readTopicVerses() {
+    public List<String> readTopicVerses(String input) {
         VerseIntf verse = ThreadStorage.getVerse();
         List<String> result = new ArrayList<>();
         Pattern versePattern = getTopicVersePattern();
-        Matcher m = versePattern.matcher(content);
+        Matcher m = versePattern.matcher(input);
         int anchorPoint = getAnchorPointAfterScriptureFocus();
         int start = 0;
         while (m.find(start)) {
@@ -178,9 +181,13 @@ public abstract class AbstractArticleParser {
             if (position > anchorPoint) {
                 break;
             }
-            result.add(replaceSpace(verse.appendNextCharTillCompleteVerse(content, target, position, anchorPoint)));
+            result.add(replaceSpace(verse.appendNextCharTillCompleteVerse(input, target, position, anchorPoint)));
         }
         return result;
+    }
+
+    public List<String> readTopicVerses() {
+        return readTopicVerses(content);
     }
 
     public int getAnchorPointAfterScriptureFocus() {
@@ -235,5 +242,8 @@ public abstract class AbstractArticleParser {
     public abstract Pattern getTopicVersePattern();
 
     protected abstract Pattern getDatePattern();
-    
+
+    public String getTopic(){
+        return "";
+    }
 }

@@ -1,12 +1,13 @@
-package com.cpbpc.rpgv2.en;
+package com.cpbpc.dailydevotion;
 
 import com.cpbpc.comms.AbstractArticleParser;
 import com.cpbpc.comms.AbstractComposer;
 import com.cpbpc.comms.AppProperties;
 import com.cpbpc.comms.ComposerResult;
-import com.cpbpc.comms.RomanNumeral;
+import com.cpbpc.comms.PunctuationTool;
 import com.cpbpc.comms.ThreadStorage;
 import com.cpbpc.comms.VerseIntf;
+import com.cpbpc.rpgv2.en.BibleVerseGrab;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import java.util.ArrayList;
@@ -17,7 +18,6 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.logging.Logger;
 
-import static com.cpbpc.comms.NumberConverter.ordinal;
 import static com.cpbpc.comms.PunctuationTool.pause;
 
 public class Composer extends AbstractComposer {
@@ -57,22 +57,21 @@ public class Composer extends AbstractComposer {
 
         StringBuilder buffer = new StringBuilder();
 
-        buffer.append(parser.readDate()).append(pause(200));
-        buffer.append("Today's devotional is entitled").append(pause(200))
-                .append(processSentence(RomanNumeral.convert(parser.getTitle()), fixPronu)).append(pause(400))
-        ;
+        buffer.append(parser.readDate()).append(pause(200))
+                .append(parser.getArticle().getTiming()).append(PunctuationTool.pause(1600))
+                .append(parser.readFocusScripture()).append(PunctuationTool.pause(800));
         scripts.put(scriptCounter+"_start", buffer.toString());
         scriptCounter++;
 
         int count = 0;
         try {
-            for (String ref : parser.readTopicVerses()) {
+            for (String ref : parser.readTopicVerses(parser.getTitle())) {
                 buffer = new StringBuilder();
                 count++;
                 List<String> refs = verse.analyseVerse(ref);
                 List<String> verseContents = grabAndSplitVerse(BibleVerseGrab.grab(refs.get(0), refs.get(1)));
-                buffer.append("The " + ordinal(count) + " Bible passage for today is").append(pause(200))
-                        .append(processSentence(" "+verse.convert(ref), fixPronu)).append(pause(400))
+                buffer.append("The Bible passage is from")
+                        .append(processSentence(" "+verse.convert(ref), fixPronu))
                 ;
                 for( String verseContent : verseContents ){
                     if(verseContents.indexOf(verseContent) == 0){
@@ -89,14 +88,10 @@ public class Composer extends AbstractComposer {
         }
 
         buffer = new StringBuilder();
-        buffer.append(pause(800)).append("End of scripture reading").append(pause(800));
-        buffer.append("The scripture passage in focus is").append(pause(200))
-                .append(processSentence(parser.readFocusScripture(), fixPronu)).append(pause(400));
-
-        buffer.append("Today's devotional is entitled").append(pause(200))
-                .append(processSentence(parser.getTitle(), fixPronu)).append(pause(800))
+        buffer.append("This devotion is entitled").append(pause(1600))
+                .append(processSentence(parser.getTopic(), fixPronu)).append(pause(400))
         ;
-        scripts.put(scriptCounter+"_startRPG", buffer.toString());
+        scripts.put(scriptCounter+"_startDevotion", buffer.toString());
         scriptCounter++;
 
         for (String paragraph : parser.readParagraphs()) {
@@ -107,34 +102,21 @@ public class Composer extends AbstractComposer {
         }
 
         buffer = new StringBuilder();
-        buffer.append(pause(400)).append(processSentence(parser.readThought(), fixPronu));
-        buffer.append(pause(800)).append(processSentence(parser.readPrayer(), fixPronu));
+        buffer.append(pause(400)).append(processSentence(parser.readEnd(), fixPronu));
         scripts.put(scriptCounter+"_end", buffer.toString());
         scriptCounter++;
 
-//        String result = buffer.toString();
-//
-//        try {
-//              String script = prettyPrintln(wrapToPolly(result));
-//              sendToPolly(script, publishDate);
-////            return wrapToPolly(result.toString());
-//            return script;
-////            return result.toString();
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//
-//        return "";
         return scripts;
     }
-    
-//    @Override
-//    private void sendToPolly(String content, String publishDate){
-//        logger.info("use.polly is " + Boolean.valueOf((String) appProperties.getOrDefault("use.polly", "true")));
-//        if (Boolean.valueOf((String) appProperties.getOrDefault("use.polly", "false")) != true) {
-//            return;
-//        }
-//        logger.info("send to polly script S3 bucket!");
-//        AWSUtil.putScriptToS3(content, publishDate);
-//    }
+
+    public String getPublishDate(String input){
+        String publishDate = input.split(" ")[1];
+        return publishDate;
+    }
+
+    public String getPublishMonth(String input){
+        String publishMonth = input.split(" ")[0];
+        return publishMonth;
+    }
+
 }
