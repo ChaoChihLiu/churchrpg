@@ -2,6 +2,7 @@ package com.cpbpc.rpgv2.en;
 
 import com.cpbpc.comms.AbbreIntf;
 import com.cpbpc.comms.ConfigObj;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -41,7 +42,8 @@ public class Abbreviation implements AbbreIntf {
         for (String key : keySet) {
 //            String newKey = key.trim().replace(".", "\\.{0,}");
             String newKey = key.replace(".", "\\.");
-            builder.append(newKey).append("|");
+//            builder.append(newKey).append("|");
+            builder.append("[\\s|&nbsp;]{1,}").append(newKey).append("[\\s|&nbsp;]{1,}|");
         }
         if (builder.toString().endsWith("|")) {
             builder.delete(builder.length() - 1, builder.length());
@@ -75,7 +77,14 @@ public class Abbreviation implements AbbreIntf {
         String replaced = content;
         int start = 0;
         for (String key : finds) {
+            key = StringUtils.trim(key);
+            if( !abbre.containsKey(key) ){
+                continue;
+            }
             String completeForm = lookupCompleteForm(key);
+            if( StringUtils.isEmpty(completeForm) ){
+                continue;
+            }
             logger.info("complete form " + completeForm);
             if (abbre.get(key).getPaused()) {
                 replaced = replaced.replace(key, completeForm + "<break time=\"200ms\"/>");

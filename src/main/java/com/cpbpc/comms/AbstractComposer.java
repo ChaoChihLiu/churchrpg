@@ -143,8 +143,11 @@ public abstract class AbstractComposer {
         }
 
         logger.info("send to polly script S3 bucket!");
-        tags.addAll( AWSUtil.putScriptToS3(fileName, content, getPublishMonth(publishDate), getPublishDate(publishDate)) );
-
+        if( StringUtils.isEmpty(this.parser.getArticle().getTiming()) ){
+            tags.addAll( AWSUtil.putScriptToS3(fileName, content, getPublishMonth(publishDate), getPublishDate(publishDate)) );
+        }else{
+            tags.addAll( AWSUtil.putScriptToS3(fileName, content, getPublishMonth(publishDate), getPublishDate(publishDate), this.parser.getArticle().getTiming()) );
+        }
         return tags;
     }
 

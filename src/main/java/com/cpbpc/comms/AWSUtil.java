@@ -166,6 +166,29 @@ public class AWSUtil {
 
     }
 
+    public static List<Tag> putScriptToS3(String objectName, String content, String month, String date, String timing) {
+
+        String bucketName = AppProperties.getConfig().getProperty("script_bucket");
+        String prefix = AppProperties.getConfig().getProperty("script_prefix");
+        if (!prefix.endsWith("/")) {
+            prefix += "/";
+        }
+
+//        String publishMonth = publishDate_str.split("-")[0] + "_" + publishDate_str.split("-")[1];
+//        String publishDate = publishDate_str.split("-")[2];
+        String objectType = AppProperties.getConfig().getProperty("script_format");
+        String objectKey = prefix + month + "/" + date + "/" + StringUtils.lowerCase(timing) + "/" + objectName + "." + objectType;
+        String audioKey =  AppProperties.getConfig().getProperty("output_prefix")
+                + month + "/"
+                + date + "/"
+                + StringUtils.lowerCase(timing) + "/"
+                + objectName + "."
+                + AppProperties.getConfig().getProperty("output_format");
+
+        return saveToS3(content, bucketName, objectKey, month, date, audioKey);
+
+    }
+
     public static List<Tag> putScriptToS3(String objectName, String content, String month, String date) {
 
         String bucketName = AppProperties.getConfig().getProperty("script_bucket");
@@ -398,6 +421,21 @@ public class AWSUtil {
             }
         }
 
+    }
+
+    public static void emptyTargetFolder(String month, String date, String timing) {
+
+        String bucketName = AppProperties.getConfig().getProperty("script_bucket");
+        String prefix = AppProperties.getConfig().getProperty("script_prefix")+month+"/"+date+"/" + StringUtils.lowerCase(timing) + "/";
+        purgeBucket( bucketName, prefix );
+
+        bucketName = AppProperties.getConfig().getProperty("output_bucket");
+        prefix = AppProperties.getConfig().getProperty("output_prefix")+month+"/"+date+"/" + StringUtils.lowerCase(timing) + "/";
+        purgeBucket( bucketName, prefix );
+
+        bucketName = AppProperties.getConfig().getProperty("audio_merged_bucket");
+        prefix = AppProperties.getConfig().getProperty("audio_merged_prefix")+month+"/"+date+"/" + StringUtils.lowerCase(timing) + "/";
+        purgeBucket( bucketName, prefix );
     }
 
     public static void emptyTargetFolder(String month, String date) {

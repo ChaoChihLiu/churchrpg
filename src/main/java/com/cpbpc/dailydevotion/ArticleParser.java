@@ -34,7 +34,7 @@ public class ArticleParser extends AbstractArticleParser {
             return result;
         }
 
-        String[] lines= StringUtils.split(content, "<br />");
+        String[] lines= content.split("<br />");
         result.add(lines[0]);
 
         return result;
@@ -57,7 +57,7 @@ public class ArticleParser extends AbstractArticleParser {
         }
 
         StringBuilder builder = new StringBuilder();
-        String[] lines= StringUtils.split(content, "<br />");
+        String[] lines= content.split("<br />");
 
         for( int i = 1; i<lines.length; i++ ){
             builder.append(lines[i]);
@@ -92,6 +92,11 @@ public class ArticleParser extends AbstractArticleParser {
             if( Character.isUpperCase(c) ){
                 result += c;
                 continue;
+            }
+
+            if( c == '.' ){
+                result += c;
+                break;
             }
             break;
         }

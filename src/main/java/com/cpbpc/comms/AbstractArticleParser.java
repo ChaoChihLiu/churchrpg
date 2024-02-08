@@ -195,7 +195,7 @@ public abstract class AbstractArticleParser {
 //        if (StringUtils.isEmpty(content) || !StringUtils.contains(content, tag)) {
 //            return 0;
 //        }
-        return StringUtils.indexOf(content, title, 0)+title.length();
+        return StringUtils.indexOf(content, title, 0)+title.length()+1;
     }
 
     protected int getAnchorPointAfterTitle() {

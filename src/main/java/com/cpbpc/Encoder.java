@@ -1,18 +1,20 @@
 package com.cpbpc;
 
-import com.github.houbb.opencc4j.util.ZhConverterUtil;
+import org.apache.commons.lang3.StringEscapeUtils;
 
 import java.io.IOException;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
 
 public class Encoder {
 
     public static  void main(String args[]) throws IOException {
-        System.out.println(URLEncoder.encode(ZhConverterUtil.toSimple("https://www.kepeklian.fr/mm.php")));
-        System.out.println(URLEncoder.encode(ZhConverterUtil.toSimple("歌林多後書")));
+//        System.out.println(URLEncoder.encode(ZhConverterUtil.toSimple("https://www.kepeklian.fr/mm.php")));
+//        System.out.println(URLEncoder.encode(ZhConverterUtil.toSimple("歌林多後書")));
+//
+//        System.out.println(URLDecoder.decode("%E8%AF%BB%E7%A5%B7%E9%95%BF"));
 
-        System.out.println(URLDecoder.decode("%E8%AF%BB%E7%A5%B7%E9%95%BF"));
+        String htmlString = "<p>This is a <b>bold</b> &amp; <i>italic</i> text.</p>";
+        String escapedHtml = StringEscapeUtils.unescapeHtml4(htmlString);
+        System.out.println("Escaped HTML: " + escapedHtml);
 
 
 //        Properties properties = new Properties();

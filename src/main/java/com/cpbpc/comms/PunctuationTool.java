@@ -89,6 +89,9 @@ public class PunctuationTool {
 //                .replaceAll("“", "")
 ////                .replaceAll("…", pause(200))
 //                ;
+
+        input = StringEscapeUtils.unescapeHtml4(input);
+
         String result = input
                 .replaceAll("\\.\\.\\.", "."+pause(800))
                 .replaceAll("\\.", "."+pause(800))

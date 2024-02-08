@@ -57,8 +57,8 @@ public class Composer extends AbstractComposer {
 
         StringBuilder buffer = new StringBuilder();
 
-        buffer.append(parser.readDate()).append(pause(200))
-                .append(parser.getArticle().getTiming()).append(PunctuationTool.pause(1600))
+        buffer.append(parser.getArticle().getStartDate()).append(pause(200))
+                .append(parser.getArticle().getTiming()).append(PunctuationTool.pause(400))
                 .append(parser.readFocusScripture()).append(PunctuationTool.pause(800));
         scripts.put(scriptCounter+"_start", buffer.toString());
         scriptCounter++;
@@ -72,6 +72,7 @@ public class Composer extends AbstractComposer {
                 List<String> verseContents = grabAndSplitVerse(BibleVerseGrab.grab(refs.get(0), refs.get(1)));
                 buffer.append("The Bible passage is from")
                         .append(processSentence(" "+verse.convert(ref), fixPronu))
+                        .append(PunctuationTool.pause(400))
                 ;
                 for( String verseContent : verseContents ){
                     if(verseContents.indexOf(verseContent) == 0){
@@ -88,7 +89,7 @@ public class Composer extends AbstractComposer {
         }
 
         buffer = new StringBuilder();
-        buffer.append("This devotion is entitled").append(pause(1600))
+        buffer.append("This devotion is entitled").append(pause(800))
                 .append(processSentence(parser.getTopic(), fixPronu)).append(pause(400))
         ;
         scripts.put(scriptCounter+"_startDevotion", buffer.toString());
@@ -96,7 +97,7 @@ public class Composer extends AbstractComposer {
 
         for (String paragraph : parser.readParagraphs()) {
             buffer = new StringBuilder();
-            buffer.append(processSentence(paragraph, fixPronu)).append(pause(400));
+            buffer.append(processSentence(paragraph.replace(parser.getTopic(), ""), fixPronu)).append(pause(400));
             scripts.put(scriptCounter+"_paragraph_"+(parser.readParagraphs().indexOf(paragraph)+1), buffer.toString());
             scriptCounter++;
         }

@@ -37,7 +37,7 @@ public class RemembranceToAudio {
 
         String month = convertData.getStartDate().split(" ")[0];
         String date =  convertData.getStartDate().split(" ")[1];
-        AWSUtil.emptyTargetFolder(month, date);
+        AWSUtil.emptyTargetFolder(month, date, convertData.getTiming());
 
         AbstractComposer composer = initComposer(convertData);
         List<ComposerResult> results = composer.toTTS(true, convertData.getStartDate());
@@ -100,6 +100,7 @@ public class RemembranceToAudio {
         mergeTags.add(new Tag("audio_merged_format", appProperties.getProperty("audio_merged_format")));
         mergeTags.add(new Tag("name_prefix", appProperties.getProperty("name_prefix")));
         mergeTags.add(new Tag("publish_date", article.getStartDate()));
+        mergeTags.add(new Tag("timing", article.getTiming()));
 
         String nameToBe = AppProperties.getConfig().getProperty("name_prefix") + "_" + article.getStartDate().replaceAll(" ", "_")+"_" + article.getTiming();
         String audioKey = appProperties.getProperty("audio_merged_prefix")+article.getStartDate().split(" ")[0]+"/"+nameToBe+"."+appProperties.getProperty("audio_merged_format");
