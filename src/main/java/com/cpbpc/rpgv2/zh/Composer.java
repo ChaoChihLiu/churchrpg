@@ -70,7 +70,7 @@ public class Composer extends AbstractComposer {
 
             composerResult.setScript(script);
             composerResult.setFileName(fileName);
-            composerResult.addTags(sendToTTS(fileName, wrapToPolly(prettyPrintln(script)), publishDate));
+            composerResult.addTags(sendToTTS(fileName, wrapToAzure(prettyPrintln(script)), publishDate));
         }
         
         return result;

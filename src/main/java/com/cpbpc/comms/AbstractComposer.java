@@ -33,6 +33,12 @@ public abstract class AbstractComposer {
 
     }
 
+    protected String wrapToAzure(String content) {
+
+        return AzureUtil.toTTS(content);
+
+    }
+
     protected String processSentence(String content, boolean fixPronu) {
         if( fixPronu ){
             return replacePauseTag(phonetic.convert(replacePunctuationWithBreakTag(abbr.convert(content))));

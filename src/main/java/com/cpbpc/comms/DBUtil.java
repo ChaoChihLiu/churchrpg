@@ -1,5 +1,7 @@
 package com.cpbpc.comms;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -30,7 +32,14 @@ public class DBUtil {
         PhoneticIntf phonetic = ThreadStorage.getPhonetics();
         VerseIntf verse = ThreadStorage.getVerse();
 
-        PreparedStatement state = conn.prepareStatement("select * from cpbpc_abbreviation where isEnabled='1' order by seq_no asc, length(short_form) desc");
+        PreparedStatement state = conn.prepareStatement("select * from cpbpc_abbreviation where isEnabled='1' and cloud_sys=? order by seq_no asc, length(short_form) desc");
+        if( AppProperties.getConfig().containsKey("cloud_sys")
+                && !StringUtils.isEmpty(AppProperties.getConfig().getProperty("cloud_sys")) ){
+            state.setString(1, AppProperties.getConfig().getProperty("cloud_sys"));
+        }else{
+            state.setString(1, "aws");
+        }
+
         ResultSet rs = state.executeQuery();
 
         while (rs.next()) {
