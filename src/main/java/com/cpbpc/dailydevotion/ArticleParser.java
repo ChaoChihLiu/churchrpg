@@ -13,6 +13,7 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.cpbpc.comms.TextUtil.removeDoubleQuote;
 import static com.cpbpc.comms.TextUtil.removeHtmlTag;
 
 public class ArticleParser extends AbstractArticleParser {
@@ -29,13 +30,14 @@ public class ArticleParser extends AbstractArticleParser {
     @Override
     public List<String> readParagraphs() {
 
+        String input = removeDoubleQuote(content);
         List<String> result = new ArrayList<>();
-        if( StringUtils.isEmpty(content) ){
+        if( StringUtils.isEmpty(input) ){
             return result;
         }
 
-        String[] lines= content.split("<br />");
-        result.add(lines[0]);
+        String[] lines= input.split("<br />");
+        result.add(removeHtmlTag(lines[0]));
 
         return result;
     }
@@ -56,11 +58,12 @@ public class ArticleParser extends AbstractArticleParser {
             return "";
         }
 
+        String input = removeDoubleQuote(content);
         StringBuilder builder = new StringBuilder();
-        String[] lines= content.split("<br />");
+        String[] lines= input.split("<br />");
 
         for( int i = 1; i<lines.length; i++ ){
-            builder.append(lines[i]);
+            builder.append(removeHtmlTag(lines[i]));
         }
 
         return builder.toString();
@@ -81,7 +84,8 @@ public class ArticleParser extends AbstractArticleParser {
 
     public String getTopic(){
         String result = "";
-        for( char c : content.toCharArray() ){
+        String input = removeDoubleQuote(content);
+        for( char c : input.toCharArray() ){
 
             if( c == ' '
                     || PunctuationTool.getAllowedPunctuations().contains(String.valueOf(c))

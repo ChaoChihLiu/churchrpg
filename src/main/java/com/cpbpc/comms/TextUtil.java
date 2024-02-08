@@ -2,10 +2,12 @@ package com.cpbpc.comms;
 
 import com.github.houbb.opencc4j.util.ZhConverterUtil;
 import net.sourceforge.pinyin4j.PinyinHelper;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -74,6 +76,18 @@ public class TextUtil {
         }
 
         return pinyinBuilder.toString();
+    }
+
+    public static String removeDoubleQuote( String input ){
+        String result = input;
+
+        List<String> list = List.of("\"", "“");
+        for( String item : list ){
+            result = result.replaceAll(item, "");
+            result = result.replaceAll(StringEscapeUtils.escapeHtml4(item), "");
+        }
+
+        return result;
     }
 
     public static String removeHtmlTag(String input){

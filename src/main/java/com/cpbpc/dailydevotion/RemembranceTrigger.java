@@ -123,7 +123,7 @@ public class RemembranceTrigger implements RequestHandler {
 
         PreparedStatement state = conn.prepareStatement(sql);
         state.setInt(1, Integer.parseInt(appProperties.getProperty("content_category")));
-        state.setString(2, appProperties.getProperty("month")+"%");
+        state.setString(2, appProperties.getProperty("search_criterion")+"%");
         return state;
     }
     
