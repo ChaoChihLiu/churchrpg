@@ -25,4 +25,7 @@ public class SecretUtil {
     public static String getBitlyKey() {
         return secrets.getProperty("bitly_api_key");
     }
+    public static String getAzureSpeechKey() {
+        return secrets.getProperty("azure_speech_api_key");
+    }
 }
