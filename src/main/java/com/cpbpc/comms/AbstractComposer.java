@@ -63,20 +63,24 @@ public abstract class AbstractComposer {
     protected abstract Map<String, String> splitPolly(boolean fixPronu);
 
 
-    private final Pattern redundantTagPattern = Pattern.compile("(<break\\s+time='800ms'/>\\.{0,}[\\n|\\r\\n]{0,}){1,}");
+//    private final Pattern redundantTagPattern = Pattern.compile("(<break\\s+time='800ms'/>\\.{0,}[\\n|\\r\\n]{0,}){1,}");
+    private String redundantTagPattern = "(<break\\s+time='%d'/>\\.{0,}[\\n|\\r\\n]{0,}){1,}";
     protected Map<String, String> houseKeepRedundantTag(Map<String, String> scripts) {
         Set<Map.Entry<String, String>> entries = scripts.entrySet();
         for( Map.Entry<String, String> entry : entries ){
             String script = entry.getValue();
-            StringBuffer result = new StringBuffer();
-            Matcher matcher = redundantTagPattern.matcher(script);
-            while( matcher.find() ){
-                String matched = matcher.group(0);
-                if(StringUtils.countMatches(matched, "break") > 1){
-                    matcher.appendReplacement(result, matcher.group(1));
+            StringBuffer result = new StringBuffer(script);
+            for( int i = 1; i<=10; i++ ){
+                Pattern p = Pattern.compile(String.format(redundantTagPattern, i*100));
+                Matcher matcher = p.matcher(result);
+                while( matcher.find() ){
+                    String matched = matcher.group(0);
+                    if(StringUtils.countMatches(matched, "break") > 1){
+                        matcher.appendReplacement(result, matcher.group(1));
+                    }
                 }
+//                matcher.appendTail(result);
             }
-            matcher.appendTail(result);
             scripts.put(entry.getKey(), result.toString());
         }
 
