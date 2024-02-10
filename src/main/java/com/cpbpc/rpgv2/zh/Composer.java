@@ -190,10 +190,16 @@ public class Composer extends AbstractComposer {
         return book + chapter + verse;
     }
 
+    private String removeWhitespace( String content ){
+        String result = content.replaceAll("(\\p{IsHan})\\s+(?=\\p{IsHan})", "$1");
+        return result;
+    }
+
     protected String processSentence(String content, boolean fixPronu) {
+        String input = removeWhitespace(content);
         if( fixPronu ){
-            return replacePauseTag(phonetic.convert(replacePunctuationWithBreakTag(abbr.convert(content))));
+            return replacePauseTag(phonetic.convert(replacePunctuationWithBreakTag(abbr.convert(input))));
         }
-        return replacePauseTag(replacePunctuationWithBreakTag(abbr.convert(content)));
+        return replacePauseTag(replacePunctuationWithBreakTag(abbr.convert(input)));
     }
 }
