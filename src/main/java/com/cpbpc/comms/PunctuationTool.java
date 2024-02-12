@@ -44,7 +44,7 @@ public class PunctuationTool {
                 .replaceAll("）", ")")
                 ;
     }
-
+    
     public static String getHyphen(String verseStr) {
 
         for (String hyphen_unicode : getHyphensUnicode()) {
