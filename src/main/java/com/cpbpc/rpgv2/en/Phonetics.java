@@ -29,6 +29,10 @@ public class Phonetics implements PhoneticIntf {
             return content;
         }
 
+        /*
+        ([\s|&nbsp;]{1,}overlived[\s|&nbsp;]{1,}|[\s|&nbsp;]{1,}Machpelah[\s|&nbsp;]{1,}|[\s|&nbsp;]{1,}Lahairoi[\s|&nbsp;]{1,}|[\s|&nbsp;]{1,}Chessed[\s|&nbsp;]{1,}|[\s|&nbsp;]{1,}Jidlaph[\s|&nbsp;]{1,}|[\s|&nbsp;]{1,}Mamre[\s|&nbsp;]{1,}|[\s|&nbsp;]{1,}Gihon[\s|&nbsp;]{1,}|[\s|&nbsp;]{1,}Pison[\s|&nbsp;]{1,}|[\s|&nbsp;]{1,}Jehovahjireh[\s|&nbsp;]{1,}|[\s|&nbsp;]{1,}Girgashites[\s|&nbsp;]{1,}|[\s|&nbsp;]{1,}girgashites[\s|&nbsp;]{1,}|[\s|&nbsp;]{1,}Methusael[\s|&nbsp;]{1,}|[\s|&nbsp;]{1,}Habakkuk[\s|&nbsp;]{1,}|[\s|&nbsp;]{1,}villany[\s|&nbsp;]{1,}|[\s|&nbsp;]{1,}Malachi[\s|&nbsp;]{1,}|[\s|&nbsp;]{1,}Phichol[\s|&nbsp;]{1,}|[\s|&nbsp;]{1,}covert[\s|&nbsp;]{1,}|[\s|&nbsp;]{1,}triest[\s|&nbsp;]{1,}|[\s|&nbsp;]{1,}Cainan[\s|&nbsp;]{1,}|[\s|&nbsp;]{1,}sware[\s|&nbsp;]{1,}|[\s|&nbsp;]{1,}lieth[\s|&nbsp;]{1,}|[\s|&nbsp;]{1,}Jabal[\s|&nbsp;]{1,}|[\s|&nbsp;]{1,}Jubal[\s|&nbsp;]{1,}|[\s|&nbsp;]{1,}Laban[\s|&nbsp;]{1,}|[\s|&nbsp;]{1,}Raca[\s|&nbsp;]{1,}|[\s|&nbsp;]{1,}Irad[\s|&nbsp;]{1,}|[\s|&nbsp;]{1,}Enos[\s|&nbsp;]{1,}|[\s|&nbsp;]{1,}Hazo[\s|&nbsp;]{1,}|[\s|&nbsp;]{1,}err[\s|&nbsp;]{1,}|[\s|&nbsp;]{1,}ERR[\s|&nbsp;]{1,}|[\s|&nbsp;]{1,}Nun[\s|&nbsp;]{1,})
+         */
+
         String p = generatePattern();
         logger.info(p);
         Pattern r = Pattern.compile(p);
@@ -103,7 +107,7 @@ public class Phonetics implements PhoneticIntf {
         for (String key : keySet) {
 //            String newKey = key.trim().replace(".", "\\.{0,}");
             String newKey = key.replace(".", "\\.");
-            builder.append("[\\s|&nbsp;]{1,}").append(newKey).append("[\\s|&nbsp;]{1,}|")
+            builder.append("(&nbsp;|\\s){1,}").append(newKey).append("(&nbsp;|\\s){1,}|")
             ;
         }
         if (builder.toString().endsWith("|")) {

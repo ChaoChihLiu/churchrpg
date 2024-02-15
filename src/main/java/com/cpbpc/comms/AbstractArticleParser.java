@@ -68,12 +68,11 @@ public abstract class AbstractArticleParser {
                 parser = new com.cpbpc.rpgv2.zh.ArticleParser(new Article("2024-03-06", content, "参孙(十)", "", 1));
                 composer = new com.cpbpc.rpgv2.zh.Composer(parser);
             } else{
-
-                parser = new com.cpbpc.rpgv2.en.ArticleParser(new Article("2024-03-06", content,  "GOD’S WORD FOR THE LAWLESS", "", 1));
+                parser = new com.cpbpc.rpgv2.en.ArticleParser(new Article("2024-04-07", content,  "TRESPASS OFFERING – ITS MEANING", "", 1));
                 composer = new com.cpbpc.rpgv2.en.Composer(parser);
             }
 
-            List<ComposerResult> results = composer.toTTS(true, "2024-03-06");
+            List<ComposerResult> results = composer.toTTS(true, "2024-04-07");
             StringBuilder script = new StringBuilder();
             for(ComposerResult result : results){
                 script.append(result.getScript());

@@ -43,7 +43,7 @@ public class Abbreviation implements AbbreIntf {
 //            String newKey = key.trim().replace(".", "\\.{0,}");
             String newKey = key.replace(".", "\\.");
 //            builder.append(newKey).append("|");
-            builder.append("[\\s|&nbsp;]{1,}").append(newKey).append("[\\s|&nbsp;]{1,}|");
+            builder.append("(\\(|&nbsp;|\\s){1,}").append(newKey).append("(&nbsp;|\\s|\\)){1,}|");
         }
         if (builder.toString().endsWith("|")) {
             builder.delete(builder.length() - 1, builder.length());
@@ -77,7 +77,7 @@ public class Abbreviation implements AbbreIntf {
         String replaced = content;
         int start = 0;
         for (String key : finds) {
-            key = StringUtils.trim(key);
+            key = StringUtils.trim(key).replace("(", "").replace(")", "");
             if( !abbre.containsKey(key) ){
                 continue;
             }
