@@ -5,6 +5,7 @@ import com.amazonaws.services.s3.model.Tag;
 import com.cpbpc.comms.AWSUtil;
 import com.cpbpc.comms.AbbreIntf;
 import com.cpbpc.comms.AppProperties;
+import com.cpbpc.comms.AzureUtil;
 import com.cpbpc.comms.DBUtil;
 import com.cpbpc.comms.PhoneticIntf;
 import com.cpbpc.comms.PunctuationTool;
@@ -267,7 +268,8 @@ public class BibleAudio {
         String toBe = replacePauseTag(content);
         toBe = phoneticIntf.convert(abbreIntf.convert(toBe));
 
-        String title = AWSUtil.toPolly(PunctuationTool.pause(800) + generateTitleAudio(book, chapterNum) + PunctuationTool.pause(800));
+        String title = wrapTTS(PunctuationTool.pause(800) + generateTitleAudio(book, chapterNum) + PunctuationTool.pause(800));
+
         AWSUtil.putBibleScriptToS3(title, book, String.valueOf(chapterNum), "0");
 
         String[] verses = StringUtils.split(toBe, System.lineSeparator());
@@ -275,15 +277,27 @@ public class BibleAudio {
         for( String verse : verses ){
             String script = "";
             if( !StringUtils.equalsIgnoreCase(appProperties.getProperty("engine"), "long-form") ){
-                script = AWSUtil.toPolly(PunctuationTool.replacePunctuationWithBreakTag(verse));
+                script = wrapTTS(PunctuationTool.replacePunctuationWithBreakTag(verse));
             }else{
                 Thread.sleep(3000);
-                script = AWSUtil.toPolly(verse);
+                script = wrapTTS(verse);
             }
 //            System.out.println(script);
             AWSUtil.putBibleScriptToS3(script, book, String.valueOf(chapterNum), String.valueOf(verseNum));
             verseNum++;
         }
+    }
+
+    private static String wrapTTS( String content ){
+        String result = "";
+        if( AppProperties.isAWS() ){
+            result = AzureUtil.toTTS(content);
+        }
+        if( AppProperties.isAzure() ){
+            result = AzureUtil.toTTS(content);
+        }
+
+        return result;
     }
 
     private static String generateTitleAudio(String book, int chapterNum) {

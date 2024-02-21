@@ -1,5 +1,7 @@
 package com.cpbpc.comms;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -93,6 +95,23 @@ public class AppProperties {
 
     public static Properties getConfig() {
         return appProperties;
+    }
+
+    public static boolean isAWS() {
+        if( AppProperties.getConfig().containsKey("cloud_sys")
+                && !StringUtils.isEmpty(AppProperties.getConfig().getProperty("cloud_sys"))
+                &&  StringUtils.equals("aws", AppProperties.getConfig().getProperty("cloud_sys")) ){
+            return true;
+        }
+        return false;
+    }
+    public static boolean isAzure() {
+        if( AppProperties.getConfig().containsKey("cloud_sys")
+                && !StringUtils.isEmpty(AppProperties.getConfig().getProperty("cloud_sys"))
+                &&  StringUtils.equals("azure", AppProperties.getConfig().getProperty("cloud_sys")) ){
+            return true;
+        }
+        return false;
     }
 
     public static long getTotalLength() {
