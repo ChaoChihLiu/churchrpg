@@ -291,7 +291,7 @@ public class BibleAudio {
     private static String wrapTTS( String content ){
         String result = "";
         if( AppProperties.isAWS() ){
-            result = AzureUtil.toTTS(content);
+            result = AWSUtil.toPolly(content);
         }
         if( AppProperties.isAzure() ){
             result = AzureUtil.toTTS(content);
