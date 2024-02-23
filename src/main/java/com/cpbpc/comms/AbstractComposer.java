@@ -39,11 +39,25 @@ public abstract class AbstractComposer {
 
     }
 
-    protected String processSentence(String content, boolean fixPronu) {
-        if( fixPronu ){
-            return replacePauseTag(phonetic.convert(replacePunctuationWithBreakTag(abbr.convert(content))));
+    protected String processSentence(String content, boolean fixPronu, boolean replacePunc) {
+        String result = "";
+
+        if( replacePunc ){
+            result = replacePunctuationWithBreakTag(abbr.convert(content));
+        }else{
+            result = abbr.convert(content);
         }
-        return replacePauseTag(replacePunctuationWithBreakTag(abbr.convert(content)));
+
+        if( fixPronu ){
+            result = phonetic.convert(result);
+        }
+        result = replacePauseTag(result);
+
+        return result;
+    }
+
+    protected String processSentence(String content, boolean fixPronu) {
+        return processSentence(content, fixPronu, true);
     }
 
     public abstract List<ComposerResult> toTTS(boolean fixPronu, String publishDate);

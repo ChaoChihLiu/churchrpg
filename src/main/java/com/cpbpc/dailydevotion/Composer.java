@@ -72,15 +72,15 @@ public class Composer extends AbstractComposer {
                 List<String> refs = verse.analyseVerse(ref);
                 List<String> verseContents = grabAndSplitVerse(BibleVerseGrab.grab(refs.get(0), refs.get(1)));
                 buffer.append("The Bible passage is from")
-                        .append(processSentence(" "+verse.convert(ref), fixPronu))
+                        .append(processRemSentence(" "+verse.convert(ref), fixPronu))
                         .append(PunctuationTool.pause(400))
                 ;
                 for( String verseContent : verseContents ){
                     if(verseContents.indexOf(verseContent) == 0){
-                        buffer.append(processSentence(verseContent, fixPronu));
+                        buffer.append(processRemSentence(verseContent, fixPronu));
                         scripts.put(scriptCounter+"_biblePassage_"+count+"_"+(verseContents.indexOf(verseContent)+1), buffer.toString());
                     }else{
-                        scripts.put(scriptCounter+"_biblePassage_"+count+"_"+(verseContents.indexOf(verseContent)+1), processSentence(verseContent, fixPronu));
+                        scripts.put(scriptCounter+"_biblePassage_"+count+"_"+(verseContents.indexOf(verseContent)+1), processRemSentence(verseContent, fixPronu));
                     }
                     scriptCounter++;
                 }
@@ -91,24 +91,28 @@ public class Composer extends AbstractComposer {
 
         buffer = new StringBuilder();
         buffer.append("This devotion is entitled").append(pause(800))
-                .append(processSentence(parser.getTopic(), fixPronu)).append(pause(400))
+                .append(processRemSentence(parser.getTopic(), fixPronu)).append(pause(400))
         ;
         scripts.put(scriptCounter+"_startDevotion", buffer.toString());
         scriptCounter++;
 
         for (String paragraph : parser.readParagraphs()) {
             buffer = new StringBuilder();
-            buffer.append(processSentence(paragraph.replace(parser.getTopic(), ""), fixPronu)).append(pause(400));
+            buffer.append(processRemSentence(paragraph.replace(parser.getTopic(), ""), fixPronu)).append(pause(400));
             scripts.put(scriptCounter+"_paragraph_"+(parser.readParagraphs().indexOf(paragraph)+1), buffer.toString());
             scriptCounter++;
         }
 
         buffer = new StringBuilder();
-        buffer.append(pause(400)).append(processSentence(parser.readEnd(), fixPronu));
+        buffer.append(pause(400)).append(processRemSentence(parser.readEnd(), fixPronu));
         scripts.put(scriptCounter+"_end", buffer.toString());
         scriptCounter++;
 
         return scripts;
+    }
+
+    private String processRemSentence(String content, boolean fixPronu){
+        return this.processSentence(content, fixPronu, false);
     }
 
     public String getPublishDate(String input){
