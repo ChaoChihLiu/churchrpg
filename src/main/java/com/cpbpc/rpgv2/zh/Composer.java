@@ -91,7 +91,7 @@ public class Composer extends AbstractComposer {
         int count = 0;
         try {
             for (String ref : parser.readTopicVerses()) {
-                List<String> refs = verse.analyseVerse(ref, parser.getTopicVersePattern());
+                List<String> refs = verse.analyseVerse(removeLineWhitespace(ref), parser.getTopicVersePattern());
                 String book = refs.get(0);
                 for( int i=1; i<refs.size(); i++ ){
                     result = new StringBuilder();
@@ -192,6 +192,17 @@ public class Composer extends AbstractComposer {
 
     private String removeWhitespace( String content ){
         String result = content.replaceAll("(\\p{IsHan})\\s+(?=\\p{IsHan})", "$1");
+        return result;
+    }
+
+    private String removeLineWhitespace( String content ){
+        String result = "";
+        for(char c : content.toCharArray()){
+            if( c == ' ' ){
+                continue;
+            }
+            result += c;
+        }
         return result;
     }
 

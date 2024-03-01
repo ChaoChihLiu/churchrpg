@@ -1,6 +1,10 @@
 package com.cpbpc;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
 public class Encoder {
 
@@ -23,14 +27,33 @@ public class Encoder {
 //            System.out.println( URLDecoder.decode((String)entry.getKey(), StandardCharsets.UTF_8) + "=" + (String)entry.getValue());
 //        }
 
+        for( int i = 1; i<= 31; i++ ){
+            String num = String.valueOf(i);
+            if( i<10 ){
+                num = "0"+String.valueOf(i);
+            }
 
-        for( int i=1; i<=50; i++ ){
-            System.out.println("https://cpbpc-bible-reading-plan.s3.ap-southeast-1.amazonaws.com/kjv/Ex"+i+".mp3");
+            System.out.println("https://cpbpc-rpg-audio.s3.ap-southeast-1.amazonaws.com/rpg-chinese/2024_05/crpg202405"+num+".mp3");
         }
 
-        for( int i=1; i<=50; i++ ){
-            System.out.println("太"+i);
-        }
+//        for( int i=1; i<=50; i++ ){
+//            System.out.println("https://cpbpc-bible-reading-plan.s3.ap-southeast-1.amazonaws.com/kjv/Ex"+i+".mp3");
+//        }
+//
+//        for( int i=1; i<=50; i++ ){
+//            System.out.println("太"+i);
+//        }
+
+//        String prefix_regex = "/[A-Za-z|\\u4E00-\\u9FFF]+/\\d{1,3}/";
+//        Pattern p = Pattern.compile(prefix_regex);
+//        List<String> inputs = Arrays.asList( "cuvs/創世記1/14/16.xml", "cuvs/出埃及記/14/16.xml", "kjv/Exodus/1140/26.xml", "kjv/測試Matthew/12/26.xml" );
+//        for( String input: inputs ){
+//            Matcher matcher = p.matcher(input);
+//            System.out.println(matcher.find());
+//        }
+
+        List<String> input = Arrays.asList("Exodus|1");
+        System.out.println(StringUtils.join(input, ","));
 
     }
 

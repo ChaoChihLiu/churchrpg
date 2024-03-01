@@ -24,7 +24,6 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -128,7 +127,7 @@ public class BibleAudio {
             AWSUtil.uploadS3Object( appProperties.getProperty("script_bucket"),
                     appProperties.getProperty("script_prefix"),
                     fileName+".audioMerge",
-                    StringUtils.join(verse_to_merged, ","),
+                    joinVerses(verse_to_merged),
                     tags
             );
 
@@ -139,14 +138,14 @@ public class BibleAudio {
                                 +"."+
                                 appProperties.getProperty("audio_merged_format");
 
-            if( AppProperties.isChinese() ){
-                logger.info("wait this file " + objectKey);
-                AWSUtil.waitUntilObjectReady( appProperties.getProperty("audio_merged_bucket"),
-                        appProperties.getProperty("audio_merged_prefix"),
-                        objectKey,
-                        new Date());
-                AWSUtil.putBiblePLScriptToS3(pl_script, StringUtils.remove(verse, " "), objectKey);
-            }
+//            if( AppProperties.isChinese() ){
+//                logger.info("wait this file " + objectKey);
+//                AWSUtil.waitUntilObjectReady( appProperties.getProperty("audio_merged_bucket"),
+//                        appProperties.getProperty("audio_merged_prefix"),
+//                        objectKey,
+//                        new Date());
+//                AWSUtil.putBiblePLScriptToS3(pl_script, StringUtils.remove(verse, " "), objectKey);
+//            }
 
             String url = "https://"+appProperties.getProperty("audio_merged_bucket")+".s3."+appProperties.getProperty("region")+".amazonaws.com/"+appProperties.getProperty("audio_merged_prefix")+ URLEncoder.encode(verse) +".mp3";
             if( !StringUtils.equals(appProperties.getProperty("shorten_url"), "true") ){
@@ -159,6 +158,16 @@ public class BibleAudio {
 
         logger.info("all links " + StringUtils.join(objectURLs, System.lineSeparator()));
 
+    }
+
+    private static String joinVerses(List<String> verseToMerged) {
+
+        String result = StringUtils.join(verseToMerged, ",");
+        if( !StringUtils.endsWith(result, ",") ){
+            return result+",";
+        }
+
+        return result;
     }
 
     private static String extractBook(String verse) {
@@ -185,7 +194,7 @@ public class BibleAudio {
             AWSUtil.uploadS3Object( appProperties.getProperty("script_bucket"),
                     appProperties.getProperty("script_prefix"),
                     entry.getKey()+".audioMerge",
-                    StringUtils.join(entry.getValue(), ","),
+                    entry.getValue()+",",
                     tags
             );
         }
@@ -268,7 +277,7 @@ public class BibleAudio {
         String toBe = replacePauseTag(content);
         toBe = phoneticIntf.convert(abbreIntf.convert(toBe));
 
-        String title = wrapTTS(PunctuationTool.pause(800) + generateTitleAudio(book, chapterNum) + PunctuationTool.pause(800));
+        String title = breakNewLine(wrapTTS(PunctuationTool.pause(800) + generateTitleAudio(book, chapterNum) + PunctuationTool.pause(800)));
 
         AWSUtil.putBibleScriptToS3(title, book, String.valueOf(chapterNum), "0");
 
@@ -277,15 +286,19 @@ public class BibleAudio {
         for( String verse : verses ){
             String script = "";
             if( !StringUtils.equalsIgnoreCase(appProperties.getProperty("engine"), "long-form") ){
-                script = wrapTTS(PunctuationTool.replacePunctuationWithBreakTag(verse));
+                script = breakNewLine(wrapTTS(PunctuationTool.replacePunctuationWithBreakTag(verse)));
             }else{
                 Thread.sleep(3000);
-                script = wrapTTS(verse);
+                script = breakNewLine(wrapTTS(verse));
             }
 //            System.out.println(script);
             AWSUtil.putBibleScriptToS3(script, book, String.valueOf(chapterNum), String.valueOf(verseNum));
             verseNum++;
         }
+    }
+
+    private static String breakNewLine(String input) {
+        return input.replaceAll("<break", System.lineSeparator()+"<break");
     }
 
     private static String wrapTTS( String content ){
