@@ -1,5 +1,6 @@
 package com.cpbpc.dailydevotion;
 
+import com.amazonaws.util.StringUtils;
 import com.cpbpc.comms.AbstractArticleParser;
 import com.cpbpc.comms.AbstractComposer;
 import com.cpbpc.comms.AppProperties;
@@ -45,7 +46,7 @@ public class Composer extends AbstractComposer {
             composerResult.setScript(script);
             composerResult.setFileName(fileName);
 //            composerResult.addTags(sendToTTS(fileName, wrapToPolly(prettyPrintln(script)), publishDate));
-            composerResult.addTags(sendToTTS(fileName, wrapToAzure(prettyPrintln(script)), publishDate));
+            composerResult.addTags(sendToTTS(fileName, script, publishDate));
         }
 
         return result;
@@ -53,6 +54,8 @@ public class Composer extends AbstractComposer {
 
     @Override
     protected Map<String, String> splitPolly(boolean fixPronu) {
+        String voiceId = AppProperties.getConfig().getProperty(StringUtils.lowerCase(parser.getArticle().getTiming())+"_voice_id");
+
         Map<String, String> scripts = new LinkedHashMap<>();
         int scriptCounter = 1;
 
@@ -61,7 +64,7 @@ public class Composer extends AbstractComposer {
         buffer.append(parser.getArticle().getStartDate()).append(pause(200))
                 .append(parser.getArticle().getTiming()).append(PunctuationTool.pause(400))
                 .append(parser.readFocusScripture()).append(PunctuationTool.pause(800));
-        scripts.put(scriptCounter+"_start", buffer.toString());
+        scripts.put(scriptCounter+"_start", wrapToAzure(prettyPrintln(buffer.toString()), voiceId));
         scriptCounter++;
 
         int count = 0;
@@ -78,9 +81,9 @@ public class Composer extends AbstractComposer {
                 for( String verseContent : verseContents ){
                     if(verseContents.indexOf(verseContent) == 0){
                         buffer.append(processRemSentence(verseContent, fixPronu));
-                        scripts.put(scriptCounter+"_biblePassage_"+count+"_"+(verseContents.indexOf(verseContent)+1), buffer.toString());
+                        scripts.put(scriptCounter+"_biblePassage_"+count+"_"+(verseContents.indexOf(verseContent)+1), wrapToAzure(prettyPrintln(buffer.toString()), voiceId));
                     }else{
-                        scripts.put(scriptCounter+"_biblePassage_"+count+"_"+(verseContents.indexOf(verseContent)+1), processRemSentence(verseContent, fixPronu));
+                        scripts.put(scriptCounter+"_biblePassage_"+count+"_"+(verseContents.indexOf(verseContent)+1), wrapToAzure(prettyPrintln(processRemSentence(verseContent, fixPronu)), voiceId));
                     }
                     scriptCounter++;
                 }
@@ -93,19 +96,20 @@ public class Composer extends AbstractComposer {
         buffer.append("This devotion is entitled").append(pause(800))
                 .append(processRemSentence(parser.getTopic(), fixPronu)).append(pause(400))
         ;
-        scripts.put(scriptCounter+"_startDevotion", buffer.toString());
+        scripts.put(scriptCounter+"_startDevotion", wrapToAzure(prettyPrintln(buffer.toString()), voiceId));
         scriptCounter++;
 
         for (String paragraph : parser.readParagraphs()) {
             buffer = new StringBuilder();
             buffer.append(processRemSentence(paragraph.replace(parser.getTopic(), ""), fixPronu)).append(pause(400));
-            scripts.put(scriptCounter+"_paragraph_"+(parser.readParagraphs().indexOf(paragraph)+1), buffer.toString());
+            scripts.put(scriptCounter+"_paragraph_"+(parser.readParagraphs().indexOf(paragraph)+1), wrapToAzure(prettyPrintln(buffer.toString()), voiceId));
             scriptCounter++;
         }
 
         buffer = new StringBuilder();
+        buffer.append(pause(200)).append("For prayer: ");
         buffer.append(pause(400)).append(processRemSentence(parser.readEnd(), fixPronu));
-        scripts.put(scriptCounter+"_end", buffer.toString());
+        scripts.put(scriptCounter+"_end", wrapToAzure(prettyPrintln(buffer.toString()), voiceId));
         scriptCounter++;
 
         return scripts;

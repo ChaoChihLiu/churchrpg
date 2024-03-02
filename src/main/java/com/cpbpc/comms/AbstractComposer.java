@@ -39,6 +39,12 @@ public abstract class AbstractComposer {
 
     }
 
+    protected String wrapToAzure(String content, String voiceId) {
+
+        return AzureUtil.toTTS(content, voiceId);
+
+    }
+
     protected String processSentence(String content, boolean fixPronu, boolean replacePunc) {
         String result = "";
 
