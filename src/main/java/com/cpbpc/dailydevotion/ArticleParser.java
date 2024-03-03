@@ -58,7 +58,7 @@ public class ArticleParser extends AbstractArticleParser {
             return "";
         }
 
-        String input = removeDoubleQuote(content);
+        String input = removeDoubleQuote(content.replaceAll("<p>", "").replace("</p>", ""));
         StringBuilder builder = new StringBuilder();
         String[] lines= input.split("<br />");
 
@@ -84,7 +84,7 @@ public class ArticleParser extends AbstractArticleParser {
 
     public String getTopic(){
         String result = "";
-        String input = removeDoubleQuote(content);
+        String input = removeDoubleQuote(content.replaceAll("<p>", "").replace("</p>", ""));
         for( char c : input.toCharArray() ){
 
             if( c == ' '
