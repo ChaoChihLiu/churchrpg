@@ -73,7 +73,7 @@ public class ArticleParser extends AbstractArticleParser {
         VerseIntf verseIntf = ThreadStorage.getVerse();
         Pattern pattern = getFocusScripturePattern();
         Matcher m = pattern.matcher(title);
-        if (m.find()) {
+        while (m.find()) {
             String targe = m.group(2);
             String result = removeHtmlTag(replaceWithPause(replaceSpace(targe)));
             return verseIntf.convert(result);
@@ -110,7 +110,7 @@ public class ArticleParser extends AbstractArticleParser {
 
     @Override
     protected Pattern getFocusScripturePattern() {
-        return Pattern.compile("(“)(.*)(”)");
+        return Pattern.compile("([“|\"])(.*)([”|\"])");
     }
     
     @Override

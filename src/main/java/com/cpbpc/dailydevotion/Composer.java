@@ -5,6 +5,7 @@ import com.cpbpc.comms.AbstractArticleParser;
 import com.cpbpc.comms.AbstractComposer;
 import com.cpbpc.comms.AppProperties;
 import com.cpbpc.comms.ComposerResult;
+import com.cpbpc.comms.PunctuationTool;
 import com.cpbpc.comms.ThreadStorage;
 import com.cpbpc.comms.VerseIntf;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -17,7 +18,6 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.logging.Logger;
 
-import static com.cpbpc.comms.PunctuationTool.getHyphen;
 import static com.cpbpc.comms.PunctuationTool.pause;
 
 public class Composer extends AbstractComposer {
@@ -60,9 +60,9 @@ public class Composer extends AbstractComposer {
 
         StringBuilder buffer = new StringBuilder();
 
-//        buffer.append(parser.getArticle().getStartDate()).append(pause(200))
-//                .append(parser.getArticle().getTiming()).append(PunctuationTool.pause(400))
-//                .append(parser.readFocusScripture()).append(PunctuationTool.pause(800));
+        buffer.append(parser.getArticle().getStartDate()).append(pause(200))
+                .append(parser.getArticle().getTiming()).append(PunctuationTool.pause(400))
+                ;
 
 //        int count = 0;
         try {
@@ -71,10 +71,11 @@ public class Composer extends AbstractComposer {
 //                count++;
 //                List<String> refs = verse.analyseVerse(ref);
 //                List<String> verseContents = grabAndSplitVerse(BibleVerseGrab.grab(refs.get(0), refs.get(1)));
-//                buffer.append("The Bible passage is from")
-//                        .append(processRemSentence(" "+verse.convert(ref), fixPronu))
-//                        .append(PunctuationTool.pause(400))
-//                ;
+                buffer.append("The Bible passage is from")
+                        .append(processRemSentence(" "+verse.convert(ref), fixPronu))
+                        .append(PunctuationTool.pause(400))
+                        .append(StringUtils.lowerCase(parser.readFocusScripture())).append(PunctuationTool.pause(800))
+                ;
 //                for( String verseContent : verseContents ){
 //                    if(verseContents.indexOf(verseContent) == 0){
 //                        buffer.append(processRemSentence(verseContent, fixPronu));
@@ -84,8 +85,8 @@ public class Composer extends AbstractComposer {
 //                    }
 //                    scriptCounter++;
 //                }
-                String hyphen = getHyphen(parser.getTitle());
-                buffer.append(parser.getTitle().replace(ref, verse.convert(ref)).replace(":", pause(100)).replace(hyphen, pause(100))).append(pause(400));
+//                String hyphen = getHyphen(parser.getTitle());
+//                buffer.append(parser.getTitle().replace(ref, verse.convert(ref)).replace(":", pause(100)).replace(hyphen, pause(100))).append(pause(400));
             }
             scripts.put(scriptCounter+"_start", wrapToAzure(prettyPrintln(buffer.toString()), voiceId));
             scriptCounter++;
@@ -108,7 +109,7 @@ public class Composer extends AbstractComposer {
         }
 
         buffer = new StringBuilder();
-        buffer.append(pause(200)).append("For prayer: ");
+        buffer.append(pause(400)).append("For meditation: ");
         buffer.append(pause(400)).append(processRemSentence(parser.readEnd(), fixPronu));
         scripts.put(scriptCounter+"_end", wrapToAzure(prettyPrintln(buffer.toString()), voiceId));
         scriptCounter++;
