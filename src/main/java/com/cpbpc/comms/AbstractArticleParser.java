@@ -45,7 +45,7 @@ public abstract class AbstractArticleParser {
 
     public static void main(String args[]) {
         try {
-            String language = "english";
+            String language = "chinese";
 
             String propPath = "/Users/liuchaochih/Documents/GitHub/churchrpg/src/main/resources/app-"+language+".properties";
             FileInputStream in = new FileInputStream(propPath);
@@ -65,14 +65,14 @@ public abstract class AbstractArticleParser {
             AbstractArticleParser parser = null;
             AbstractComposer composer = null;
             if( language.equals("chinese") ){
-                parser = new com.cpbpc.rpgv2.zh.ArticleParser(new Article("2024-03-06", content, "参孙(十)", "", 1));
+                parser = new com.cpbpc.rpgv2.zh.ArticleParser(new Article("2024-04-27", content, "意念相同", "", 1));
                 composer = new com.cpbpc.rpgv2.zh.Composer(parser);
             } else{
                 parser = new com.cpbpc.rpgv2.en.ArticleParser(new Article("2024-04-07", content,  "TRESPASS OFFERING – ITS MEANING", "", 1));
                 composer = new com.cpbpc.rpgv2.en.Composer(parser);
             }
 
-            List<ComposerResult> results = composer.toTTS(true, "2024-04-07");
+            List<ComposerResult> results = composer.toTTS(true, "2024-04-27");
             StringBuilder script = new StringBuilder();
             for(ComposerResult result : results){
                 script.append(result.getScript());
@@ -204,7 +204,8 @@ public abstract class AbstractArticleParser {
         if (StringUtils.isEmpty(content) || !StringUtils.contains(content, title)) {
             return 0;
         }
-        return StringUtils.indexOf(content, title, 0) + title.length();
+        String titleWithTag = "<strong>"+title+"</strong>";
+        return StringUtils.indexOf(content, titleWithTag, 0) + titleWithTag.length();
     }
 
     protected int findNextParagraph(String paragraphTag, int start) {
