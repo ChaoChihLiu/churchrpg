@@ -1,0 +1,26 @@
+<table style="height: 10px; width: 1503px;">
+<tbody>
+<tr>
+<td><em>${date}</em><br />
+    #foreach( $topicVerse in $topicVerses )
+        <strong>${topicVerse}</strong><br />
+    #end
+</td>
+<td style="text-align: right;">
+    #foreach( $focusScripture in $focusScriptures )
+        <br /><em>${focusScripture}</em>
+    #end
+</td>
+</tr>
+</tbody>
+</table>
+<p>&nbsp;</p>
+<p style="text-align: center;"><strong>${title}</strong></p>
+#foreach( $paragraph in $paragraphs )
+    <p style="text-align: justify;">${paragraph}</p>
+#end
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+#foreach($key in $endMap.keySet())
+    <p><strong>$key</strong>：$endMap.get($key)</p>
+#end

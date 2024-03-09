@@ -15,6 +15,7 @@ import java.util.regex.Pattern;
 
 import static com.cpbpc.comms.TextUtil.removeDoubleQuote;
 import static com.cpbpc.comms.TextUtil.removeHtmlTag;
+import static com.cpbpc.comms.TextUtil.replaceHtmlSpace;
 
 public class ArticleParser extends AbstractArticleParser {
     private static Logger logger = Logger.getLogger(ArticleParser.class.getName());
@@ -75,7 +76,7 @@ public class ArticleParser extends AbstractArticleParser {
         Matcher m = pattern.matcher(title);
         while (m.find()) {
             String targe = m.group(2);
-            String result = removeHtmlTag(replaceWithPause(replaceSpace(targe)));
+            String result = removeHtmlTag(replaceWithPause(replaceHtmlSpace(targe)));
             return verseIntf.convert(result);
         }
 

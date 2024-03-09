@@ -17,6 +17,7 @@ import java.util.regex.Pattern;
 import static com.cpbpc.comms.PunctuationTool.pause;
 import static com.cpbpc.comms.PunctuationTool.removeDoubleQuote;
 import static com.cpbpc.comms.TextUtil.removeHtmlTag;
+import static com.cpbpc.comms.TextUtil.replaceHtmlSpace;
 
 public class ArticleParser extends AbstractArticleParser {
     private static Logger logger = Logger.getLogger(ArticleParser.class.getName());
@@ -39,7 +40,7 @@ public class ArticleParser extends AbstractArticleParser {
                 String line = StringUtils.trim(removeHtmlTag(split));
                 line = removeDoubleQuote(line);
                 if (!StringUtils.isEmpty(line)) {
-                    result.add(RomanNumeral.convert(verseIntf.convert(replaceSpace(line))));
+                    result.add(RomanNumeral.convert(verseIntf.convert(replaceHtmlSpace(line))));
                 }
             }
         }catch (Exception e){
@@ -60,7 +61,7 @@ public class ArticleParser extends AbstractArticleParser {
             line = removeDoubleQuote(line);
             if (StringUtils.contains(line, "<strong>THOUGHT:</strong>")) {
                 result = removeHtmlTag(line).trim();
-                result = replaceSpace(verseIntf.convert(result));
+                result = replaceHtmlSpace(verseIntf.convert(result));
             }
 
             if (StringUtils.contains(line, "<strong>MEMORISATION:</strong>")) {
@@ -69,7 +70,7 @@ public class ArticleParser extends AbstractArticleParser {
                 List<String> refs = verseIntf.analyseVerse(ref);
                 try {
                     String verse = BibleVerseGrab.grab(refs.get(0), refs.get(1));
-                    result = replaceSpace(verseIntf.convert(result)) + pause(400) + verse;
+                    result = replaceHtmlSpace(verseIntf.convert(result)) + pause(400) + verse;
                 } catch (IOException e) {
                     logger.info(ExceptionUtils.getStackTrace(e));
                 }
@@ -93,7 +94,7 @@ public class ArticleParser extends AbstractArticleParser {
             }
         }
 
-        return replaceSpace(verseIntf.convert(result));
+        return replaceHtmlSpace(verseIntf.convert(result));
     }
 
     @Override

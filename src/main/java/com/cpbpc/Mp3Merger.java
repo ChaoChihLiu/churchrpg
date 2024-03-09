@@ -10,9 +10,9 @@ public class Mp3Merger {
 
     public static void main(String args[]){
         try {
-            File file1 = new File("/Users/liuchaochih/Downloads/arpg20240110-1.mp3");
+            File file1 = new File("/Users/liuchaochih/Downloads/arpg20240304.mp3");
             FileInputStream fistream1 = new FileInputStream(file1);
-            File finalfile = new File(file1.getParent()+"/arpg20240110.mp3");
+            File finalfile = new File(file1.getParent()+"/arpg20240304.mp3");
             if(!finalfile.exists())
             {
                 finalfile.createNewFile();

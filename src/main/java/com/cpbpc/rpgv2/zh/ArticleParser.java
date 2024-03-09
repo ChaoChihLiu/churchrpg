@@ -15,6 +15,7 @@ import java.util.regex.Pattern;
 
 import static com.cpbpc.comms.PunctuationTool.removeDoubleQuote;
 import static com.cpbpc.comms.TextUtil.removeHtmlTag;
+import static com.cpbpc.comms.TextUtil.replaceHtmlSpace;
 
 public class ArticleParser extends AbstractArticleParser {
     private static Logger logger = Logger.getLogger(ArticleParser.class.getName());
@@ -44,7 +45,7 @@ public class ArticleParser extends AbstractArticleParser {
                 String line = StringUtils.trim(removeHtmlTag(split));
                 line = removeDoubleQuote(line);
                 if (!StringUtils.isEmpty(line)) {
-                    result.add(verse.convert(replaceSpace(line)));
+                    result.add(verse.convert(replaceHtmlSpace(line)));
                 }
             }
         }catch (Exception e){
@@ -69,7 +70,7 @@ public class ArticleParser extends AbstractArticleParser {
             }
         }
 
-        return verse.convert(replaceSpace(result));
+        return verse.convert(replaceHtmlSpace(result));
     }
 
     private static String prayerWord = "<strong>祷告</strong>";
@@ -87,7 +88,7 @@ public class ArticleParser extends AbstractArticleParser {
             }
         }
 
-        return replaceSpace(verse.convert(result));
+        return replaceHtmlSpace(verse.convert(result));
     }
 
     @Override

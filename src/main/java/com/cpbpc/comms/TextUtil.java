@@ -2,6 +2,7 @@ package com.cpbpc.comms;
 
 import com.github.houbb.opencc4j.util.ZhConverterUtil;
 import net.sourceforge.pinyin4j.PinyinHelper;
+import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -142,5 +143,14 @@ public class TextUtil {
         
         return "";
 
+    }
+
+    public static String replaceHtmlSpace(String input) {
+        return RegExUtils.replaceAll(input, "&nbsp;", " ");
+    }
+
+    public static String removeZhWhitespace( String content ){
+        String result = content.replaceAll("(\\p{IsHan})\\s+(?=\\p{IsHan})", "$1");
+        return result;
     }
 }

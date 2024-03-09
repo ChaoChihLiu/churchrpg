@@ -22,6 +22,7 @@ import java.util.regex.Pattern;
 import static com.cpbpc.comms.PunctuationTool.changeFullCharacter;
 import static com.cpbpc.comms.PunctuationTool.getPauseTag;
 import static com.cpbpc.comms.TextUtil.removeHtmlTag;
+import static com.cpbpc.comms.TextUtil.replaceHtmlSpace;
 
 public abstract class AbstractArticleParser {
 
@@ -37,10 +38,6 @@ public abstract class AbstractArticleParser {
         this.article = article;
         this.content = changeFullCharacter(ZhConverterUtil.toSimple(article.getContent()));
         this.title = changeFullCharacter(ZhConverterUtil.toSimple(article.getTitle()));
-    }
-
-    protected String replaceSpace(String input) {
-        return RegExUtils.replaceAll(input, "&nbsp;", " ");
     }
 
     public static void main(String args[]) {
@@ -114,7 +111,7 @@ public abstract class AbstractArticleParser {
             if (position > anchorPoint) {
                 return "";
             }
-            String result = removeHtmlTag(replaceWithPause(replaceSpace(targe)));
+            String result = removeHtmlTag(replaceWithPause(replaceHtmlSpace(targe)));
             return verseIntf.convert(result);
         }
 
@@ -161,7 +158,7 @@ public abstract class AbstractArticleParser {
         Matcher m = datePattern.matcher(content);
         if (m.find()) {
             String target = m.group();
-            return replaceSpace(target);
+            return replaceHtmlSpace(target);
         }
         return "";
     }
@@ -180,7 +177,7 @@ public abstract class AbstractArticleParser {
             if (position > anchorPoint) {
                 break;
             }
-            result.add(replaceSpace(verse.appendNextCharTillCompleteVerse(input, target, position, anchorPoint)));
+            result.add(replaceHtmlSpace(verse.appendNextCharTillCompleteVerse(input, target, position, anchorPoint)));
         }
         return result;
     }

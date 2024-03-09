@@ -5,6 +5,7 @@ import com.cpbpc.comms.AbstractComposer;
 import com.cpbpc.comms.AppProperties;
 import com.cpbpc.comms.ComposerResult;
 import com.cpbpc.comms.ConfigObj;
+import com.cpbpc.comms.RomanNumeral;
 import com.cpbpc.comms.TextUtil;
 import com.cpbpc.comms.ThreadStorage;
 import com.cpbpc.comms.VerseIntf;
@@ -23,6 +24,7 @@ import java.util.logging.Logger;
 import static com.cpbpc.comms.PunctuationTool.pause;
 import static com.cpbpc.comms.PunctuationTool.replacePauseTag;
 import static com.cpbpc.comms.PunctuationTool.replacePunctuationWithBreakTag;
+import static com.cpbpc.comms.TextUtil.removeZhWhitespace;
 
 public class Composer extends AbstractComposer {
 
@@ -83,7 +85,7 @@ public class Composer extends AbstractComposer {
         StringBuilder result = new StringBuilder();
         result.append(parser.readDate()).append(pause(200));
         result.append("今日灵修题目").append(pause(200))
-                .append(processSentence(parser.getTitle(), fixPronu)).append(pause(400))
+                .append(processSentence(RomanNumeral.convert(parser.getTitle()), fixPronu)).append(pause(400))
         ;
         scripts.put(scriptCounter+"_start", result.toString());
         scriptCounter++;
@@ -190,11 +192,6 @@ public class Composer extends AbstractComposer {
         return book + chapter + verse;
     }
 
-    private String removeWhitespace( String content ){
-        String result = content.replaceAll("(\\p{IsHan})\\s+(?=\\p{IsHan})", "$1");
-        return result;
-    }
-
     private String removeLineWhitespace( String content ){
         String result = "";
         for(char c : content.toCharArray()){
@@ -207,7 +204,7 @@ public class Composer extends AbstractComposer {
     }
 
     protected String processSentence(String content, boolean fixPronu) {
-        String input = removeWhitespace(content);
+        String input = removeZhWhitespace(content);
         if( fixPronu ){
             return replacePauseTag(phonetic.convert(replacePunctuationWithBreakTag(abbr.convert(input))));
         }
