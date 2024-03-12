@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Caption Window Example</title>
+  
+</head>
+<body>
+    <table style="height: 10px; width: 1503px;">
+        <tbody>
+        <tr>
+        <td><em>六月三十日，主日</em><br />
+                <span id="container1" class="container">
+                    <strong>腓利比书四章23节</strong>
+                    <div class="caption" id="caption1">
+                        <span style="font-style: bold;">腓利比书四章23节</span>
+                        <div>23. 願主耶穌基督的恩常在你們心裡！<br/></div>
+                      </div>
+                </span><br />
+                <span id="container2" class="container">
+                    <strong>哥林多后书十二章7-10节</strong>
+                    <div class="caption" id="caption2">
+                        <span style="font-style: bold;">哥林多后书十二章7-10节</span>
+                        <div>
+                            7. 又恐怕我因所得的啟示甚大，就過於自高，所以有一根刺加在我肉體上，就是撒旦的差役要攻擊我，免得我過於自高。 <br/>
+                            8. 為這事，我三次求過主，叫這刺離開我。 <br/>
+                            9. 他對我說：「我的恩典夠你用的，因為我的能力是在人的軟弱上顯得完全。」所以，我更喜歡誇自己的軟弱，好叫基督的能力覆庇我。 <br/>
+                            10. 我為基督的緣故，就以軟弱、凌辱、急難、逼迫、困苦為可喜樂的，因我什麼時候軟弱，什麼時候就剛強了。<br/>
+                        </div>
+                      </div>
+                </span><br />
+                
+        </td>
+        <td style="text-align: right;">
+                <br /><em> “愿主耶稣基督的恩常在你们心里！”</em>
+        </td>
+        </tr>
+        </tbody>
+        </table>
+        <p>&nbsp;</p>
+        <p style="text-align: center;"><strong>愿恩惠归与你们</strong></p>
+            <p style="text-align: justify;">这封书信以保罗祝福腓立比人开始：“愿恩惠、平安从神我们的父并主耶稣基督归与你们”（腓1:2）。信末，他再次祝福他们：“愿我主耶稣基督的恩常在你们心里。”虽然保罗的许多书信都会以这样的祝福为结尾（罗16:20,24；林前16:23；林后13:14；加6:18；弗6:24；西4:18等），但我们必须记住，这些话语都是神所默示的。它们是一封绝妙书信最有意义的结论，不应该避而不谈。</p>
+            <p style="text-align: justify;">主耶稣基督的恩典在每一个信徒的生命中是至关重要的。我们或许不配，但这是祂给予我们的美善、慈爱和神圣的恩惠。我们唯靠神的恩典，才能相信他，并认罪悔改。祂借着恩典，呼召我们归向祂，使我们有能力过祂喜悦的生活。当我们受试探时，是祂的恩典使我们不犯罪；在困难的时候，祂的恩典够我们用，使我们能忍受和克服所面临的挣扎。</p>
+            <p style="text-align: justify;">因此，保罗在信末祝愿基督的恩惠常在祂读者的心里，是非常恰当的。他在每一封信中，给予了许多我们需要遵守的劝勉和鼓励。单靠自己，我们永远不能指望能遵守这些指示，因为我们生来就倾向于犯罪。</p>
+            <p style="text-align: justify;">因此，主耶稣基督的恩惠归于我们所有人是如此重要。这也是我们应该不断为自己和周围的人祈求的。没有神的恩典，我们是无助的。但有主的恩典赐我们力量，我们就能为基督凡事都能做。</p>
+            <p style="text-align: justify;">当你反思和默想借着这封书信所学到的一切，愿主耶稣基督的恩惠归于你。</p>
+        <p>&nbsp;</p>
+        <p>&nbsp;</p>
+            <p><strong>默想： </strong>“耶稣无与伦比的恩典真是奇妙！”</p>
+            <p><strong>祷告： </strong>天父啊，袮慈爱地施恩于我，我要赞美袮。</p>
+
+  <!-- Add more containers as needed -->
+
+  <style>
+    .container {
+  position: relative;
+  width: 200px;
+  height: 200px;
+  background-color: lightgray;
+  margin-bottom: 20px; /* Add some space between containers */
+}
+
+.caption {
+  display: none;
+  position: fixed;
+  background-color: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 5px;
+  border-radius: 5px;
+  z-index: 999; /* Ensure it's above other elements */
+}
+  </style>
+  <script>
+//     document.addEventListener("DOMContentLoaded", function() {
+//   const containers = document.querySelectorAll('.container');
+
+//   containers.forEach(container => {
+//     container.addEventListener('mouseover', function() {
+//       const caption = container.querySelector('.caption');
+//     //   caption.style.display = 'block';
+    // var posX = event.clientX;
+    //   var posY = event.clientY;
+      
+    //   caption.style.left = posX + "px";
+    //   caption.style.top = posY + "px";
+      
+    //   caption.classList.add("active");
+//     });
+
+    // container.addEventListener('mouseout', function() {
+    //   const caption = container.querySelector('.caption');
+    // //   caption.style.display = 'none';
+    // caption.classList.remove("active");
+    // });
+//   });
+// });
+document.addEventListener("DOMContentLoaded", function() {
+  const containers = document.querySelectorAll('.container');
+  const captions = document.querySelectorAll('.caption');
+
+  containers.forEach((container, index) => {
+    container.addEventListener('mousemove', function(event) {
+      positionCaption(event, captions[index]);
+    });
+
+    container.addEventListener('mouseleave', function() {
+      hideCaption(captions[index]);
+    });
+  });
+});
+
+function positionCaption(event, caption) {
+  const mouseX = event.clientX;
+  const mouseY = event.clientY;
+
+  const captionWidth = caption.offsetWidth;
+  const captionHeight = caption.offsetHeight;
+
+  const windowWidth = window.innerWidth;
+  const windowHeight = window.innerHeight;
+
+  let leftPosition = mouseX - captionWidth / 2;
+  let topPosition = mouseY + 20; // Offset to position it below the cursor
+
+  // Ensure the caption doesn't go beyond window boundaries
+  if (leftPosition < 0) {
+    leftPosition = 0;
+  } else if (leftPosition + captionWidth > windowWidth) {
+    leftPosition = windowWidth - captionWidth;
+  }
+
+  if (topPosition + captionHeight > windowHeight) {
+    topPosition = mouseY - captionHeight - 20; // Position it above the cursor
+  }
+
+  caption.style.left = leftPosition + 'px';
+  caption.style.top = topPosition + 'px';
+  caption.style.display = 'block';
+}
+
+function hideCaption(caption) {
+  caption.style.display = 'none';
+}
+
+  </script>
+</body>
+</html>
