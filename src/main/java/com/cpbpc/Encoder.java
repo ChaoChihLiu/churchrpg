@@ -1,16 +1,15 @@
 package com.cpbpc;
 
-import org.apache.commons.lang3.StringUtils;
+import com.github.houbb.opencc4j.util.ZhConverterUtil;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
+import java.net.URLEncoder;
 
 public class Encoder {
 
     public static  void main(String args[]) throws IOException {
 //        System.out.println(URLEncoder.encode(ZhConverterUtil.toSimple("https://www.kepeklian.fr/mm.php")));
-//        System.out.println(URLEncoder.encode(ZhConverterUtil.toSimple("太")));
+        System.out.println(URLEncoder.encode(ZhConverterUtil.toSimple("出")));
 //
 //        System.out.println(URLDecoder.decode("%E8%AF%BB%E7%A5%B7%E9%95%BF"));
 
@@ -27,13 +26,15 @@ public class Encoder {
 //            System.out.println( URLDecoder.decode((String)entry.getKey(), StandardCharsets.UTF_8) + "=" + (String)entry.getValue());
 //        }
 
-        for( int i = 1; i<= 31; i++ ){
+        for( int i = 1; i<= 40; i++ ){
             String num = String.valueOf(i);
 //            if( i<10 ){
 //                num = "0"+String.valueOf(i);
 //            }
-            System.out.println("https://cpbpc-tts.s3.ap-southeast-1.amazonaws.com/remembrance/July/dr_July_"+num+"_Morning.mp3");
-            System.out.println("https://cpbpc-tts.s3.ap-southeast-1.amazonaws.com/remembrance/July/dr_July_"+num+"_Evening.mp3");
+//            System.out.println("https://cpbpc-tts.s3.ap-southeast-1.amazonaws.com/remembrance/July/dr_July_"+num+"_Morning.mp3");
+//            System.out.println("https://cpbpc-tts.s3.ap-southeast-1.amazonaws.com/remembrance/July/dr_July_"+num+"_Evening.mp3");
+//            System.out.println("https://cpbpc-bible-reading-plan.s3.ap-southeast-1.amazonaws.com/kjv/Luk"+i+".mp3");
+            System.out.println("https://cpbpc-bible-reading-plan.s3.ap-southeast-1.amazonaws.com/cuvs/%E5%87%BA"+i+".mp3");
         }
 
 //        for( int i=1; i<=50; i++ ){
@@ -52,8 +53,8 @@ public class Encoder {
 //            System.out.println(matcher.find());
 //        }
 
-        List<String> input = Arrays.asList("Exodus|1");
-        System.out.println(StringUtils.join(input, ","));
+//        List<String> input = Arrays.asList("Exodus|1");
+//        System.out.println(StringUtils.join(input, ","));
 
     }
 

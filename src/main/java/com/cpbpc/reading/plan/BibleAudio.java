@@ -48,7 +48,7 @@ public class BibleAudio {
 
     public static void main(String args[]) throws IOException, InvalidFormatException, SQLException, InterruptedException {
         AppProperties.loadConfig(System.getProperty("app.properties",
-                                                    "/Users/liuchaochih/Documents/GitHub/churchrpg/src/main/resources/app-bibleplan-chinese.properties"));
+                                                    "/Users/liuchaochih/Documents/GitHub/churchrpg/src/main/resources/app-bibleplan-english.properties"));
         initStorage();
 
         List<String> verses = new ArrayList<>();

@@ -35,7 +35,9 @@ public class PDFReader {
 
                     float fontSize = text.getWidth();
 
-                    if( Math.round(fontSize) == 14 ){
+                    if( Math.round(fontSize) == 14
+                            && (!StringUtils.equals("(", text.getUnicode()) && !StringUtils.equals(")", text.getUnicode()))
+                            && (!StringUtils.equals("（", text.getUnicode()) && !StringUtils.equals("）", text.getUnicode()))){
                         buffer.append(text.getUnicode());
                     }
                     super.processTextPosition(text);
@@ -47,7 +49,7 @@ public class PDFReader {
                 textStripper.setEndPage(page);
 
                 String pageText = textStripper.getText(document);
-                String title = StringUtils.substring(buffer.toString(), 0, (int)(buffer.length()*0.5));
+                String title = getCompleteTitle(pageText, buffer.toString());
                 ArticleParser parser = new ArticleParser(pageText, title);
                 result.add(parser);
 
@@ -82,6 +84,7 @@ public class PDFReader {
             logger.info(e.getMessage());
         }
 
+        Composer composer = new Composer();
         try (PDDocument document = PDDocument.load(new File(pdfFilePath))) {
 
             for (int page = 58; page <= document.getNumberOfPages(); ++page) {
@@ -114,16 +117,18 @@ public class PDFReader {
                 String title = getCompleteTitle(pageText, buffer.toString());
 
                 ArticleParser parser = new ArticleParser(pageText, title);
-                parser.readDate();
-                parser.readTopicVerses();
-                parser.readFocusScripture();
-                parser.readEnd();
+//                parser.readDate();
+//                parser.readTopicVerses();
+//                parser.readFocusScripture();
+//                parser.readEnd();
+//                parser.readParagraphs();
+                composer.toHtml(parser);
 
                 // Process pageText line by line
-                String[] lines = pageText.split(System.lineSeparator());
-                for (String line : lines) {
-                    System.out.println(line);
-                }
+//                String[] lines = pageText.split(System.lineSeparator());
+//                for (String line : lines) {
+//                    System.out.println(line);
+//                }
                 System.out.println("****************");
             }
         } catch (IOException e) {

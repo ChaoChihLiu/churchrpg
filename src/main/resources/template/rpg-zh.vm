@@ -22,5 +22,5 @@
 <p>&nbsp;</p>
 <p>&nbsp;</p>
 #foreach($key in $endMap.keySet())
-    <p><strong>$key</strong>：$endMap.get($key)</p>
+    <p><strong>$key</strong>$endMap.get($key)</p>
 #end
