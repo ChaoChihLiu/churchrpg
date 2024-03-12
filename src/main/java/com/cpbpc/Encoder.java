@@ -4,6 +4,8 @@ import com.github.houbb.opencc4j.util.ZhConverterUtil;
 
 import java.io.IOException;
 import java.net.URLEncoder;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Encoder {
 
@@ -34,7 +36,7 @@ public class Encoder {
 //            System.out.println("https://cpbpc-tts.s3.ap-southeast-1.amazonaws.com/remembrance/July/dr_July_"+num+"_Morning.mp3");
 //            System.out.println("https://cpbpc-tts.s3.ap-southeast-1.amazonaws.com/remembrance/July/dr_July_"+num+"_Evening.mp3");
 //            System.out.println("https://cpbpc-bible-reading-plan.s3.ap-southeast-1.amazonaws.com/kjv/Luk"+i+".mp3");
-            System.out.println("https://cpbpc-bible-reading-plan.s3.ap-southeast-1.amazonaws.com/cuvs/%E5%87%BA"+i+".mp3");
+//            System.out.println("https://cpbpc-bible-reading-plan.s3.ap-southeast-1.amazonaws.com/cuvs/%E5%87%BA"+i+".mp3");
         }
 
 //        for( int i=1; i<=50; i++ ){
@@ -55,6 +57,14 @@ public class Encoder {
 
 //        List<String> input = Arrays.asList("Exodus|1");
 //        System.out.println(StringUtils.join(input, ","));
+
+        String text = "This is a <test> string with some words that should not match. Another example <tag>Word</tag> is given.";
+        Pattern pattern = Pattern.compile("(?<![<>])(Word)+(?![<>])");
+        Matcher matcher = pattern.matcher(text);
+
+        while (matcher.find()) {
+            System.out.println(matcher.group());
+        }
 
     }
 

@@ -51,9 +51,9 @@ public class Phonetics implements PhoneticIntf {
             String completeForm = lookupCompleteForm(key);
             logger.info("complete form " + completeForm);
             if (phonetic.get(key) != null && phonetic.get(key).getPaused()) {
-                replaced = replaced.replace(key, completeForm + "[pause]");
+                replaced = replaced.replace(" " +key+" ", " " + completeForm + " " + "[pause]");
             } else {
-                replaced = replaced.replace(key, completeForm);
+                replaced = replaced.replace(" " +key+" ", " " + completeForm + " ");
             }
         }
 
@@ -97,6 +97,12 @@ public class Phonetics implements PhoneticIntf {
 
         return "";
     }
+
+    /*
+
+    ((&nbsp;|\s){1,}Nahor's(&nbsp;|\s){1,}|(&nbsp;|\s){1,}Chedorlaomer(&nbsp;|\s){1,})
+
+     */
 
     private static String generatePattern() {
 
