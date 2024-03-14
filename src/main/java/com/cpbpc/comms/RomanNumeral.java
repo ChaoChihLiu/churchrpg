@@ -44,12 +44,19 @@ public enum RomanNumeral {
         String replaced = input;
         for (String key : finds) {
             logger.info("key is " + key);
-            logger.info("replace is " + " Part " + romanToArabic(key.replace("(", "").replace(")", "")));
+//            logger.info("replace is " + " Part " + romanToArabic(key.replace("(", "").replace(")", "")));
             replaced = replaced.replaceFirst(key.replace("(", "\\(").replace(")", "\\)"),
-                    " Part " + romanToArabic(key.replace("(", "").replace(")", "")));
+                    genReplacement(key));
         }
 
         return replaced;
+    }
+
+    private static String genReplacement(String key) {
+        if( AppProperties.isEnglish() ){
+            return " Part " + romanToArabic(key.replace("(", "").replace(")", ""));
+        }
+        return " " + romanToArabic(key.replace("(", "").replace(")", ""));
     }
 
     public static int romanToArabic(String input) {
