@@ -13,8 +13,10 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.cpbpc.comms.PunctuationTool.pause;
 import static com.cpbpc.comms.TextUtil.removeDoubleQuote;
 import static com.cpbpc.comms.TextUtil.removeHtmlTag;
+import static com.cpbpc.comms.TextUtil.removeLinkBreak;
 import static com.cpbpc.comms.TextUtil.replaceHtmlSpace;
 
 public class ArticleParser extends AbstractArticleParser {
@@ -37,8 +39,13 @@ public class ArticleParser extends AbstractArticleParser {
             return result;
         }
 
+        String topic = getTopic();
+        input = StringUtils.remove(input, topic);
+
         String[] lines= input.split("<br />");
-        result.add(removeHtmlTag(lines[0]));
+        String paragraph = removeLinkBreak(removeHtmlTag(lines[0]));
+        paragraph = paragraph.replaceAll("\\.", "."+pause(400));
+        result.add(paragraph);
 
         return result;
     }
@@ -60,14 +67,18 @@ public class ArticleParser extends AbstractArticleParser {
         }
 
         String input = removeDoubleQuote(content.replaceAll("<p>", "").replace("</p>", ""));
+        String topic = getTopic();
+        input = StringUtils.remove(input, topic);
         StringBuilder builder = new StringBuilder();
         String[] lines= input.split("<br />");
 
         for( int i = 1; i<lines.length; i++ ){
-            builder.append(removeHtmlTag(lines[i]));
+            String paragraph = removeHtmlTag(lines[i]);
+            paragraph = paragraph.replaceAll("\\.", "."+pause(400));
+            builder.append(paragraph);
         }
 
-        return builder.toString();
+        return removeLinkBreak(builder.toString());
     }
 
     public String readFocusScripture() {
@@ -89,6 +100,7 @@ public class ArticleParser extends AbstractArticleParser {
         for( char c : input.toCharArray() ){
 
             if( c == ' '
+                    || c == '\''
                     || PunctuationTool.getAllowedPunctuations().contains(String.valueOf(c))
                     || System.lineSeparator().equals(String.valueOf(c)) ){
                 result += c;

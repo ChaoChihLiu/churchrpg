@@ -43,7 +43,7 @@ public class RemembranceTrigger implements RequestHandler {
         if( AppProperties.isChinese() ){
             Locale.setDefault(new Locale("zh", "CN"));
         }
-
+        
         AppProperties.loadConfig(System.getProperty("app.properties", "/Users/liuchaochih/Documents/GitHub/churchrpg/src/main/resources/app-devotion.properties"));
         RemembranceTrigger trigger = new RemembranceTrigger();
         trigger.handleRequest(null, null);

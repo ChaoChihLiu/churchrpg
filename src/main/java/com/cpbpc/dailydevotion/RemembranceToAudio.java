@@ -43,15 +43,20 @@ public class RemembranceToAudio {
         List<ComposerResult> results = composer.toTTS(true, convertData.getStartDate());
 
         if (Boolean.valueOf((String) AppProperties.getConfig().getOrDefault("use.polly", "false")) != true) {
+
+            for( ComposerResult result : results ){
+                System.out.println(result.getScript());
+            }
+
             return true;
         }
-        
+
         try {
             logger.info( "wait all audios ready" );
             waitAllPassageAudio(results);
             logger.info( "all audios are ready to merge" );
             merge(convertData, results);
-            
+
         } catch (InterruptedException e) {
             e.printStackTrace();
             logger.info(ExceptionUtils.getStackTrace(e));

@@ -4,7 +4,6 @@ import com.cpbpc.comms.AWSUtil;
 import com.cpbpc.comms.AbbreIntf;
 import com.cpbpc.comms.AppProperties;
 import com.cpbpc.comms.DBUtil;
-import com.cpbpc.comms.OpenAIUtil;
 import com.cpbpc.comms.PhoneticIntf;
 import com.cpbpc.comms.PunctuationTool;
 import com.cpbpc.comms.ThreadStorage;
@@ -40,18 +39,17 @@ public class DevotionTTS {
             PhoneticIntf phonetic = ThreadStorage.getPhonetics();
 
             PdfReader reader = new PdfReader(AppProperties.getConfig().getProperty("input_pdf_path"));
-            String month = AppProperties.getConfig().getProperty("month");
+            String search_criterion = AppProperties.getConfig().getProperty("search_criterion");
             for (int i = 2; i <= reader.getNumberOfPages(); i++) {
                 StringBuilder text = new StringBuilder();
                 String raw = PdfTextExtractor.getTextFromPage(reader, i);
                 raw = PunctuationTool.changeFullCharacter(raw);
                 logger.info("original : " + raw);
-                OpenAIUtil.textToSpeech(raw, "echo");
 //                String result = phonetic.convert(abbr.convert(verse.convert(PunctuationTool.changeFullCharacter(RegExUtils.replaceAll(raw, System.lineSeparator(), " ")))));
 //                result = PunctuationTool.replacePunctuationWithBreakTag(result).replaceAll("<break", System.lineSeparator() + "<break");
                 Parser parser = new Parser(raw);
-                if( !parser.date.contains(month) ){
-                    break;
+                if( !parser.date.contains(search_criterion) ){
+                    continue;
                 }
 
                 String book = StringUtils.split(parser.mainVerse, " ")[0];
@@ -157,6 +155,7 @@ class Parser{
         for( char c : input.toCharArray() ){
 
             if( c == ' '
+                    || c == '\''
                     || PunctuationTool.getAllowedPunctuations().contains(String.valueOf(c))
                     || System.lineSeparator().equals(String.valueOf(c)) ){
                 result += c;
