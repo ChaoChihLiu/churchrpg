@@ -74,21 +74,46 @@ public class PunctuationTool {
         return "[pause" + pause + "]";
     }
 
-    public static String replacePunctuationWithBreakTag(String input){
-//        String result = input
-//                .replaceAll("\\.", pause(800))
-//                .replaceAll(",", pause(200))
-//                .replaceAll(":", pause(200))
+    public static String replaceBiblePunctuationWithBreakTag(String input){
+
+        input = StringEscapeUtils.unescapeHtml4(input);
+
+        String result = input
+                .replaceAll("\\.\\.\\.", "."+pause(400))
+                .replaceAll("\\.", "."+pause(400))
+                .replaceAll(",", "," + pause(200))
+                .replaceAll(":", ":"+pause(100))
+                .replaceAll(";", ";"+pause(200))
 //                .replaceAll(";", pause(400))
-//                .replaceAll("\\?", pause(800))
-//                .replaceAll("\\!", pause(800))
-//                .replaceAll("\\(", pause(200))
-//                .replaceAll("\\)", pause(200))
-////                .replaceAll("\"", "")
-//                .replaceAll("”", "")
-//                .replaceAll("“", "")
-////                .replaceAll("…", pause(200))
-//                ;
+                .replaceAll("\\?", "?"+pause(400))
+                .replaceAll("\\!", "!"+pause(400))
+                .replaceAll("\\(", pause(100)+"(")
+                .replaceAll("\\)", ")"+pause(100))
+//                .replaceAll("\"", "")
+                .replaceAll("”", "")
+                .replaceAll("“", "")
+//                .replaceAll("…", "…"+pause(200))
+                ;
+
+        if( containHyphen(result) ){
+            Pattern pattern = Pattern.compile("[\\u4E00-\\u9FFF](["+StringUtils.join(getHyphensUnicode())+"\\s]+)[\\u4E00-\\u9FFF]");
+            Matcher matcher = pattern.matcher(result);
+            int start = 0;
+            String result1 = result;
+            while( matcher.find(start) ){
+                String target = matcher.group(0);
+                String hyphen = getHyphen(target);
+                start = matcher.end();
+                String replacement = StringUtils.replace(target, hyphen, pause(100));
+                result1 = StringUtils.replace(result1, target, replacement);
+            }
+            result = result1;
+        }
+
+        return result;
+    }
+
+    public static String replacePunctuationWithBreakTag(String input){
 
         input = StringEscapeUtils.unescapeHtml4(input);
 
@@ -107,7 +132,7 @@ public class PunctuationTool {
                 .replaceAll("”", "")
                 .replaceAll("“", "")
 //                .replaceAll("…", "…"+pause(200))
-                ;
+        ;
 
         if( containHyphen(result) ){
             Pattern pattern = Pattern.compile("[\\u4E00-\\u9FFF](["+StringUtils.join(getHyphensUnicode())+"\\s]+)[\\u4E00-\\u9FFF]");

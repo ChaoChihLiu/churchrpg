@@ -286,7 +286,8 @@ public class BibleAudio {
         for( String verse : verses ){
             String script = "";
             if( !StringUtils.equalsIgnoreCase(appProperties.getProperty("engine"), "long-form") ){
-                script = breakNewLine(wrapTTS(PunctuationTool.replacePunctuationWithBreakTag(verse)));
+//                script = breakNewLine(wrapTTS(PunctuationTool.replaceBiblePunctuationWithBreakTag(verse)));
+                script = breakNewLine(wrapTTS(verse));
             }else{
                 Thread.sleep(3000);
                 script = breakNewLine(wrapTTS(verse));
@@ -298,7 +299,8 @@ public class BibleAudio {
     }
 
     private static String breakNewLine(String input) {
-        return input.replaceAll("<break", System.lineSeparator()+"<break");
+//        return input.replaceAll("<break", System.lineSeparator()+"<break");
+        return input;
     }
 
     private static String wrapTTS( String content ){

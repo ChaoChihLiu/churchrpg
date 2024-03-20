@@ -66,6 +66,26 @@ public class Encoder {
             System.out.println(matcher.group());
         }
 
+        // Specify the access point ARN
+//        String accessPointArn = "arn:aws:s3:ap-southeast-1:216503848453:accesspoint/cpbpc-rpg-audio-access-point";
+//
+//        // Create an S3 client with the access point configuration
+//        AmazonS3 s3Client = AmazonS3ClientBuilder.standard()
+//                .withCredentials(new DefaultAWSCredentialsProviderChain())
+//                .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(
+//                        "https://" + accessPointArn + ".s3-ap-southeast-1.amazonaws.com",
+//                        "ap-southeast-1")) // Replace "us-west-2" with your region
+//                .build();
+//
+//        // List objects in the bucket through the access point
+//        ListObjectsV2Request listObjectsRequest = new ListObjectsV2Request().withBucketName(accessPointArn);
+//        ListObjectsV2Result objectListing = s3Client.listObjectsV2(listObjectsRequest);
+//
+//        // Print object keys
+//        for (S3ObjectSummary objectSummary : objectListing.getObjectSummaries()) {
+//            System.out.println("Object Key: " + objectSummary.getKey());
+//        }
+
     }
 
 }
