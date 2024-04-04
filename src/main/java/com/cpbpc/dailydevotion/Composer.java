@@ -118,7 +118,7 @@ public class Composer extends AbstractComposer {
     }
 
     private String processRemSentence(String content, boolean fixPronu){
-        return this.processSentence(content, fixPronu, false);
+        return this.processSentence(content, fixPronu, "remembrance");
     }
 
     public String getPublishDate(String input){

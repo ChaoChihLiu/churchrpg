@@ -14,6 +14,7 @@ import java.util.regex.Pattern;
 
 import static com.cpbpc.comms.PunctuationTool.replacePauseTag;
 import static com.cpbpc.comms.PunctuationTool.replacePunctuationWithBreakTag;
+import static com.cpbpc.comms.PunctuationTool.replaceRemPunctuationWithBreakTag;
 
 public abstract class AbstractComposer {
     private static Logger logger = Logger.getLogger(AbstractComposer.class.getName());
@@ -50,6 +51,23 @@ public abstract class AbstractComposer {
 
         if( replacePunc ){
             result = replacePunctuationWithBreakTag(abbr.convert(content));
+        }else{
+            result = abbr.convert(content);
+        }
+
+        if( fixPronu ){
+            result = phonetic.convert(result);
+        }
+        result = replacePauseTag(result);
+
+        return result;
+    }
+
+    protected String processSentence(String content, boolean fixPronu, String type) {
+        String result = "";
+
+        if( StringUtils.equalsIgnoreCase(type, "remembrance") ){
+            result = replaceRemPunctuationWithBreakTag(abbr.convert(content));
         }else{
             result = abbr.convert(content);
         }
