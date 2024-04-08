@@ -37,7 +37,7 @@ public abstract class AbstractArticleParser {
     public AbstractArticleParser(Article article) {
         this.article = article;
         this.content = changeFullCharacter(ZhConverterUtil.toSimple(article.getContent()));
-        this.title = changeFullCharacter(ZhConverterUtil.toSimple(article.getTitle()));
+        this.title = StringUtils.remove(changeFullCharacter(ZhConverterUtil.toSimple(article.getTitle())), " ");
     }
 
     public static void main(String args[]) {
@@ -62,7 +62,7 @@ public abstract class AbstractArticleParser {
             AbstractArticleParser parser = null;
             AbstractComposer composer = null;
             if( language.equals("chinese") ){
-                parser = new com.cpbpc.rpgv2.zh.ArticleParser(new Article("2024-04-27", content, "靠主站立得稳", "", 1));
+                parser = new com.cpbpc.rpgv2.zh.ArticleParser(new Article("2024-04-27", content, "在基督里的真正福气: 认识到你灵里的贫穷", "", 1));
                 composer = new com.cpbpc.rpgv2.zh.Composer(parser);
             } else{
                 parser = new com.cpbpc.rpgv2.en.ArticleParser(new Article("2024-04-07", content,  "THE GLORY OF THE LORD APPEARED!", "", 1));
@@ -88,6 +88,23 @@ public abstract class AbstractArticleParser {
     public String getTitle() {
         return title;
     }
+    
+    private Pattern buildTitlePattern(String title) {
+
+        StringBuilder builder = new StringBuilder("<strong>");
+        for( char c : title.toCharArray() ){
+            builder.append(c);
+            if( StringUtils.indexOf(title, c) == title.length()-1 ){
+                break;
+            }
+            builder.append("[<[^>]*>]{0,}");
+        }
+
+        builder.append("</strong>");
+
+        return Pattern.compile(builder.toString());
+    }
+
     public Article getArticle() {
         return article;
     }
@@ -102,7 +119,7 @@ public abstract class AbstractArticleParser {
     public String readFocusScripture() {
         VerseIntf verseIntf = ThreadStorage.getVerse();
         String content_removed = removeUnwantedBetweenQuotes(content);
-        int anchorPoint = StringUtils.indexOf(content_removed, title);
+        int anchorPoint = getAnchorPointAfterTitle(content_removed, title);
         Pattern pattern = getFocusScripturePattern();
         Matcher m = pattern.matcher(content_removed);
         if (m.find()) {
@@ -168,7 +185,7 @@ public abstract class AbstractArticleParser {
         List<String> result = new ArrayList<>();
         Pattern versePattern = getTopicVersePattern();
         Matcher m = versePattern.matcher(input);
-        int anchorPoint = getAnchorPointAfterScriptureFocus();
+        int anchorPoint = getAnchorPointAfterTitle(title, input);
         int start = 0;
         while (m.find(start)) {
             String target = m.group();
@@ -186,23 +203,31 @@ public abstract class AbstractArticleParser {
         return readTopicVerses(content);
     }
 
-    public int getAnchorPointAfterScriptureFocus() {
-//        String tag = getParagraphTag();
-//        if (StringUtils.isEmpty(content) || !StringUtils.contains(content, tag)) {
+//    public int getAnchorPointAfterScriptureFocus() {
+////        String tag = getParagraphTag();
+////        if (StringUtils.isEmpty(content) || !StringUtils.contains(content, tag)) {
+////            return 0;
+////        }
+//        return StringUtils.indexOf(content, title, 0)+title.length()+1;
+//    }
+
+    protected int getAnchorPointAfterTitle(String title, String content) {
+        if (StringUtils.isEmpty(title) || StringUtils.isEmpty(content)) {
+            return 0;
+        }
+//        if (StringUtils.isEmpty(content) || !StringUtils.contains(content, title)) {
 //            return 0;
 //        }
-        return StringUtils.indexOf(content, title, 0)+title.length()+1;
-    }
+//        String titleWithTag = "<strong>"+title+"</strong>";
+//        return StringUtils.indexOf(content, titleWithTag, 0) + titleWithTag.length();
+        Pattern titlePattern = buildTitlePattern( title );
+        Matcher matcher = titlePattern.matcher(content);
+        while( matcher.find() ){
+            String result = matcher.group();
+            return StringUtils.indexOf(content, result) + result.length();
+        }
 
-    protected int getAnchorPointAfterTitle() {
-        if (StringUtils.isEmpty(title)) {
-            return 0;
-        }
-        if (StringUtils.isEmpty(content) || !StringUtils.contains(content, title)) {
-            return 0;
-        }
-        String titleWithTag = "<strong>"+title+"</strong>";
-        return StringUtils.indexOf(content, titleWithTag, 0) + titleWithTag.length();
+        return 0;
     }
 
     protected int findNextParagraph(String paragraphTag, int start) {

@@ -59,13 +59,14 @@ public class RPGToAudio {
             if( AppProperties.isChinese() ){
                 logger.info( "wait for merged audio" );
                 waitUntilAudioMerged(mergeTags);
-                logger.info( "merged audio is done and ready for PL" );
+                logger.info( "merged audio is done" );
+//                logger.info( "merged audio is done and ready for PL" );
 
-                String month_str = convertData.getStartDate().split("-")[0] + "_" + convertData.getStartDate().split("-")[1];
-                String date_str = convertData.getStartDate().split("-")[2];
-
-                AWSUtil.putPLScriptToS3(composer.generatePLScript(), month_str, date_str);
-                logger.info( "PL is uploaded" );
+//                String month_str = convertData.getStartDate().split("-")[0] + "_" + convertData.getStartDate().split("-")[1];
+//                String date_str = convertData.getStartDate().split("-")[2];
+//
+//                AWSUtil.putPLScriptToS3(composer.generatePLScript(), month_str, date_str);
+//                logger.info( "PL is uploaded" );
             }
         } catch (InterruptedException e) {
             logger.info(ExceptionUtils.getStackTrace(e));

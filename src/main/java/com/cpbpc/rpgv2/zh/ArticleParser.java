@@ -30,7 +30,7 @@ public class ArticleParser extends AbstractArticleParser {
     public List<String> readParagraphs() {
 
         VerseIntf verse = ThreadStorage.getVerse();
-        int titlePosition = getAnchorPointAfterTitle();
+        int titlePosition = getAnchorPointAfterTitle(title, content);
         int nextParaPosistion = findNextParagraph(getParagraphTag(), titlePosition);
         String text = StringUtils.substring(content, titlePosition, nextParaPosistion);
 
