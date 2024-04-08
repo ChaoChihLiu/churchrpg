@@ -176,7 +176,7 @@ public class BibleAudio {
         if( AppProperties.isChinese() ){
             pattern = Pattern.compile("[\u4e00-\u9fa5]+");
         }else{
-            pattern = Pattern.compile("[A-Za-z]+");
+            pattern = Pattern.compile("[1-3]{0,1}[A-Za-z]+");
         }
 
         Matcher matcher = pattern.matcher(verse);
@@ -218,8 +218,11 @@ public class BibleAudio {
     }
 
     private static boolean isThisChapterDone(String book, int chapter, int numberOfVerse) {
+        logger.info("test output prefix " + appProperties.getProperty("output_prefix")+StringUtils.remove(book, " ")
+
+                +"/"+chapter+"/");
         List<S3ObjectSummary> summaries = AWSUtil.listS3Objects(appProperties.getProperty("output_bucket"),
-                                                                appProperties.getProperty("output_prefix")+book+"/"+chapter+"/");
+                                                                appProperties.getProperty("output_prefix")+StringUtils.remove(book, " ")+"/"+chapter+"/");
 
         int count = 0;
         for( S3ObjectSummary summary : summaries ){
@@ -286,8 +289,8 @@ public class BibleAudio {
         for( String verse : verses ){
             String script = "";
             if( !StringUtils.equalsIgnoreCase(appProperties.getProperty("engine"), "long-form") ){
-//                script = breakNewLine(wrapTTS(PunctuationTool.replaceBiblePunctuationWithBreakTag(verse)));
-                script = breakNewLine(wrapTTS(verse));
+                script = breakNewLine(wrapTTS(PunctuationTool.replaceBiblePunctuationWithBreakTag(verse)));
+//                script = breakNewLine(wrapTTS(verse));
             }else{
                 Thread.sleep(3000);
                 script = breakNewLine(wrapTTS(verse));
@@ -299,8 +302,8 @@ public class BibleAudio {
     }
 
     private static String breakNewLine(String input) {
-//        return input.replaceAll("<break", System.lineSeparator()+"<break");
-        return input;
+        return input.replaceAll("<break", System.lineSeparator()+"<break");
+//        return input;
     }
 
     private static String wrapTTS( String content ){
