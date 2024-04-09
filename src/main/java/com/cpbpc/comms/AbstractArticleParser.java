@@ -37,7 +37,10 @@ public abstract class AbstractArticleParser {
     public AbstractArticleParser(Article article) {
         this.article = article;
         this.content = changeFullCharacter(ZhConverterUtil.toSimple(article.getContent()));
-        this.title = StringUtils.remove(changeFullCharacter(ZhConverterUtil.toSimple(article.getTitle())), " ");
+        this.title = changeFullCharacter(ZhConverterUtil.toSimple(article.getTitle()));
+        if( AppProperties.isChinese() ){
+            this.title = StringUtils.remove(this.title, " ");
+        }
     }
 
     public static void main(String args[]) {
@@ -62,7 +65,7 @@ public abstract class AbstractArticleParser {
             AbstractArticleParser parser = null;
             AbstractComposer composer = null;
             if( language.equals("chinese") ){
-                parser = new com.cpbpc.rpgv2.zh.ArticleParser(new Article("2024-04-27", content, "在基督里的真正福气: 认识到你灵里的贫穷", "", 1));
+                parser = new com.cpbpc.rpgv2.zh.ArticleParser(new Article("2024-04-27", content, "思念这些事(3)", "", 1));
                 composer = new com.cpbpc.rpgv2.zh.Composer(parser);
             } else{
                 parser = new com.cpbpc.rpgv2.en.ArticleParser(new Article("2024-04-07", content,  "THE GLORY OF THE LORD APPEARED!", "", 1));
@@ -93,6 +96,11 @@ public abstract class AbstractArticleParser {
 
         StringBuilder builder = new StringBuilder("<strong>");
         for( char c : title.toCharArray() ){
+
+            if( c == '(' || c == ')' ){
+                builder.append('\\');
+            }
+
             builder.append(c);
             if( StringUtils.indexOf(title, c) == title.length()-1 ){
                 break;
@@ -119,7 +127,7 @@ public abstract class AbstractArticleParser {
     public String readFocusScripture() {
         VerseIntf verseIntf = ThreadStorage.getVerse();
         String content_removed = removeUnwantedBetweenQuotes(content);
-        int anchorPoint = getAnchorPointAfterTitle(content_removed, title);
+        int anchorPoint = getAnchorPointAfterTitle(title, content_removed);
         Pattern pattern = getFocusScripturePattern();
         Matcher m = pattern.matcher(content_removed);
         if (m.find()) {

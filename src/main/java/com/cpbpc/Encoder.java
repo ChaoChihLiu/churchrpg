@@ -30,12 +30,12 @@ public class Encoder {
 
         for( int i = 1; i<= 40; i++ ){
             String num = String.valueOf(i);
-            if( i<10 ){
-                num = "0"+String.valueOf(i);
-            }
-//            System.out.println("https://cpbpc-tts.s3.ap-southeast-1.amazonaws.com/remembrance/July/dr_July_"+num+"_Morning.mp3");
-//            System.out.println("https://cpbpc-tts.s3.ap-southeast-1.amazonaws.com/remembrance/July/dr_July_"+num+"_Evening.mp3");
-            System.out.println("https://cpbpc-bible-reading-plan.s3.ap-southeast-1.amazonaws.com/kjv/Luke"+i+".mp3");
+//            if( i<10 ){
+//                num = "0"+String.valueOf(i);
+//            }
+            System.out.println("https://cpbpc-tts.s3.ap-southeast-1.amazonaws.com/remembrance/September/dr_September_"+num+"_Morning.mp3");
+            System.out.println("https://cpbpc-tts.s3.ap-southeast-1.amazonaws.com/remembrance/September/dr_September_"+num+"_Evening.mp3");
+//            System.out.println("https://cpbpc-bible-reading-plan.s3.ap-southeast-1.amazonaws.com/kjv/1Sam"+i+".mp3");
 //            System.out.println("https://cpbpc-bible-reading-plan.s3.ap-southeast-1.amazonaws.com/cuvs/%E6%B0%91"+i+".mp3");
 //            System.out.println("https://cpbpc-rpg-audio.s3.ap-southeast-1.amazonaws.com/rpg-chinese/2024_07/crpg202407"+num+".mp3");
         }
