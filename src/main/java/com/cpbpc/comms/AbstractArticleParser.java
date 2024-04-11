@@ -65,7 +65,7 @@ public abstract class AbstractArticleParser {
             AbstractArticleParser parser = null;
             AbstractComposer composer = null;
             if( language.equals("chinese") ){
-                parser = new com.cpbpc.rpgv2.zh.ArticleParser(new Article("2024-04-27", content, "思念这些事(3)", "", 1));
+                parser = new com.cpbpc.rpgv2.zh.ArticleParser(new Article("2024-04-27", content, "凡事靠基督!", "", 1));
                 composer = new com.cpbpc.rpgv2.zh.Composer(parser);
             } else{
                 parser = new com.cpbpc.rpgv2.en.ArticleParser(new Article("2024-04-07", content,  "THE GLORY OF THE LORD APPEARED!", "", 1));
@@ -94,7 +94,7 @@ public abstract class AbstractArticleParser {
     
     private Pattern buildTitlePattern(String title) {
 
-        StringBuilder builder = new StringBuilder("<strong>");
+        StringBuilder builder = new StringBuilder("<strong>\\s{0,}");
         for( char c : title.toCharArray() ){
 
             if( c == '(' || c == ')' ){
@@ -108,7 +108,7 @@ public abstract class AbstractArticleParser {
             builder.append("[<[^>]*>]{0,}");
         }
 
-        builder.append("</strong>");
+        builder.append("\\s{0,}</strong>");
 
         return Pattern.compile(builder.toString());
     }
