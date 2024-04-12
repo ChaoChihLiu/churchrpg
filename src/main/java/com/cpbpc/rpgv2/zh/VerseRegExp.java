@@ -91,7 +91,12 @@ public class VerseRegExp implements VerseIntf {
             builder.append(nextChar);
         }
 
-        return StringUtils.trim(builder.toString());
+        String result = StringUtils.trim(builder.toString());
+        if( StringUtils.endsWith(result, ":") ){
+            result = StringUtils.substring(result, 0, result.length()-1);
+        }
+
+        return result;
     }
 
     private String buildBibleRefReg(){
