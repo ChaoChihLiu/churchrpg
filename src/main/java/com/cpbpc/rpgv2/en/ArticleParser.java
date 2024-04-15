@@ -40,7 +40,7 @@ public class ArticleParser extends AbstractArticleParser {
                 String line = StringUtils.trim(removeHtmlTag(split));
                 line = removeDoubleQuote(line);
                 if (!StringUtils.isEmpty(line)) {
-                    result.add(RomanNumeral.convert(verseIntf.convert(replaceHtmlSpace(line))));
+                    result.add(RomanNumeral.convert(verseIntf.convert(replaceHtmlSpace(line)), false));
                 }
             }
         }catch (Exception e){

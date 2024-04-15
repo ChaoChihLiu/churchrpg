@@ -85,7 +85,7 @@ public class Composer extends AbstractComposer {
         StringBuilder result = new StringBuilder();
         result.append(parser.readDate()).append(pause(200));
         result.append("今日灵修题目").append(pause(200))
-                .append(processSentence(RomanNumeral.convert(parser.getTitle()), fixPronu)).append(pause(400))
+                .append(processSentence(RomanNumeral.convert(parser.getTitle(), true), fixPronu)).append(pause(400))
         ;
         scripts.put(scriptCounter+"_start", result.toString());
         scriptCounter++;
@@ -124,7 +124,7 @@ public class Composer extends AbstractComposer {
                 .append(processSentence(parser.readFocusScripture(), fixPronu)).append(pause(400));
 
         result.append("今日灵修题目").append(pause(200))
-                .append(processSentence(RomanNumeral.convert(parser.getTitle()), fixPronu)).append(pause(800))
+                .append(processSentence(RomanNumeral.convert(parser.getTitle(), true), fixPronu)).append(pause(800))
         ;
         scripts.put(scriptCounter+"_startRPG", result.toString());
         scriptCounter++;

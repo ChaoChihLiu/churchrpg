@@ -59,7 +59,7 @@ public class Composer extends AbstractComposer {
 
         buffer.append(parser.readDate()).append(pause(200));
         buffer.append("Today's devotional is entitled").append(pause(200))
-                .append(processSentence(RomanNumeral.convert(parser.getTitle()), fixPronu)).append(pause(400))
+                .append(processSentence(RomanNumeral.convert(parser.getTitle(), true), fixPronu)).append(pause(400))
         ;
         scripts.put(scriptCounter+"_start", buffer.toString());
         scriptCounter++;
@@ -94,7 +94,7 @@ public class Composer extends AbstractComposer {
                 .append(processSentence(parser.readFocusScripture(), fixPronu)).append(pause(400));
 
         buffer.append("Today's devotional is entitled").append(pause(200))
-                .append(processSentence(parser.getTitle(), fixPronu)).append(pause(800))
+                .append(processSentence(RomanNumeral.convert(parser.getTitle(), true), fixPronu)).append(pause(800))
         ;
         scripts.put(scriptCounter+"_startRPG", buffer.toString());
         scriptCounter++;

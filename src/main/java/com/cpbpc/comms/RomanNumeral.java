@@ -12,10 +12,14 @@ import java.util.stream.Collectors;
 public enum RomanNumeral {
     I(1), IV(4), V(5), IX(9), X(10),
     XL(40), L(50), XC(90), C(100),
-    CD(400), D(500), CM(900), M(1000);
+    CD(400), D(500), CM(900), M(1000),
+    i(1), iv(4), v(5), ix(9), x(10),
+    xl(40), l(50), xc(90), c(100),
+    cd(400), d(500), cm(900), m(1000)
+    ;
 
     //    private static final String pattern_str = "\\(([IiVvXxLlCcDdMm]{1,10})\\)";
-    private static final String pattern_str = "\\(([IVXLCDM]{1,10})\\)";
+    private static final String pattern_str = "\\((\\s{0,}[IiVvXxLlCcDdMm]{1,10}\\s{0,})\\)";
     private static final Pattern p = Pattern.compile(pattern_str);
     private static Logger logger = Logger.getLogger(RomanNumeral.class.getName());
     private int value;
@@ -30,7 +34,7 @@ public enum RomanNumeral {
                 .collect(Collectors.toList());
     }
 
-    public static String convert(String input) {
+    public static String convert(String input, boolean isTitle) {
 
         Matcher m = p.matcher(input);
 
@@ -46,15 +50,18 @@ public enum RomanNumeral {
             logger.info("key is " + key);
 //            logger.info("replace is " + " Part " + romanToArabic(key.replace("(", "").replace(")", "")));
             replaced = replaced.replaceFirst(key.replace("(", "\\(").replace(")", "\\)"),
-                    genReplacement(key));
+                    genReplacement(key, isTitle));
         }
 
         return replaced;
     }
 
-    private static String genReplacement(String key) {
-        if( AppProperties.isEnglish() ){
+    private static String genReplacement(String key, boolean isTitle) {
+        if( isTitle && AppProperties.isEnglish() ){
             return " Part " + romanToArabic(key.replace("(", "").replace(")", ""));
+        }
+        if( !isTitle && AppProperties.isEnglish() ){
+            return "(" + romanToArabic(key.replace("(", "").replace(")", "")) + ")";
         }
         return " " + romanToArabic(key.replace("(", "").replace(")", ""));
     }
