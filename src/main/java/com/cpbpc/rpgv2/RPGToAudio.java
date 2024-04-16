@@ -41,7 +41,7 @@ public class RPGToAudio {
 
         String publishMonth = convertData.getStartDate().split("-")[0] + "_" + convertData.getStartDate().split("-")[1];
         String publishDate =  convertData.getStartDate().split("-")[2];
-        AWSUtil.emptyTargetFolder(publishMonth, publishDate);
+        AWSUtil.emptyTargetFolder(publishMonth, publishDate, convertData.getCounter());
 
         AbstractComposer composer = initComposer(appProperties.getProperty("language"), convertData);
         List<ComposerResult> results = composer.toTTS(true, convertData.getStartDate());
@@ -55,7 +55,7 @@ public class RPGToAudio {
             logger.info( "wait all audios ready" );
             waitAllPassageAudio(results);
             logger.info( "all audios are ready to merge" );
-            List<Tag> mergeTags = mergeRPG(convertData.getStartDate(), results);
+            List<Tag> mergeTags = mergeRPG(convertData, results);
             if( AppProperties.isChinese() ){
                 logger.info( "wait for merged audio" );
                 waitUntilAudioMerged(mergeTags);
@@ -114,12 +114,14 @@ public class RPGToAudio {
         logger.info(" total length " + AppProperties.getTotalLength());
     }
     
-    private List<Tag> mergeRPG(String publishDate, List<ComposerResult> results) {
+    private List<Tag> mergeRPG(Article convertData, List<ComposerResult> results) {
 
         List<String> fileNames = new ArrayList<>();
         for( ComposerResult result: results ){
             fileNames.add(result.getFileName());
         }
+
+        String publishDate = convertData.getStartDate();
 
         List<Tag> mergeTags = new ArrayList<>();
         mergeTags.add(new Tag("output_bucket", appProperties.getProperty("output_bucket")));
@@ -132,10 +134,17 @@ public class RPGToAudio {
         mergeTags.add(new Tag("publish_date", publishDate));
 
         String nameToBe = AppProperties.getConfig().getProperty("name_prefix") + publishDate.replaceAll("-", "");
+        if( convertData.getCounter() > 0 ){
+            nameToBe += "-"+convertData.getCounter();
+        }
         mergeTags.add(new Tag("audio_key", appProperties.getProperty("audio_merged_prefix")+publishDate.split("-")[0]+"_"+publishDate.split("-")[1]+"/"+nameToBe+"."+appProperties.getProperty("audio_merged_format")));
 
+        String path = appProperties.getProperty("script_prefix")+publishDate.split("-")[0]+"_"+publishDate.split("-")[1]+"/"+publishDate.split("-")[2];
+        if( convertData.getCounter() > 0 ){
+            path += "-"+convertData.getCounter();
+        }
         AWSUtil.uploadS3Object( appProperties.getProperty("script_bucket"),
-                appProperties.getProperty("script_prefix")+publishDate.split("-")[0]+"_"+publishDate.split("-")[1]+"/"+publishDate.split("-")[2],
+                path,
                 nameToBe+".audioMerge",
                 StringUtils.join(fileNames, ","),
                 mergeTags

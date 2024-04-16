@@ -43,11 +43,11 @@ public class AWSUtil {
         }
     }
     
-    private static List<Tag> saveToS3(String content, String bucketName, String objectKey, String audioKey) {
-        return saveToS3(content, bucketName, objectKey, "", "", audioKey);
+    private static List<Tag> saveToS3(String content, String bucketName, String objectKey, String audioKey, int count) {
+        return saveToS3(content, bucketName, objectKey, "", "", audioKey, count);
     }
 
-    private static List<Tag> saveToS3(String content, String bucketName, String objectKey, String month, String date, String audioKey) {
+    private static List<Tag> saveToS3(String content, String bucketName, String objectKey, String month, String date, String audioKey, int count) {
         List<Tag> tags = new ArrayList<>();
         try {
             InputStream inputStream = new StringInputStream(content);
@@ -56,7 +56,7 @@ public class AWSUtil {
             PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName, objectKey, inputStream, metadata);
 
             if( !StringUtils.isEmpty(month) && !StringUtils.isEmpty(date) ){
-                tags.add(new Tag("publish_date", month + "_" + date));
+                tags.add(new Tag("publish_date", month + "_" + genDatePath(date, count)));
             }
             tags.add(new Tag("voice_id", AppProperties.getConfig().getProperty("voice_id")));
             tags.add(new Tag("category", URLDecoder.decode(AppProperties.getConfig().getProperty("content_category"))));
@@ -103,7 +103,7 @@ public class AWSUtil {
         String audioKey =  AppProperties.getConfig().getProperty("output_prefix") + book + "/" + nameToBe + "."
                 + AppProperties.getConfig().getProperty("output_format");
 
-        saveToS3(content, bucketName, objectKey, audioKey);
+        saveToS3(content, bucketName, objectKey, audioKey, 0);
 
     }
 
@@ -162,7 +162,7 @@ public class AWSUtil {
                 + nameToBe + "."
                 + AppProperties.getConfig().getProperty("output_format");
 
-        saveToS3(content, bucketName, objectKey, month, date, audioKey);
+        saveToS3(content, bucketName, objectKey, month, date, audioKey, 0);
 
     }
 
@@ -185,11 +185,11 @@ public class AWSUtil {
                 + objectName + "."
                 + AppProperties.getConfig().getProperty("output_format");
 
-        return saveToS3(content, bucketName, objectKey, month, date, audioKey);
+        return saveToS3(content, bucketName, objectKey, month, date, audioKey, 0);
 
     }
 
-    public static List<Tag> putScriptToS3(String objectName, String content, String month, String date) {
+    public static List<Tag> putScriptToS3(String objectName, String content, String month, String date, int count) {
 
         String bucketName = AppProperties.getConfig().getProperty("script_bucket");
         String prefix = AppProperties.getConfig().getProperty("script_prefix");
@@ -200,14 +200,14 @@ public class AWSUtil {
 //        String publishMonth = publishDate_str.split("-")[0] + "_" + publishDate_str.split("-")[1];
 //        String publishDate = publishDate_str.split("-")[2];
         String objectType = AppProperties.getConfig().getProperty("script_format");
-        String objectKey = prefix + month + "/" + date + "/" + objectName + "." + objectType;
+        String objectKey = prefix + month + "/" + genDatePath(date, count) + "/" + objectName + "." + objectType;
         String audioKey =  AppProperties.getConfig().getProperty("output_prefix")
                 + month + "/"
-                + date + "/"
+                + genDatePath(date, count) + "/"
                 + objectName + "."
                 + AppProperties.getConfig().getProperty("output_format");
 
-        return saveToS3(content, bucketName, objectKey, month, date, audioKey);
+        return saveToS3(content, bucketName, objectKey, month, date, audioKey, count);
 
     }
 
@@ -438,18 +438,25 @@ public class AWSUtil {
         purgeBucket( bucketName, prefix );
     }
 
-    public static void emptyTargetFolder(String month, String date) {
+    private static String genDatePath (String date, int count){
+        if( count == 0 ){
+            return date;
+        }
+
+        return date+"-"+count;
+    }
+    public static void emptyTargetFolder(String month, String date, int count) {
 
         String bucketName = AppProperties.getConfig().getProperty("script_bucket");
-        String prefix = AppProperties.getConfig().getProperty("script_prefix")+month+"/"+date+"/";
+        String prefix = AppProperties.getConfig().getProperty("script_prefix")+month+"/"+genDatePath(date, count)+"/";
         purgeBucket( bucketName, prefix );
 
         bucketName = AppProperties.getConfig().getProperty("output_bucket");
-        prefix = AppProperties.getConfig().getProperty("output_prefix")+month+"/"+date+"/";
+        prefix = AppProperties.getConfig().getProperty("output_prefix")+month+"/"+genDatePath(date, count)+"/";
         purgeBucket( bucketName, prefix );
 
         bucketName = AppProperties.getConfig().getProperty("audio_merged_bucket");
-        prefix = AppProperties.getConfig().getProperty("audio_merged_prefix")+month+"/"+date+"/";
+        prefix = AppProperties.getConfig().getProperty("audio_merged_prefix")+month+"/"+genDatePath(date, count)+"/";
         purgeBucket( bucketName, prefix );
     }
 }

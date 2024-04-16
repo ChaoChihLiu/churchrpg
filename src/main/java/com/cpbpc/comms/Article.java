@@ -8,7 +8,7 @@ public class Article {
     private String title;
     private String category;
 
-    private int counter;
+    private int counter = 0;
 
     public Article(String startDate, String desc, String title, String category, int counter) {
         this.startDate = startDate;

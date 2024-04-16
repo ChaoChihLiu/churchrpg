@@ -109,7 +109,7 @@ public class ArticleParser extends AbstractArticleParser {
     
     @Override
     protected Pattern getDatePattern() {
-        return Pattern.compile("[A-Z,\\s’]{12,22}\\d{1,2}");
+        return Pattern.compile("[A-Z,\\s’]{12,22}\\d{1,2}\\s{0,}[MORNING|EVENING]{0,}");
     }
 
     @Override

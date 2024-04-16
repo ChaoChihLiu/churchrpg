@@ -182,7 +182,7 @@ public abstract class AbstractComposer {
         return input.replaceAll("<break", System.lineSeparator()+"<break");
     }
 
-    protected List<Tag> sendToTTS(String fileName, String content, String publishDate){
+    protected List<Tag> sendToTTS(String fileName, String content, String publishDate, int count){
 
         List<Tag> tags = new ArrayList<>();
         logger.info("use.polly is " + Boolean.valueOf((String) AppProperties.getConfig().getOrDefault("use.polly", "true")));
@@ -192,7 +192,7 @@ public abstract class AbstractComposer {
 
         logger.info("send to polly script S3 bucket!");
         if( StringUtils.isEmpty(this.parser.getArticle().getTiming()) ){
-            tags.addAll( AWSUtil.putScriptToS3(fileName, content, getPublishMonth(publishDate), getPublishDate(publishDate)) );
+            tags.addAll( AWSUtil.putScriptToS3(fileName, content, getPublishMonth(publishDate), getPublishDate(publishDate), count) );
         }else{
             tags.addAll( AWSUtil.putScriptToS3(fileName, content, getPublishMonth(publishDate), getPublishDate(publishDate), this.parser.getArticle().getTiming()) );
         }
