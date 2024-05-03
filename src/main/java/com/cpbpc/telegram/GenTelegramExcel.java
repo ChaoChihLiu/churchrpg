@@ -44,12 +44,12 @@ import java.util.regex.Pattern;
 
 public class GenTelegramExcel {
     private static final Properties appProperties = AppProperties.getConfig();
-    private static final String theme = "“平安与喜乐：查考腓利比书”";
-    private static final String writer = "许凌康牧师";
+    private static final String theme = "The Book of Leviticus";
+    private static final String writer = "Rev Dr Quek Suan Yew";
     private static final String year = "2024";
-    private static final String month = "05";
+    private static final String month = "06";
 
-    private static final String language = "chinese";
+    private static final String language = "english";
     private static final boolean isTest = false;
 
     /*
