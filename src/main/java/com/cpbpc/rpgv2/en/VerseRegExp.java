@@ -183,7 +183,7 @@ public class VerseRegExp implements VerseIntf {
         for (int i = 0; i < 10; i++) {
             verseParts.add(String.valueOf(i));
         }
-
+        
         StringBuilder builder = new StringBuilder(verse);
         for (int i = start; i < end; i++) {
 
@@ -245,31 +245,52 @@ public class VerseRegExp implements VerseIntf {
     
     private String convertNormalVerse(String line, boolean addPause) {
         Pattern p = getVersePattern();
+
         Matcher m = p.matcher(line);
-        int start = 0;
-        String result = line;
-        while (m.find(start)) {
-            String group0 = m.group(0);
-            String book_str = m.group(2);
-            int matched_end = m.end();
-            start = matched_end;
-            String grabbedVerse = appendNextCharTillCompleteVerse(line, group0, matched_end, line.length());
-            String verse_str = grabbedVerse.replaceFirst(book_str, "");
-            String book = makeItPlural(mapBookAbbre(book_str), verse_str);
-            String completeVerse = generateCompleteVerses(book, verse_str);
-            completeVerse = StringUtils.replaceAll(completeVerse, "\\.", "");
-
-
-//            logger.info("orginal " + grabbedVerse);
-//            logger.info("completeVerse " + completeVerse);
-
-            result = result.replaceFirst(grabbedVerse, completeVerse);
-            if( addPause ){
-                result += PunctuationTool.getPauseTag(400);
-            }
+        List<Integer> positions = new ArrayList<>();
+        while (m.find()) {
+            positions.add(m.start());
         }
 
-        return result;
+        StringBuffer buffer = new StringBuffer();
+        if( positions.isEmpty() ){
+            return line;
+        }
+        for( int i = 0; i<positions.size(); i++ ){
+            int from = positions.get(i);
+            int to = line.length();
+            if( positions.size() > (i+1) ){
+                to = positions.get(i+1);
+            }
+
+            if( i == 0 ){
+                buffer.append(StringUtils.substring(line, 0, from));
+            }
+
+            String toProcessed = StringUtils.substring(line, from, to);
+            Matcher matcher = p.matcher(toProcessed);
+            if (matcher.find()) {
+                String group0 = matcher.group(0);
+                String book_str = matcher.group(2);
+                
+                String grabbedVerse = appendNextCharTillCompleteVerse(toProcessed, group0, book_str.length()+2, toProcessed.length());
+                String verse_str = grabbedVerse.replaceFirst(book_str, "");
+                String book = makeItPlural(mapBookAbbre(book_str), verse_str);
+                String completeVerse = generateCompleteVerses(book, verse_str);
+                completeVerse = StringUtils.replaceAll(completeVerse, "\\.", "");
+                buffer.append(completeVerse);
+                if( i == positions.size()-1 ){
+                    buffer.append(StringUtils.substring(line, from+grabbedVerse.length(), line.length()));
+                }else{
+                    buffer.append(StringUtils.substring(line, from+grabbedVerse.length(), positions.get(i+1)));
+                }
+                if( addPause ){
+                    buffer.append(PunctuationTool.getPauseTag(400));
+                }
+            }
+        }
+        
+        return buffer.toString();
     }
 
     private String makeItPlural(String book, String verseStr) {
