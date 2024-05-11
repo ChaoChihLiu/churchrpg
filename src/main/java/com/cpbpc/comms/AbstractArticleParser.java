@@ -45,7 +45,7 @@ public abstract class AbstractArticleParser {
 
     public static void main(String args[]) {
         try {
-            String language = "english";
+            String language = "chinese";
 
             String propPath = "/Users/liuchaochih/Documents/GitHub/churchrpg/src/main/resources/app-"+language+".properties";
             FileInputStream in = new FileInputStream(propPath);
@@ -65,14 +65,14 @@ public abstract class AbstractArticleParser {
             AbstractArticleParser parser = null;
             AbstractComposer composer = null;
             if( language.equals("chinese") ){
-                parser = new com.cpbpc.rpgv2.zh.ArticleParser(new Article("2024-06-22", content, "你知足吗?", "", 1));
+                parser = new com.cpbpc.rpgv2.zh.ArticleParser(new Article("2024-07-14", content, "在基督里的真正福气：为基督的缘故受逼迫", "", 1));
                 composer = new com.cpbpc.rpgv2.zh.Composer(parser);
             } else{
                 parser = new com.cpbpc.rpgv2.en.ArticleParser(new Article("2024-08-04", content,  "PROVIDENCE, CHOICES, AND FAMILY LIFE (1)", "", 1));
                 composer = new com.cpbpc.rpgv2.en.Composer(parser);
             }
 
-            List<ComposerResult> results = composer.toTTS(true, "2024-06-22");
+            List<ComposerResult> results = composer.toTTS(true, "2024-07-14");
             StringBuilder script = new StringBuilder();
             for(ComposerResult result : results){
                 script.append(result.getScript());
@@ -94,7 +94,7 @@ public abstract class AbstractArticleParser {
     
     private Pattern buildTitlePattern(String title) {
 
-        StringBuilder builder = new StringBuilder("<strong>\\s{0,}");
+        StringBuilder builder = new StringBuilder("[<strong>]\\s{0,}");
         for( char c : title.toCharArray() ){
 
             if( c == '(' || c == ')' || c == '?' ){
@@ -105,7 +105,7 @@ public abstract class AbstractArticleParser {
             if( StringUtils.indexOf(title, c) == title.length()-1 ){
                 break;
             }
-            builder.append("[</strong>|<br\\s{0,}/>|<strong>]{0,}");
+            builder.append("[</strong>|<br\\s{0,}/>|<strong>|</p>|<p[^>]*>]{0,}");
         }
 
         builder.append("\\s{0,}</strong>");

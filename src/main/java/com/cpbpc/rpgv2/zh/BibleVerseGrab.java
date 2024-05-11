@@ -33,7 +33,8 @@ public class BibleVerseGrab {
     private static Logger logger = Logger.getLogger(BibleVerseGrab.class.getName());
 
     private static final String[] hyphens_unicode = new String[]{"\\u002d", "\\u2010", "\\u2011", "\\u2012", "\\u2013", "\\u2015", "\\u2212"};
-    private static Map<String, String> textCache = new HashMap<>();
+    private static Map<String, String> textCacheBGW = new HashMap<>();
+    private static Map<String, String> textCacheEDZX = new HashMap<>();
 
     private static boolean containHyphen(String verseStr) {
 
@@ -87,7 +88,7 @@ public class BibleVerseGrab {
         //        String verseStr = "三十二篇7-9节";
 //        String verseStr = "31篇7,11节";
 //        String verseStr = "三章7-9节";
-        String book = "詩篇";
+        String book = "申命记";
 //        String book = "羅馬書";
 //        String book = "列王纪上";
 //        String verseStr = "三十二篇1节-三十六篇";
@@ -95,8 +96,9 @@ public class BibleVerseGrab {
 //        String verseStr = "三十四篇7-9节";
 //        String verseStr = "三十四篇";
 //        String verseStr = "三十四篇-三十六篇";
-        String verseStr = "一百二十七至一百二十八篇";
+//        String verseStr = "一百二十七至一百二十八篇";
 //        String verseStr = "十二章";
+        String verseStr = "15章";
         System.out.println(grab(book, verseStr));
     }
 
@@ -104,9 +106,7 @@ public class BibleVerseGrab {
         return grab(book, verseStr, "");
     }
     public static String grab(String book, String verseStr, String chapterBreak) throws IOException {
-
-        isFromBackup.set(Boolean.FALSE);
-
+        
         verseStr = StringUtils.trim(verseStr);
         List<String> result = new ArrayList<>();
         String chapterWord = TextUtil.returnChapterWord(book);
@@ -283,30 +283,32 @@ public class BibleVerseGrab {
         return recurBibleVerse(buffer.toString(), book, chapter, i, chapterBreak);
     }
 
-    private static ThreadLocal isFromBackup = new ThreadLocal();
     private static String grabBibleVerse(String book, int chapter, int verse) throws IOException {
-        String bookChapter = book + chapter;
-        String text = "";
-        if (textCache.containsKey(bookChapter)) {
-            text = textCache.get(bookChapter);
-        } else {
-            Properties bookMapping = AppProperties.readBibleMapping();
-            text = readFromInternet(book, Integer.valueOf(bookMapping.getProperty(ZhConverterUtil.toSimple(book))), chapter, false);
-            if( !verifyVerse(text, chapter, verse, false) ){
-                text = readFromInternet(book, Integer.valueOf(bookMapping.getProperty(ZhConverterUtil.toSimple(book))), chapter, true);
-                isFromBackup.set(Boolean.TRUE);
-            }
-            textCache.put(bookChapter, text);
+
+        String result = grabBibleVerseFromEDZX(book, chapter, verse);
+        if( StringUtils.isEmpty(result) ){
+            result = grabBibleVerseFromBGW(book, chapter, verse);
         }
 
-        String versePattern = createVersePattern(chapter, verse, (Boolean)isFromBackup.get());
+        return result;
+
+    }
+
+    private static String grabBibleVerseFromBGW(String book, int chapter, int verse) throws IOException {
+        String bookChapter = book + chapter;
+        String text = "";
+        if (textCacheBGW.containsKey(bookChapter)) {
+            text = textCacheBGW.get(bookChapter);
+        } else {
+            text = readFromBGW(book, chapter);
+            textCacheBGW.put(bookChapter, text);
+        }
+
+        String versePattern = createVersePatternBGW(chapter, verse);
         Pattern p = Pattern.compile(versePattern);
         Matcher matcher = p.matcher(text);
         String result = "";
-        int groupId = 1;
-        if( (Boolean)isFromBackup.get() ){
-            groupId+=1;
-        }
+        int groupId = 2;
         if (matcher.find()) {
             logger.info(matcher.group(groupId));
             result = ZhConverterUtil.toSimple(StringUtils.remove(removeHtmlTag(matcher.group(groupId)), " "));
@@ -315,8 +317,35 @@ public class BibleVerseGrab {
         return result;
     }
 
-    private static boolean verifyVerse(String text, int chapter, int verse, boolean isFormBackup) {
-        String versePattern = createVersePattern(chapter, verse, isFormBackup);
+    private static String grabBibleVerseFromEDZX(String book, int chapter, int verse) throws IOException {
+        String bookChapter = book + chapter;
+        String text = "";
+        if (textCacheEDZX.containsKey(bookChapter)) {
+            text = textCacheEDZX.get(bookChapter);
+        } else {
+            Properties bookMapping = AppProperties.readBibleMapping();
+            text = readFromEDZX(Integer.valueOf(bookMapping.getProperty(ZhConverterUtil.toSimple(book))), chapter);
+            textCacheEDZX.put(bookChapter, text);
+        }
+
+        String versePattern = createVersePatternEDZX(chapter, verse);
+        Pattern p = Pattern.compile(versePattern);
+        Matcher matcher = p.matcher(text);
+        String result = "";
+        int groupId = 1;
+        if (matcher.find()) {
+            logger.info(matcher.group(groupId));
+            result = ZhConverterUtil.toSimple(StringUtils.remove(removeHtmlTag(matcher.group(groupId)), " "));
+        }
+
+        return result;
+    }
+
+    private static boolean verifyVerse(String text, int chapter, int verse, boolean isBGW) {
+        String versePattern = createVersePatternEDZX(chapter, verse);
+        if( isBGW ){
+            versePattern = createVersePatternBGW(chapter, verse);
+        }
         Pattern p = Pattern.compile(versePattern);
         Matcher matcher = p.matcher(text);
         return matcher.find();
@@ -328,16 +357,16 @@ public class BibleVerseGrab {
       <div class="verse_list">                                    西巴和撒慕拿说，你自己起来杀我们吧。因为人如何，力量也是如何。基甸就起来，杀了西巴和撒慕拿，夺获他们骆驼项上戴的月牙圈。                                </div>
    </td>
      */
-    private static String createVersePattern(int chapterNumber, int verseNumber, boolean fromBackup) {
-        if( !fromBackup ){
-            return "<td>"+chapterNumber+":"+verseNumber+"</td>\\s*<td>\\s*<div\\s+class=\"verse_list\">\\s*([^<]+)\\s*</div>\\s*</td>";
-        }
-
+    private static String createVersePatternBGW(int chapterNumber, int verseNumber) {
         if (verseNumber == 1) {
             return "(<span\\s{1,}class=\"chapternum\">" + chapterNumber + "[\\u00A0|&nbsp;]</span>)([^<>]*)(</span>)";
         }
 
         return "(<sup\\s{1,}class=\"versenum\">" + verseNumber + "[\\u00A0|&nbsp;]</sup>)([^<>]*)(</span>)";
+    }
+
+    private static String createVersePatternEDZX(int chapterNumber, int verseNumber) {
+        return "<td>"+chapterNumber+":"+verseNumber+"</td>\\s*<td>\\s*<div\\s+class=\"verse_list\">\\s*([^<]+)\\s*</div>\\s*</td>";
     }
 
     private static String readFromInternet(String url) throws IOException {
@@ -359,16 +388,16 @@ public class BibleVerseGrab {
         return html;
     }
 
-    private static String readFromInternet(String book, int bookNumber, int chapterNumber, boolean fromBackup) throws IOException {
+    private static String readFromEDZX(int bookNumber, int chapterNumber) throws IOException {
 
-        String backup_url = "https://www.biblegateway.com/passage/?search=" + URLEncoder.encode(book+chapterNumber) + "&version="+ AppProperties.getConfig().getProperty("bible_version");
         String url = "http://www.edzx.com/bible/read/?id=1&volume="+bookNumber+"&chapter="+chapterNumber;
-        String html = "";
-        if( fromBackup ){
-            html = readFromInternet(backup_url);
-        } else{
-            html = readFromInternet(url);
-        }
+        String html = readFromInternet(url);
+        return html;
+    }
+    private static String readFromBGW(String book, int chapterNumber) throws IOException {
+
+        String url = "https://www.biblegateway.com/passage/?search=" + URLEncoder.encode(book+chapterNumber) + "&version="+ AppProperties.getConfig().getProperty("bible_version");
+        String html = readFromInternet(url);
         return html;
     }
 
