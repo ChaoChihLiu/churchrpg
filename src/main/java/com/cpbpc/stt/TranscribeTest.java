@@ -27,8 +27,8 @@ public class TranscribeTest {
 
         // Specify the transcription job parameters
         String transcriptionJobName = UUID.randomUUID().toString();
-        String languageCode = LanguageCode.EN_US.toString(); // Replace with the desired language code
-        String mediaFileUri = "s3://cpbpctts/AUDIO-2023-10-06-23-41-39.m4a"; // Replace with the S3 URI of your audio file
+        String languageCode = LanguageCode.ZH_CN.toString(); // Replace with the desired language code
+        String mediaFileUri = "s3://cpbpctts/30.mp3"; // Replace with the S3 URI of your audio file
         String outputBucketName = "cpbpctts"; // Replace with the desired S3 bucket for the transcription output
 
         // Build the StartTranscriptionJobRequest
@@ -37,7 +37,7 @@ public class TranscribeTest {
                 .languageCode(languageCode)
                 .media(Media.builder().mediaFileUri(mediaFileUri).build())
                 .outputBucketName(outputBucketName)
-                .outputKey("george.json")
+                .outputKey("georgetest.json")
                 .build();
 
         // Start the transcription job

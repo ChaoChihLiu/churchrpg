@@ -26,8 +26,28 @@ public class ArticleParser extends AbstractArticleParser {
     }
     private VerseIntf verseIntf = ThreadStorage.getVerse();
 
-    public List<String> readTopicVerses() {
-        return readTopicVerses(title);
+//    public List<String> readTopicVerses() {
+//        return readTopicVerses(title);
+//    }
+
+    @Override
+    public List<String> readTopicVerses(String input) {
+        VerseIntf verse = ThreadStorage.getVerse();
+        List<String> result = new ArrayList<>();
+        Pattern versePattern = getTopicVersePattern();
+        Matcher m = versePattern.matcher(input);
+//        int anchorPoint = getAnchorPointAfterTitle(title, input);
+        int start = 0;
+        while (m.find(start)) {
+            String target = m.group();
+            int position = m.end();
+            start = position;
+//            if (position > anchorPoint) {
+//                break;
+//            }
+            result.add(replaceHtmlSpace(verse.appendNextCharTillCompleteVerse(input, target, position, input.length())));
+        }
+        return result;
     }
 
     @Override
