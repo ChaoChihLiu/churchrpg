@@ -209,5 +209,16 @@ public abstract class AbstractComposer {
         return publishMonth;
     }
 
+    protected String removeLineWhitespace( String content ){
+        String result = "";
+        for(char c : content.toCharArray()){
+            if( c == ' ' ){
+                continue;
+            }
+            result += c;
+        }
+        return result;
+    }
+
 }
 

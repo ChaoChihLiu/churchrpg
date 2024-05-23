@@ -191,18 +191,7 @@ public class Composer extends AbstractComposer {
 
         return book + chapter + verse;
     }
-
-    private String removeLineWhitespace( String content ){
-        String result = "";
-        for(char c : content.toCharArray()){
-            if( c == ' ' ){
-                continue;
-            }
-            result += c;
-        }
-        return result;
-    }
-
+    
     protected String processSentence(String content, boolean fixPronu) {
         String input = removeZhWhitespace(content);
         if( fixPronu ){

@@ -2,6 +2,7 @@ package com.cpbpc.rpgv2.en;
 
 
 import com.cpbpc.comms.AppProperties;
+import com.cpbpc.comms.PunctuationTool;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -63,14 +64,15 @@ public class BibleVerseGrab {
 //                String verseStr = "32:7";
 //        String verseStr = "31:1,7, 9,11";
 //        String verseStr = "3:7-9";
-        String book = "James";
+        String book = "Leviticus";
 //        String book = "Proverbs";
 //        String verseStr = "32:7-34";
 //        String verseStr = "32:7-34:9";
 //        String verseStr = "24:1-8";
-//        String verseStr = "24-26:8";
+//        String verseStr = "24-26:8";                  
 //        String verseStr = "9";
-        String verseStr = "1";
+//        String verseStr = "25:23-28, 47-55";
+        String verseStr = "25:23-28, 47,49,51";
         System.out.println(grab(book, verseStr));
     }
     public static String grab(String book, String verseStr) throws IOException {
@@ -81,17 +83,21 @@ public class BibleVerseGrab {
         book = convertOrdinalNumber(book);
 
         List<String> result = new ArrayList<>();
-        if ((StringUtils.countMatches(verseStr, ":") >= 1
-                || !StringUtils.contains(verseStr, ":")) && containHyphen(verseStr)) {
+        //25:23-28, 47-55
+        //25:23-28, 47,49,51
+        if (checkCondition3(verseStr)) {
+            result.addAll(returnVerses(verseStr));
+            return attachBibleVerses(book, result, chapterBreak);
+        }
+        //3:7-9
+        //32:7-34:9
+        else if (checkCondition1(verseStr)) {
+            result.addAll(returnVerses(verseStr));
+            return attachBibleVerses(book, result, chapterBreak);
+        }
+        //24-26:8
+        else if (checkCondition2(verseStr)) {
             String hyphen = getHyphen(verseStr);
-
-            int hyphenPosition = verseStr.indexOf(hyphen);
-            int colonPosition = verseStr.indexOf(":", 0);
-            if (colonPosition > 0 && colonPosition < hyphenPosition) {
-                result.addAll(returnVerses(verseStr));
-                return attachBibleVerses(book, result, chapterBreak);
-            }
-
             String[] array = StringUtils.split(verseStr, hyphen);
 
             List<String> list1 = new ArrayList<>();
@@ -116,12 +122,70 @@ public class BibleVerseGrab {
             }
             result.addAll(list2);
 
-        }else if( NumberUtils.isCreatable(StringUtils.trim(verseStr)) ){
+        }
+        //only has 1 but entire chapter
+        else if( NumberUtils.isCreatable(StringUtils.trim(verseStr)) ){
             result.addAll(returnVerses(verseStr+ ":1-200"));
         }else {
             result.addAll(returnVerses(verseStr));
         }
         return attachBibleVerses(book, result, chapterBreak);
+    }
+
+    //25:23-28, 47-55
+    //25:23-28, 47,49,51
+    private static boolean checkCondition3(String verseStr) {
+        StringBuilder pattern_str = new StringBuilder("[0-9]{1,3}:[0-9]{1,3}");
+        pattern_str.append("[");
+        String[] hyphens = PunctuationTool.getHyphensUnicode();
+        for( String hyphen : hyphens ){
+            pattern_str.append(hyphen);
+        }
+        pattern_str.append("][0-9]{1,3},\\s{1,}[0-9]{1,3}");
+
+        Pattern patter3 = Pattern.compile(pattern_str.toString());
+        Matcher matcher = patter3.matcher(verseStr);
+        if( matcher.find() ){
+            return true;
+        }
+        return false;
+    }
+
+    //24-26:8
+    private static boolean checkCondition2(String verseStr) {
+        StringBuilder pattern_str = new StringBuilder("[0-9]{1,3}");
+        pattern_str.append("[");
+        String[] hyphens = PunctuationTool.getHyphensUnicode();
+        for( String hyphen : hyphens ){
+            pattern_str.append(hyphen);
+        }
+        pattern_str.append("][0-9]{1,3}:[0-9]{1,3}");
+
+        Pattern patter2 = Pattern.compile(pattern_str.toString());
+        Matcher matcher = patter2.matcher(verseStr);
+        if( matcher.find() ){
+            return true;
+        }
+        return false;
+    }
+
+    //3:7-9
+    //32:7-34:9
+    private static boolean checkCondition1(String verseStr) {
+        StringBuilder pattern_str = new StringBuilder("[0-9]{1,3}:[0-9]{1,3}");
+        pattern_str.append("[");
+        String[] hyphens = PunctuationTool.getHyphensUnicode();
+        for( String hyphen : hyphens ){
+            pattern_str.append(hyphen);
+        }
+        pattern_str.append("][0-9]{1,3}:{0,}[0-9]{0,3}");
+
+        Pattern patter1 = Pattern.compile(pattern_str.toString());
+        Matcher matcher = patter1.matcher(verseStr);
+        if( matcher.find() ){
+            return true;
+        }
+        return false;
     }
 
     private static String convertOrdinalNumber(String book) {
@@ -289,21 +353,44 @@ public class BibleVerseGrab {
         }
 
         List<String> result = new ArrayList<>();
-        if (containHyphen(verses)) {
+        if (containHyphen(verses) && verses.contains(",")) {
+            String[] array = verses.split(",");
+            for( String splitted : array ){
+                splitted = StringUtils.trim(splitted);
+                if(NumberUtils.isCreatable(splitted)){
+                    result.add(chapter + "." + splitted);
+                }
+
+                if( containHyphen(splitted) ){
+                    String hyphen = getHyphen(splitted);
+                    String[] nums = splitted.split(hyphen);
+                    int start = toNumber(nums[0]);
+                    int end = toNumber(nums[1]);
+
+                    for (int i = start; i <= end; i++) {
+                        result.add(chapter + "." + i);
+                    }
+                }
+            }
+
+        }
+        if (containHyphen(verses) && !verses.contains(",")) {
             String hyphen = getHyphen(verses);
             String[] array = verses.split(hyphen);
-            int start = toNumber(array[0]);
-            int end = toNumber(array[1]);
+            int start = toNumber(StringUtils.trim(array[0]));
+            int end = toNumber(StringUtils.trim(array[1]));
 
             for (int i = start; i <= end; i++) {
                 result.add(chapter + "." + i);
             }
-        } else if (verses.contains(",")) {
+        }
+        if (verses.contains(",") && !containHyphen(verses)) {
             String array[] = verses.split(",");
             for (String verse_ind : array) {
                 result.add(chapter + "." + StringUtils.trim(verse_ind));
             }
-        } else {
+        }
+        if (NumberUtils.isCreatable(verses)) {
             result.add(chapter + "." + verses);
         }
 

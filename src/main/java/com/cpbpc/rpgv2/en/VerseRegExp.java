@@ -195,7 +195,8 @@ public class VerseRegExp implements VerseIntf {
         }
 
         String result = StringUtils.trim(builder.toString());
-        if( StringUtils.endsWith(result, ":") ){
+        if( StringUtils.endsWith(result, ":")
+                || StringUtils.endsWith(result, ";") ){
             result = StringUtils.substring(result, 0, result.length()-1);
         }
 
@@ -273,7 +274,7 @@ public class VerseRegExp implements VerseIntf {
                 String group0 = matcher.group(0);
                 String book_str = matcher.group(2);
                 
-                String grabbedVerse = appendNextCharTillCompleteVerse(toProcessed, group0, book_str.length()+2, toProcessed.length());
+                String grabbedVerse = appendNextCharTillCompleteVerse(toProcessed, group0, group0.length(), toProcessed.length());
                 String verse_str = grabbedVerse.replaceFirst(book_str, "");
                 String book = makeItPlural(mapBookAbbre(book_str), verse_str);
                 String completeVerse = generateCompleteVerses(book, verse_str);

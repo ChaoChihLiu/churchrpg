@@ -51,9 +51,14 @@ public class Phonetics implements PhoneticIntf {
             String completeForm = lookupCompleteForm(key);
             logger.info("complete form " + completeForm);
             if (phonetic.get(key) != null && phonetic.get(key).getPaused()) {
-                replaced = replaced.replace(" " +key+" ", " " + completeForm + " " + "[pause]");
+                replaced = replaced.replace(" " +key+" ", " " + completeForm + " " + "[pause]")
+                        .replace(" " +key+",", " " + completeForm + "," + "[pause]")
+                        .replace(" " +key+".", " " + completeForm + "." + "[pause]");
             } else {
-                replaced = replaced.replace(" " +key+" ", " " + completeForm + " ");
+                replaced = replaced.replace(" " +key+" ", " " + completeForm + " ")
+                                    .replace(" " +key+",", "," + completeForm + " ")
+                                    .replace(" " +key+".", "." + completeForm + " ")
+                ;
             }
         }
 

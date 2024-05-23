@@ -42,6 +42,7 @@ public class PunctuationTool {
                 .replaceAll("。", ".")
                 .replaceAll("（", "(")
                 .replaceAll("）", ")")
+//                .replaceAll("’", "'")
                 ;
     }
     

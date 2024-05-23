@@ -45,7 +45,7 @@ public abstract class AbstractArticleParser {
 
     public static void main(String args[]) {
         try {
-            String language = "chinese";
+            String language = "english";
 
             String propPath = "/Users/liuchaochih/Documents/GitHub/churchrpg/src/main/resources/app-"+language+".properties";
             FileInputStream in = new FileInputStream(propPath);
@@ -68,11 +68,11 @@ public abstract class AbstractArticleParser {
                 parser = new com.cpbpc.rpgv2.zh.ArticleParser(new Article("2024-07-14", content, "在基督里的真正福气：为基督的缘故受逼迫", "", 1));
                 composer = new com.cpbpc.rpgv2.zh.Composer(parser);
             } else{
-                parser = new com.cpbpc.rpgv2.en.ArticleParser(new Article("2024-08-04", content,  "PROVIDENCE, CHOICES, AND FAMILY LIFE (1)", "", 1));
+                parser = new com.cpbpc.rpgv2.en.ArticleParser(new Article("2024-08-06", content,  "PROVIDENCE, CHOICES, AND FAMILY LIFE (3)", "", 1));
                 composer = new com.cpbpc.rpgv2.en.Composer(parser);
             }
 
-            List<ComposerResult> results = composer.toTTS(true, "2024-07-14");
+            List<ComposerResult> results = composer.toTTS(true, "2024-08-06");
             StringBuilder script = new StringBuilder();
             for(ComposerResult result : results){
                 script.append(result.getScript());
@@ -189,20 +189,50 @@ public abstract class AbstractArticleParser {
     }
 
     public List<String> readTopicVerses(String input) {
-        VerseIntf verse = ThreadStorage.getVerse();
+        VerseIntf verseIntf = ThreadStorage.getVerse();
         List<String> result = new ArrayList<>();
         Pattern versePattern = getTopicVersePattern();
         Matcher m = versePattern.matcher(input);
         int anchorPoint = getAnchorPointAfterTitle(title, input);
-        int start = 0;
-        while (m.find(start)) {
-            String target = m.group();
-            int position = m.end();
-            start = position;
-            if (position > anchorPoint) {
+        List<Integer> positions = new ArrayList<>();
+        while (m.find()) {
+            int pos = m.start();
+            if( pos >= anchorPoint ){
                 break;
             }
-            result.add(replaceHtmlSpace(verse.appendNextCharTillCompleteVerse(input, target, position, anchorPoint)));
+            positions.add(pos);
+        }
+
+        if( positions.isEmpty() ){
+            return result;
+        }
+        for( int i = 0; i<positions.size(); i++ ){
+            int from = positions.get(i);
+            int to = input.length();
+            if( positions.size() > (i+1) ){
+                to = positions.get(i+1);
+            }
+
+            String toProcessed = StringUtils.substring(input, from, to);
+            Matcher matcher = versePattern.matcher(toProcessed);
+            if (matcher.find()) {
+                String group0 = matcher.group(0);
+                String book = matcher.group(2);
+                
+                String grabbedVerse = verseIntf.appendNextCharTillCompleteVerse(toProcessed, group0, group0.length(), toProcessed.length());
+                if( StringUtils.contains(grabbedVerse, ";") ){
+                    String[] splitted = StringUtils.split(grabbedVerse, ";");
+                    for( String element : splitted ){
+                        if( StringUtils.startsWith(element, book) ){
+                            result.add(element);
+                            continue;
+                        }
+                        result.add(book+" "+element);
+                    }
+                    continue;
+                }
+                result.add(grabbedVerse);
+            }
         }
         return result;
     }
