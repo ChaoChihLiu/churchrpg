@@ -109,7 +109,7 @@ public class Composer extends AbstractComposer {
         }
 
         buffer = new StringBuilder();
-        buffer.append(pause(400)).append("For meditation: ");
+//        buffer.append(pause(400)).append("For meditation: ");
         buffer.append(pause(400)).append(processRemSentence(parser.readEnd(), fixPronu));
         scripts.put(scriptCounter+"_end", wrapToAzure(prettyPrintln(buffer.toString()), voiceId));
         scriptCounter++;

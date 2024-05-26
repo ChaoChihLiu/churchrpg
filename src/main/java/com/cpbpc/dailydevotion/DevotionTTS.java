@@ -52,8 +52,8 @@ public class DevotionTTS {
                     continue;
                 }
 
-                String book = StringUtils.split(parser.mainVerse, " ")[0];
-                String verses = StringUtils.split(parser.mainVerse, " ")[1];
+//                String book = StringUtils.split(parser.mainVerse, " ")[0];
+//                String verses = StringUtils.split(parser.mainVerse, " ")[1];
 
                 String result = text.append( parser.date )
                                     .append(PunctuationTool.pause(200))

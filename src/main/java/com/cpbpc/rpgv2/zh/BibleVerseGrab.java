@@ -88,7 +88,7 @@ public class BibleVerseGrab {
         //        String verseStr = "三十二篇7-9节";
 //        String verseStr = "31篇7,11节";
 //        String verseStr = "三章7-9节";
-        String book = "申命记";
+        String book = "民数记";
 //        String book = "羅馬書";
 //        String book = "列王纪上";
 //        String verseStr = "三十二篇1节-三十六篇";
@@ -98,7 +98,7 @@ public class BibleVerseGrab {
 //        String verseStr = "三十四篇-三十六篇";
 //        String verseStr = "一百二十七至一百二十八篇";
 //        String verseStr = "十二章";
-        String verseStr = "15章";
+        String verseStr = "15章38節";
         System.out.println(grab(book, verseStr));
     }
 

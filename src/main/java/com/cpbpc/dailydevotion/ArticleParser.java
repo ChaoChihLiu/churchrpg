@@ -59,10 +59,13 @@ public class ArticleParser extends AbstractArticleParser {
             return result;
         }
 
-        String topic = getTopic();
-        input = StringUtils.remove(input, topic);
+        int anchorPoint = findMeditationStartPoint(input);
+        String content_splitted = StringUtils.substring(input, 0, anchorPoint);
 
-        String[] lines= input.split("<br />");
+        String topic = getTopic();
+        content_splitted = StringUtils.remove(content_splitted, topic);
+
+        String[] lines= content_splitted.split("<br />");
         String paragraph = removeLinkBreak(removeHtmlTag(lines[0]));
         paragraph = paragraph.replaceAll("\\.", "."+pause(400));
         result.add(paragraph);
@@ -80,13 +83,44 @@ public class ArticleParser extends AbstractArticleParser {
         return "";
     }
 
+    //For <strong>Meditation
+    private static Pattern meditationPattern = Pattern.compile("For\\s{0,}<strong>\\s{0,}Meditation");
+    private int findMeditationStartPoint(String input){
+        if( StringUtils.isEmpty(input) ){
+            return 0;
+        }
+
+        int result = 0;
+        Matcher matcher = meditationPattern.matcher(input);
+        if( matcher.find() ){
+            result = matcher.start();
+        }
+
+        return result;
+    }
+    private int findMeditationEndPoint(String input){
+        if( StringUtils.isEmpty(input) ){
+            return 0;
+        }
+
+        int result = 0;
+        Matcher matcher = meditationPattern.matcher(input);
+        if( matcher.find() ){
+            result = matcher.end();
+        }
+
+        return result;
+    }
+
     @Override
     public String readEnd() {
         if( StringUtils.isEmpty(content) ){
             return "";
         }
+        int anchorPoint = findMeditationEndPoint(content);
+        String content_splitted = StringUtils.substring(content, anchorPoint, content.length());
 
-        String input = removeDoubleQuote(content.replaceAll("<p>", "").replace("</p>", ""));
+        String input = removeDoubleQuote(content_splitted.replaceAll("<p>", "").replace("</p>", ""));
         String topic = getTopic();
         input = StringUtils.remove(input, topic);
         StringBuilder builder = new StringBuilder();
