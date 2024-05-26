@@ -2,6 +2,7 @@ package com.cpbpc.rpgv2.en;
 
 import com.cpbpc.comms.ConfigObj;
 import com.cpbpc.comms.PhoneticIntf;
+import com.cpbpc.comms.PunctuationTool;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
@@ -45,23 +46,43 @@ public class Phonetics implements PhoneticIntf {
         logger.info("what is my finds : " + finds.toString());
 
         String replaced = content;
-        int start = 0;
         for (String key : finds) {
             key = StringUtils.trim(key);
             String completeForm = lookupCompleteForm(key);
             logger.info("complete form " + completeForm);
             if (phonetic.get(key) != null && phonetic.get(key).getPaused()) {
-                replaced = replaced.replace(" " +key+" ", " " + completeForm + " " + "[pause]")
-                        .replace(" " +key+",", " " + completeForm + "," + "[pause]")
-                        .replace(" " +key+".", " " + completeForm + "." + "[pause]");
+                replaced = replaced.replace(" " +key+" ", " " + completeForm + " " + "[pause]") ;
+                replaced = replaceWithAllowedPunc(replaced, key,  completeForm, true);
+//                        .replace(" " +key+",", " " + completeForm + "," + "[pause]")
+//                        .replace(" " +key+".", " " + completeForm + "." + "[pause]");
             } else {
-                replaced = replaced.replace(" " +key+" ", " " + completeForm + " ")
-                                    .replace(" " +key+",", "," + completeForm + " ")
-                                    .replace(" " +key+".", "." + completeForm + " ")
-                ;
+                replaced = replaced.replace(" " +key+" ", " " + completeForm + " ")  ;
+//                                    .replace(" " +key+",", " " + completeForm + ",")
+//                                    .replace(" " +key+".", " " + completeForm + ".")
+                replaced = replaceWithAllowedPunc(replaced, key,  completeForm, false);
             }
         }
 
+        return replaced;
+    }
+
+    private String replaceWithAllowedPunc(String input, String key, String replacement, boolean addPaused) {
+        String replaced = input;
+        List<String> allowedPuncs = PunctuationTool.getAllowedPunctuations();
+        allowedPuncs.add("?");
+        allowedPuncs.add("？");
+        allowedPuncs.add("!");
+        allowedPuncs.add("！");
+        allowedPuncs.add(".");
+
+        for( String punc : allowedPuncs ){
+            String completed = " " + replacement + punc;
+            if( addPaused ){
+                completed += "[pause]";
+            }
+            replaced = replaced.replace(" " +key+punc, completed);
+        }
+        
         return replaced;
     }
 
