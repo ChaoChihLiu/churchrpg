@@ -2,7 +2,6 @@ package com.cpbpc.dailydevotion;
 
 import com.cpbpc.comms.AbstractArticleParser;
 import com.cpbpc.comms.Article;
-import com.cpbpc.comms.PunctuationTool;
 import com.cpbpc.comms.ThreadStorage;
 import com.cpbpc.comms.VerseIntf;
 import org.apache.commons.lang3.StringUtils;
@@ -84,7 +83,7 @@ public class ArticleParser extends AbstractArticleParser {
     }
 
     //For <strong>Meditation
-    private static Pattern meditationPattern = Pattern.compile("For\\s{0,}<strong>\\s{0,}Meditation");
+    private static Pattern meditationPattern = Pattern.compile("For\\s{0,}(<strong>){0,}\\s{0,}Meditation");
     private int findMeditationStartPoint(String input){
         if( StringUtils.isEmpty(input) ){
             return 0;
@@ -148,28 +147,39 @@ public class ArticleParser extends AbstractArticleParser {
         return "";
     }
 
+    protected Pattern getTopicPattern() {
+        return Pattern.compile("([“|\"])([A-Z\\s\\?,;:]*)([”|\"])");
+    }
     public String getTopic(){
         String result = "";
-        String input = removeDoubleQuote(content.replaceAll("<p>", "").replace("</p>", ""));
-        for( char c : input.toCharArray() ){
-
-            if( c == ' '
-                    || c == '\''
-                    || PunctuationTool.getAllowedPunctuations().contains(String.valueOf(c))
-                    || System.lineSeparator().equals(String.valueOf(c)) ){
-                result += c;
-                continue;
-            }
-            if( Character.isUpperCase(c) ){
-                result += c;
-                continue;
-            }
-
-            if( c == '.' ){
-                result += c;
-                break;
-            }
-            break;
+//        List<String> allowedPunctuations = PunctuationTool.getAllowedPunctuations();
+//        allowedPunctuations.add("?");
+//        allowedPunctuations.add("'");
+//        String input = removeDoubleQuote(content.replaceAll("<p>", "").replace("</p>", ""));
+//        for( char c : input.toCharArray() ){
+//
+//            if( c == ' '
+//                    || allowedPunctuations.contains(String.valueOf(c))
+//                    || System.lineSeparator().equals(String.valueOf(c)) ){
+//                result += c;
+//                continue;
+//            }
+//            if( Character.isUpperCase(c) ){
+//                result += c;
+//                continue;
+//            }
+//
+//            if( c == '.' ){
+//                result += c;
+//                break;
+//            }
+//            break;
+//        }
+        String input = content.replaceAll("<p>", "").replace("</p>", "");
+        Pattern pattern = getTopicPattern();
+        Matcher matcher = pattern.matcher(input);
+        if( matcher.find() ){
+            result = matcher.group(2);
         }
 
         return StringUtils.trim(result);
