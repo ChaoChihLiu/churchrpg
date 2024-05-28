@@ -54,9 +54,15 @@ public class Phonetics implements PhoneticIntf {
                 if (phonetic.get(key) != null && phonetic.get(key).getPaused()) {
                     replaced = replaced.replace(" " +key+" ", " " + completeForm + " " + "[pause]") ;
                     replaced = replaceWithAllowedPunc(replaced, key,  completeForm, true);
+
+                    replaced = replaced.replace(" " +StringUtils.capitalize(key)+" ", " " + completeForm + " " + "[pause]") ;
+                    replaced = replaceWithAllowedPunc(replaced, StringUtils.capitalize(key),  completeForm, true);
                 } else {
                     replaced = replaced.replace(" " +key+" ", " " + completeForm + " ")  ;
                     replaced = replaceWithAllowedPunc(replaced, key,  completeForm, false);
+
+                    replaced = replaced.replace(" " +StringUtils.capitalize(key)+" ", " " + completeForm + " ")  ;
+                    replaced = replaceWithAllowedPunc(replaced, StringUtils.capitalize(key),  completeForm, false);
                 }
             }
         }
