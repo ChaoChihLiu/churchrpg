@@ -277,7 +277,7 @@ public class BibleAudio {
 
         PhoneticIntf phoneticIntf = ThreadStorage.getPhonetics();
         AbbreIntf abbreIntf = ThreadStorage.getAbbreviation();
-        String toBe = replacePauseTag(content);
+        String toBe = replacePauseTag(PunctuationTool.replaceBiblePunctuationWithBreakTag(content));
         toBe = phoneticIntf.convert(abbreIntf.convert(toBe));
 
         String title = breakNewLine(wrapTTS(PunctuationTool.pause(800) + generateTitleAudio(book, chapterNum) + PunctuationTool.pause(800)));
@@ -289,14 +289,14 @@ public class BibleAudio {
         for( String verse : verses ){
             String script = "";
             if( !StringUtils.equalsIgnoreCase(appProperties.getProperty("engine"), "long-form") ){
-                script = breakNewLine(wrapTTS(PunctuationTool.replaceBiblePunctuationWithBreakTag(verse)));
+                script = breakNewLine(wrapTTS(verse));
 //                script = breakNewLine(wrapTTS(verse));
             }else{
                 Thread.sleep(3000);
                 script = breakNewLine(wrapTTS(verse));
             }
 //            System.out.println(script);
-            AWSUtil.putBibleScriptToS3(script, book, String.valueOf(chapterNum), String.valueOf(verseNum));
+//            AWSUtil.putBibleScriptToS3(script, book, String.valueOf(chapterNum), String.valueOf(verseNum));
             verseNum++;
         }
     }
