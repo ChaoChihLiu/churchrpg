@@ -296,7 +296,7 @@ public class BibleAudio {
                 script = breakNewLine(wrapTTS(verse));
             }
 //            System.out.println(script);
-//            AWSUtil.putBibleScriptToS3(script, book, String.valueOf(chapterNum), String.valueOf(verseNum));
+            AWSUtil.putBibleScriptToS3(script, book, String.valueOf(chapterNum), String.valueOf(verseNum));
             verseNum++;
         }
     }
