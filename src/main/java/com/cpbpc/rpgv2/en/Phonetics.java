@@ -38,7 +38,7 @@ public class Phonetics implements PhoneticIntf {
         List<String> patterns = generatePattern();
         String replaced = content;
         for( String p : patterns ){
-            logger.info(p);
+//            logger.info(p);
             Pattern r = Pattern.compile(p);
             Matcher matcher = r.matcher(content);
 
@@ -50,7 +50,7 @@ public class Phonetics implements PhoneticIntf {
             for (String key : finds) {
                 key = StringUtils.trim(key);
                 String completeForm = lookupCompleteForm(key);
-                logger.info("complete form " + completeForm);
+//                logger.info("complete form " + completeForm);
                 if (phonetic.get(key) != null && phonetic.get(key).getPaused()) {
                     replaced = replaced.replace(" " +key+" ", " " + completeForm + " " + "[pause]") ;
                     replaced = replaceWithAllowedPunc(replaced, key,  completeForm, true);
@@ -80,7 +80,7 @@ public class Phonetics implements PhoneticIntf {
             }
             replaced = replaced.replace(" " +key+punc, completed);
         }
-        
+
         return replaced;
     }
 
@@ -150,7 +150,7 @@ public class Phonetics implements PhoneticIntf {
             StringBuilder builder = new StringBuilder("(");
             for( String key: keys ){
                 String newKey = key.replace(".", "\\.");
-                builder.append("(&nbsp;|\\s){1,}").append(newKey).append("(&nbsp;|\\s){1,}|")
+                builder.append("(&nbsp;|\\s){0,}").append(newKey).append("(&nbsp;|\\s){0,}|")
                 ;
             }
             if (builder.toString().endsWith("|")) {

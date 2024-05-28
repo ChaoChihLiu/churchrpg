@@ -33,14 +33,14 @@ public class Encoder {
 //        ssh -L 3306:localhost:3306 tc.george@dst.com.bn@sshbastion1.ams-dst.com
 //        ssh -L 3306:stack-8zctttqoyu8qkvjgp-rdsinstance-w4dyk0s0uosq.ci4ubilvqzsx.ap-southeast-1.rds.amazonaws.com:3306 tc.george@dst.com.bn@sshbastion1.ams-dst.com -N
 
-        for( int i = 1; i<= 36; i++ ){
+        for( int i = 1; i<= 31; i++ ){
             String num = String.valueOf(i);
-            if( i<10 ){
-                num = "0"+String.valueOf(i);
-            }
-//            System.out.println("https://cpbpc-tts.s3.ap-southeast-1.amazonaws.com/remembrance/October/dr_October_"+num+"_Morning.mp3");
-//            System.out.println("https://cpbpc-tts.s3.ap-southeast-1.amazonaws.com/remembrance/October/dr_October_"+num+"_Evening.mp3");
-            System.out.println("https://cpbpc-bible-reading-plan.s3.ap-southeast-1.amazonaws.com/kjv/Deut"+i+".mp3");
+//            if( i<10 ){
+//                num = "0"+String.valueOf(i);
+//            }
+            System.out.println("https://cpbpc-tts.s3.ap-southeast-1.amazonaws.com/remembrance/December/dr_December_"+num+"_Morning.mp3");
+            System.out.println("https://cpbpc-tts.s3.ap-southeast-1.amazonaws.com/remembrance/December/dr_December_"+num+"_Evening.mp3");
+//            System.out.println("https://cpbpc-bible-reading-plan.s3.ap-southeast-1.amazonaws.com/kjv/Deut"+i+".mp3");
 //            System.out.println("https://cpbpc-bible-reading-plan.s3.ap-southeast-1.amazonaws.com/cuvs/%E6%92%92%E4%B8%8A"+i+".mp3");
 //            System.out.println("https://cpbpc-rpg-audio.s3.ap-southeast-1.amazonaws.com/rpg/2024_08/arpg202408"+num+".mp3");
 //            System.out.println("https://cpbpc-rpg-audio.s3.ap-southeast-1.amazonaws.com/rpg-chinese/2024_07/crpg202407"+num+".mp3");
