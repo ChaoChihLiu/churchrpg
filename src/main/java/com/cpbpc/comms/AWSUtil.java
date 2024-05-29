@@ -21,6 +21,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -52,8 +53,7 @@ public class AWSUtil {
         try {
             InputStream inputStream = new StringInputStream(content);
             // Upload the file to S3
-            ObjectMetadata metadata = new ObjectMetadata();
-            PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName, objectKey, inputStream, metadata);
+            PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName, objectKey, inputStream, createS3ObjMetadata());
 
             if( !StringUtils.isEmpty(month) && !StringUtils.isEmpty(date) ){
                 tags.add(new Tag("publish_date", month + "_" + genDatePath(date, count)));
@@ -127,8 +127,8 @@ public class AWSUtil {
         try {
             InputStream inputStream = new StringInputStream(content);
             // Upload the file to S3
-            ObjectMetadata metadata = new ObjectMetadata();
-            PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName, objectKey, inputStream, metadata);
+
+            PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName, objectKey, inputStream, createS3ObjMetadata());
             
             tags.add(new Tag("audio_key", audioKey));
             tags.add(new Tag("output_bucket", AppProperties.getConfig().getProperty("audio_merged_bucket")));
@@ -141,6 +141,13 @@ public class AWSUtil {
         } catch (IOException e) {
             logger.info(ExceptionUtils.getStackTrace(e));
         }
+    }
+
+    private static ObjectMetadata createS3ObjMetadata() {
+        ObjectMetadata metadata = new ObjectMetadata();
+        metadata.setCacheControl("no-store, no-cache, must-revalidate");
+        metadata.setHttpExpiresDate(new Date(0));
+        return metadata;
     }
 
     public static void putPLScriptToS3(String content, String month, String date) {
@@ -311,7 +318,7 @@ public class AWSUtil {
                 return;
             }
 
-            PutObjectRequest request = new PutObjectRequest(bucketName, prefix+objectKey, localFile);
+            PutObjectRequest request = new PutObjectRequest(bucketName, prefix+objectKey, new FileInputStream(localFile), createS3ObjMetadata());
             request.setStorageClass(StorageClass.IntelligentTiering);
             request.setTagging(new ObjectTagging(tags));
 
@@ -331,7 +338,7 @@ public class AWSUtil {
                 prefix += "/";
             }
 
-            PutObjectRequest request = new PutObjectRequest(bucketName, prefix+objectKey, new StringInputStream(content), new ObjectMetadata());
+            PutObjectRequest request = new PutObjectRequest(bucketName, prefix+objectKey, new StringInputStream(content), createS3ObjMetadata());
             request.setStorageClass(StorageClass.IntelligentTiering);
             request.setTagging(new ObjectTagging(tags));
 
