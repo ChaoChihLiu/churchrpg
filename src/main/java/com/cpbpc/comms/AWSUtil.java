@@ -146,6 +146,7 @@ public class AWSUtil {
     private static ObjectMetadata createS3ObjMetadata() {
         ObjectMetadata metadata = new ObjectMetadata();
         metadata.setCacheControl("no-store, no-cache, must-revalidate");
+//        metadata.setContentType("audio/mpeg");
         metadata.setHttpExpiresDate(new Date(0));
         return metadata;
     }
@@ -374,6 +375,11 @@ public class AWSUtil {
             DeleteObjectRequest request = new DeleteObjectRequest(outputBucket, summary.getKey());
             s3Client.deleteObject(request);
         }
+    }
+    public static void purgeObject(String bucketName, String objectKey) {
+        System.out.println("object to be deleted : " + bucketName+"/"+objectKey);
+        DeleteObjectRequest request = new DeleteObjectRequest(bucketName, objectKey);
+        s3Client.deleteObject(request);
     }
 
     public static void waitUntilObjectReady( String bucketName, String prefix, String objectKey, Date timeToUpload ) throws InterruptedException {

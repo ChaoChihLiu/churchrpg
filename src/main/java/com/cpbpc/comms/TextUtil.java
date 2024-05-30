@@ -6,6 +6,7 @@ import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -24,6 +25,22 @@ public class TextUtil {
     public static String currentDate(){
         Date today = new Date();
         return dateFormat.format(today);
+    }
+
+    public static String encodeChineseWord(String input) {
+
+        String result = "";
+        for( char c : input.toCharArray() ){
+
+            if(ZhConverterUtil.isChinese(c)){
+                result += URLEncoder.encode(String.valueOf(c));
+            }else{
+                result += String.valueOf(c);
+            }
+
+        }
+
+        return result;
     }
 
     public static String getChineseWord(String input) {

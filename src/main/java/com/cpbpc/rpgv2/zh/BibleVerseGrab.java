@@ -287,8 +287,8 @@ public class BibleVerseGrab {
 
         String result = grabBibleVerseFromEDZX(book, chapter, verse);
         if( StringUtils.isEmpty(result) ){
-            result = grabBibleVerseFromBGW(book, chapter, verse);
-        }
+        result = grabBibleVerseFromBGW(book, chapter, verse);
+    }
 
         return result;
 

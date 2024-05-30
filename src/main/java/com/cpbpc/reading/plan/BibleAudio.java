@@ -40,6 +40,7 @@ import static com.cpbpc.comms.TextUtil.returnChapterWord;
 
 public class BibleAudio {
     private static Logger logger = Logger.getLogger(BibleAudio.class.getName());
+    private static Boolean isTest = true;
 
     public BibleAudio(){
     }
@@ -48,8 +49,9 @@ public class BibleAudio {
 
     public static void main(String args[]) throws IOException, InvalidFormatException, SQLException, InterruptedException {
         AppProperties.loadConfig(System.getProperty("app.properties",
-                                                    "/Users/liuchaochih/Documents/GitHub/churchrpg/src/main/resources/app-bibleplan-english.properties"));
+                                                    "/Users/liuchaochih/Documents/GitHub/churchrpg/src/main/resources/app-bibleplan-chinese.properties"));
         initStorage();
+        isTest = Boolean.valueOf((String)appProperties.getOrDefault("isTest", "false"));
 
         List<String> verses = new ArrayList<>();
         List<String> objectURLs = new ArrayList<>();
@@ -78,6 +80,11 @@ public class BibleAudio {
             String pl_script = "";
 
             int startChapter = 0;
+            String scriptBucket = AppProperties.getConfig().getProperty("script_bucket");
+            String scriptPrefix = AppProperties.getConfig().getProperty("script_prefix");
+            if (!scriptPrefix.endsWith("/")) {
+                scriptPrefix += "/";
+            }
             if( content.contains(chapterBreak) && PunctuationTool.containHyphen(result.get(1)) ){
                 String hyphen = PunctuationTool.getHyphen(result.get(1));
                 String[] list = StringUtils.split(result.get(1), hyphen);
@@ -85,9 +92,11 @@ public class BibleAudio {
                 int endChapter = Integer.valueOf(StringUtils.replace(StringUtils.trim(list[1]), chapterWord, ""));
                 String[] chapterContents = content.split(chapterBreak);
 
+                purgeObject(scriptBucket, scriptPrefix+book+"/"+verse+".audioMerge");
                 int count = 0;
                 for( int i = startChapter; i<=endChapter; i++ ){
-                    AWSUtil.purgeBucket(appProperties.getProperty("output_bucket"), appProperties.getProperty("output_prefix")+book+"/"+i);
+                    purgeObject(scriptBucket, scriptPrefix+book+"/"+extractBook(verse)+i+".audioMerge");
+                    purgeBucket(appProperties.getProperty("output_bucket"), appProperties.getProperty("output_prefix")+book+"/"+i);
                     sendToS3( chapterContents[count], book, i );
                     verseCount.put(book + "," + i, StringUtils.split(chapterContents[count], System.lineSeparator()).length+1);
 
@@ -99,15 +108,16 @@ public class BibleAudio {
             }//end of if
             else{
                 int chapterNum = Integer.valueOf(StringUtils.replace(StringUtils.trim(result.get(1)), chapterWord, ""));
-                AWSUtil.purgeBucket(appProperties.getProperty("output_bucket"), appProperties.getProperty("output_prefix")+book+"/"+chapterNum);
+                purgeObject(scriptBucket, scriptPrefix+book+"/"+verse+".audioMerge");
+                purgeBucket(scriptBucket, scriptPrefix+book+"/"+chapterNum);
                 String input = content.replace(chapterBreak, "");
                 pl_script = input;
                 sendToS3(input, book, chapterNum);
                 verseCount.put(book + "," + chapterNum, StringUtils.split(input, System.lineSeparator()).length+1);
             }
 
-            pl_script = PunctuationTool.replacePauseTag(pl_script, "");
-            while( !isAllAudioDone(verseCount) ){
+//            pl_script = PunctuationTool.replacePauseTag(pl_script, "");
+            while( !isTest && !isAllAudioDone(verseCount) ){
                 Thread.sleep(10*1000);
             }
 
@@ -123,20 +133,20 @@ public class BibleAudio {
 //                    +"_"+
 //                    StringUtils.trim(StringUtils.remove(StringUtils.remove(result.get(1), " "), chapterWord));
             String fileName = verse;
-            
+
             AWSUtil.uploadS3Object( appProperties.getProperty("script_bucket"),
-                    appProperties.getProperty("script_prefix"),
+                    appProperties.getProperty("script_prefix")+book,
                     fileName+".audioMerge",
                     joinVerses(verse_to_merged),
                     tags
             );
 
-            breakToSingleChapter(singleChapters, tags);
+            breakToSingleChapter(singleChapters, tags, book);
 
-            String objectKey = appProperties.getProperty("audio_merged_prefix")
-                                + fileName
-                                +"."+
-                                appProperties.getProperty("audio_merged_format");
+//            String objectKey = appProperties.getProperty("audio_merged_prefix")
+//                                + fileName
+//                                +"."+
+//                                appProperties.getProperty("audio_merged_format");
 
 //            if( AppProperties.isChinese() ){
 //                logger.info("wait this file " + objectKey);
@@ -158,6 +168,21 @@ public class BibleAudio {
 
         logger.info("all links " + StringUtils.join(objectURLs, System.lineSeparator()));
 
+    }
+
+    private static void purgeObject(String outputBucket, String objectKey) {
+        if( isTest ){
+            return;
+        }
+        AWSUtil.purgeObject(outputBucket, objectKey);
+    }
+
+    private static void purgeBucket( String bucketName, String chapterPrefix ) {
+//        AWSUtil.purgeBucket(appProperties.getProperty("output_bucket"), appProperties.getProperty("output_prefix")+book+"/"+i);
+        if( isTest ){
+            return;
+        }
+        AWSUtil.purgeBucket(bucketName, chapterPrefix);
     }
 
     private static String joinVerses(List<String> verseToMerged) {
@@ -187,12 +212,12 @@ public class BibleAudio {
         return "";
     }
 
-    private static void breakToSingleChapter(Map<String, String> chapters, List<Tag> tags) {
+    private static void breakToSingleChapter(Map<String, String> chapters, List<Tag> tags, String book) {
 
         Set<Map.Entry<String, String>> entries = chapters.entrySet();
         for( Map.Entry<String, String> entry : entries ){
             AWSUtil.uploadS3Object( appProperties.getProperty("script_bucket"),
-                    appProperties.getProperty("script_prefix"),
+                    appProperties.getProperty("script_prefix")+book,
                     entry.getKey()+".audioMerge",
                     entry.getValue()+",",
                     tags
@@ -274,7 +299,7 @@ public class BibleAudio {
     }
 
     private static void sendToS3(String content, String book, int chapterNum) throws IOException, InterruptedException {
-
+        
         PhoneticIntf phoneticIntf = ThreadStorage.getPhonetics();
         AbbreIntf abbreIntf = ThreadStorage.getAbbreviation();
         String toBe = replacePauseTag(PunctuationTool.replaceBiblePunctuationWithBreakTag(content));
@@ -282,6 +307,9 @@ public class BibleAudio {
 
         String title = breakNewLine(wrapTTS(PunctuationTool.pause(800) + generateTitleAudio(book, chapterNum) + PunctuationTool.pause(800)));
 
+        if( isTest ){
+            return;
+        }
         AWSUtil.putBibleScriptToS3(title, book, String.valueOf(chapterNum), "0");
 
         String[] verses = StringUtils.split(toBe, System.lineSeparator());
