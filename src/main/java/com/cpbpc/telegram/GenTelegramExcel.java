@@ -61,7 +61,7 @@ public class GenTelegramExcel {
     📝 https://bit.ly/47R6ad6
      */
     private static final String pattern = "(https://bit\\.ly/[0-9A-za-z]+)";
-    private static final String[] hyphens_unicode = new String[]{"\\u002d", "\\u2010", "\\u2011", "\\u2012", "\\u2013", "\\u2015", "\\u2212"};
+    private static final String[] hyphens_unicode = PunctuationTool.getHyphensUnicode();
     private static final Map<String, String> abbre = new HashMap();
     private static final String query = "select \n" +
             " cjv.summary, cjv.description, cj.catid, cjr.rp_id, \n" +

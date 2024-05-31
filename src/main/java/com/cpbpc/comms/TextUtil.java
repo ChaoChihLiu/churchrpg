@@ -170,4 +170,8 @@ public class TextUtil {
         String result = content.replaceAll("(\\p{IsHan})\\s+(?=\\p{IsHan})", "$1");
         return result;
     }
+
+    public static Pattern getDatePattern() {
+        return Pattern.compile("\\b(?:January|February|March|April|May|June|July|August|September|October|November|December)\\s+(\\d{1,2})\\s+\\b");
+    }
 }

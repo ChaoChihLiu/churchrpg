@@ -2,6 +2,7 @@ package com.cpbpc.dailydevotion;
 
 import com.cpbpc.comms.AbstractArticleParser;
 import com.cpbpc.comms.Article;
+import com.cpbpc.comms.TextUtil;
 import com.cpbpc.comms.ThreadStorage;
 import com.cpbpc.comms.VerseIntf;
 import org.apache.commons.lang3.StringUtils;
@@ -192,7 +193,7 @@ public class ArticleParser extends AbstractArticleParser {
     
     @Override
     protected Pattern getDatePattern() {
-        return Pattern.compile("\\b(?:January|February|March|April|May|June|July|August|September|October|November|December)\\s+(\\d{1,2})\\s+\\b");
+        return TextUtil.getDatePattern();
     }
 
     @Override
