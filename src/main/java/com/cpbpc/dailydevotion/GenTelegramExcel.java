@@ -41,6 +41,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.cpbpc.comms.DBUtil.initStorage;
+import static com.cpbpc.comms.TextUtil.capitalizeEveryWord;
 
 public class GenTelegramExcel {
     private static final Properties appProperties = AppProperties.getConfig();
@@ -48,7 +49,7 @@ public class GenTelegramExcel {
     private static final String year = "2024";
     private static final String month = "07";
 
-    private static final boolean isTest = true;
+    private static final boolean isTest = false;
 
     /*
 
@@ -107,10 +108,9 @@ public class GenTelegramExcel {
             Cell cell = row.createCell(0);
 
             RichTextString richText = creationHelper.createRichTextString(
-                            "Daily Remembrance" + "\n" +
                             getTimingEmoji(getTiming(dataRow)) + " " + getTiming(dataRow) + "\n" +
-                            "\uD83D\uDCAD" + " " + getTitle(dataRow) + "\n" +
-                            "\uD83D\uDCD6" + " " + grepThemeVerses(dataRow) + "\n" +
+                            "\uD83D\uDCAD" + " " + getTopic(dataRow) + "\n" +
+                            "\uD83D\uDCD6" + "“" + getTheme(dataRow) + "” (" + grepThemeVerses(dataRow) + ")\n" +
                             "\n" +
                             "\uD83D\uDDE3" + " " + shortenURL(genAudioLink(dataRow), isTest) + "\n" +
                             "\n" +
@@ -118,7 +118,7 @@ public class GenTelegramExcel {
             );
             cell.setCellValue(richText);
             CellStyle cellStyle = workbook.createCellStyle();
-            cellStyle.setFont(boldFont);
+//            cellStyle.setFont(boldFont);
             cellStyle.setWrapText(true);
             cell.setCellStyle(cellStyle);
         }
@@ -164,11 +164,47 @@ public class GenTelegramExcel {
             return "";
         }
 
-        return list.get(0) + " " + list.get(1);
+        return convertBookName(list.get(0)) + " " + list.get(1);
     }
 
-    private static final Pattern titlePattern = Pattern.compile("\\\"([^\\\"]*)\\\"");
-    private static String getTitle(Map<String, String> dataRow) {
+    private static String convertBookName(String book) {
+        String result = book;
+
+        if( StringUtils.startsWithIgnoreCase(book, "first") ){
+            return StringUtils.replaceIgnoreCase(book, "first", "1");
+        }
+        if( StringUtils.startsWithIgnoreCase(book, "second") ){
+            return StringUtils.replaceIgnoreCase(book, "second", "2");
+        }
+        if( StringUtils.startsWithIgnoreCase(book, "third") ){
+            return StringUtils.replaceIgnoreCase(book, "third", "3");
+        }
+
+
+        return result;
+    }
+
+    private static final Pattern topicPattern = Pattern.compile("[A-Z\\s\\?,;:']+");
+    private static String getTopic(Map<String, String> dataRow) {
+        if( dataRow.isEmpty() ){
+            return "";
+        }
+
+        if( !dataRow.containsKey("description") ){
+            return "";
+        }
+
+        String content = dataRow.get("description");
+        Matcher matcher = topicPattern.matcher(content);
+        if( matcher.find() ){
+            return capitalizeEveryWord(StringUtils.lowerCase(matcher.group()));
+        }
+
+        return "";
+    }
+
+    private static final Pattern themePattern = Pattern.compile("\\\"([^\\\"]*)\\\"");
+    private static String getTheme(Map<String, String> dataRow) {
         if( dataRow.isEmpty() ){
             return "";
         }
@@ -178,7 +214,7 @@ public class GenTelegramExcel {
         }
 
         String summary = dataRow.get("summary");
-        Matcher matcher = titlePattern.matcher(summary);
+        Matcher matcher = themePattern.matcher(summary);
         if( matcher.find() ){
             return matcher.group(1);
         }

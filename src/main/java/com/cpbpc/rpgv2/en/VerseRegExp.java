@@ -350,7 +350,7 @@ public class VerseRegExp implements VerseIntf {
             String book = mapBookAbbre(book_str);
             String grabbedVerse = appendNextCharTillCompleteVerse(line, group0, matched_end, line.length());
             String verse_str = grabbedVerse.replaceFirst(book_str, "");
-            result.add(StringUtils.trim(book));
+            result.add(makeItPlural(StringUtils.trim(book), verse_str));
             result.add(StringUtils.trim(verse_str));
         }
 

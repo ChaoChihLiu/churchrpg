@@ -21,6 +21,22 @@ public class TextUtil {
         return dateTimeFormat.format(today);
     }
 
+    public static String capitalizeEveryWord(String sentence) {
+        String[] words = sentence.split(" ");
+        StringBuilder capitalizedSentence = new StringBuilder();
+
+        for (String word : words) {
+            if (!word.isEmpty()) {
+                String firstLetter = word.substring(0, 1);
+                String restOfWord = word.substring(1);
+                String capitalizedWord = firstLetter.toUpperCase() + restOfWord.toLowerCase();
+                capitalizedSentence.append(capitalizedWord).append(" ");
+            }
+        }
+
+        return capitalizedSentence.toString().trim();
+    }
+
     private static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
     public static String currentDate(){
         Date today = new Date();
