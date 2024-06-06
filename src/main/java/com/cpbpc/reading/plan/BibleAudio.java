@@ -92,11 +92,11 @@ public class BibleAudio {
                 int endChapter = Integer.valueOf(StringUtils.replace(StringUtils.trim(list[1]), chapterWord, ""));
                 String[] chapterContents = content.split(chapterBreak);
 
-                purgeObject(scriptBucket, scriptPrefix+book+"/"+verse+".audioMerge");
+                purgeObject(scriptBucket, scriptPrefix+StringUtils.remove(book, " ")+"/"+verse+".audioMerge");
                 int count = 0;
                 for( int i = startChapter; i<=endChapter; i++ ){
-                    purgeObject(scriptBucket, scriptPrefix+book+"/"+extractBook(verse)+i+".audioMerge");
-                    purgeBucket(appProperties.getProperty("output_bucket"), appProperties.getProperty("output_prefix")+book+"/"+i);
+                    purgeObject(scriptBucket, scriptPrefix+StringUtils.remove(book, " ")+"/"+extractBook(verse)+i+".audioMerge");
+                    purgeBucket(appProperties.getProperty("output_bucket"), appProperties.getProperty("output_prefix")+StringUtils.remove(book, " ")+"/"+i);
                     sendToS3( chapterContents[count], book, i );
                     verseCount.put(book + "," + i, StringUtils.split(chapterContents[count], System.lineSeparator()).length+1);
 
@@ -108,8 +108,8 @@ public class BibleAudio {
             }//end of if
             else{
                 int chapterNum = Integer.valueOf(StringUtils.replace(StringUtils.trim(result.get(1)), chapterWord, ""));
-                purgeObject(scriptBucket, scriptPrefix+book+"/"+verse+".audioMerge");
-                purgeBucket(scriptBucket, scriptPrefix+book+"/"+chapterNum);
+                purgeObject(scriptBucket, scriptPrefix+StringUtils.remove(book, " ")+"/"+verse+".audioMerge");
+                purgeBucket(scriptBucket, scriptPrefix+StringUtils.remove(book, " ")+"/"+chapterNum);
                 String input = content.replace(chapterBreak, "");
                 pl_script = input;
                 sendToS3(input, book, chapterNum);
@@ -135,7 +135,7 @@ public class BibleAudio {
             String fileName = verse;
 
             AWSUtil.uploadS3Object( appProperties.getProperty("script_bucket"),
-                    appProperties.getProperty("script_prefix")+book,
+                    appProperties.getProperty("script_prefix")+StringUtils.remove(book, " "),
                     fileName+".audioMerge",
                     joinVerses(verse_to_merged),
                     tags
@@ -217,7 +217,7 @@ public class BibleAudio {
         Set<Map.Entry<String, String>> entries = chapters.entrySet();
         for( Map.Entry<String, String> entry : entries ){
             AWSUtil.uploadS3Object( appProperties.getProperty("script_bucket"),
-                    appProperties.getProperty("script_prefix")+book,
+                    appProperties.getProperty("script_prefix")+StringUtils.remove(book, " "),
                     entry.getKey()+".audioMerge",
                     entry.getValue()+",",
                     tags

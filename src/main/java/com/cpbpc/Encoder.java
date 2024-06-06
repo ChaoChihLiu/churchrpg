@@ -10,6 +10,11 @@ import java.util.regex.Pattern;
 public class Encoder {
 
     public static  void main(String args[]) throws IOException {
+
+        String replaced = "Balaam also the son of ";
+         replaced = replaced.replace("^" +"Balaam"+" ", " " + "test" + " ")  ;
+         System.out.println(replaced);
+
 //        System.out.println(URLEncoder.encode(ZhConverterUtil.toSimple("https://www.kepeklian.fr/mm.php")));
         System.out.println(URLEncoder.encode(ZhConverterUtil.toSimple("士")));
         System.out.println(URLEncoder.encode(ZhConverterUtil.toSimple("師")));
