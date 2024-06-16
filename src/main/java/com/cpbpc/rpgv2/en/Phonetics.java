@@ -52,17 +52,15 @@ public class Phonetics implements PhoneticIntf {
                 String completeForm = lookupCompleteForm(key);
 //                logger.info("complete form " + completeForm);
                 if (phonetic.get(key) != null && phonetic.get(key).getPaused()) {
-                    replaced = replaced.replace(" " +key+" ", " " + completeForm + " " + "[pause]") ;
-                    replaced = replaceWithAllowedPunc(replaced, key,  completeForm, true);
-
                     replaced = replaced.replace(" " +StringUtils.capitalize(key)+" ", " " + completeForm + " " + "[pause]") ;
-                    replaced = replaceWithAllowedPunc(replaced, StringUtils.capitalize(key),  completeForm, true);
+                    replaced = replaced.replace(" " +StringUtils.lowerCase(key)+" ", " " + completeForm + " " + "[pause]") ;
+                    replaced = replaceWithAllowedPunc(replaced, key,  completeForm, true);
+                    replaced = replaceWordStarting(replaced, key,  completeForm, true);
                 } else {
-                    replaced = replaced.replace(" " +key+" ", " " + completeForm + " ")  ;
-                    replaced = replaceWithAllowedPunc(replaced, key,  completeForm, false);
-
                     replaced = replaced.replace(" " +StringUtils.capitalize(key)+" ", " " + completeForm + " ")  ;
-                    replaced = replaceWithAllowedPunc(replaced, StringUtils.capitalize(key),  completeForm, false);
+                    replaced = replaced.replace(" " +StringUtils.lowerCase(key)+" ", " " + completeForm + " ")  ;
+                    replaced = replaceWithAllowedPunc(replaced, key,  completeForm, false);
+                    replaced = replaceWordStarting(replaced, key,  completeForm, false);
                 }
             }
         }
@@ -84,10 +82,30 @@ public class Phonetics implements PhoneticIntf {
             if( addPaused ){
                 completed += "[pause]";
             }
-            replaced = replaced.replace(" " +key+punc, completed);
+            replaced = replaced.replace(" " +StringUtils.capitalize(key)+punc, completed);
+            replaced = replaced.replace(" " +StringUtils.lowerCase(key)+punc, completed);
         }
 
         return replaced;
+    }
+
+    private String replaceWordStarting(String input, String key, String replacement, boolean addPaused){
+        String regex = "(?i)(^|\\.|\\?|!|\\n|\\r\\n)\\s*" + key + "\\b";
+        StringBuffer result = new StringBuffer();
+
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(input);
+
+        while (matcher.find()) {
+            matcher.appendReplacement(result, matcher.group().replaceFirst("(?i)" + key, replacement));
+
+        }
+        matcher.appendTail(result);
+
+        if( addPaused ){
+            result.append("[pause]");
+        }
+        return result.toString();
     }
 
     @Override

@@ -3,6 +3,9 @@ package com.cpbpc.comms;
 import com.amazonaws.services.s3.model.Tag;
 import org.apache.commons.lang3.StringUtils;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -218,6 +221,18 @@ public abstract class AbstractComposer {
             result += c;
         }
         return result;
+    }
+
+    protected String findWeekDay(String startDate) {
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate date = LocalDate.parse(startDate, formatter);
+        DayOfWeek dayOfWeek = date.getDayOfWeek();
+        if( StringUtils.equalsIgnoreCase(dayOfWeek.toString(), "Sunday") ){
+            return "Lord's day";
+        }
+
+        return dayOfWeek.toString();
     }
 
 }

@@ -56,8 +56,10 @@ public class Composer extends AbstractComposer {
         int scriptCounter = 1;
 
         StringBuilder buffer = new StringBuilder();
-
-        buffer.append(parser.readDate()).append(pause(200));
+        
+        buffer.append(findWeekDay(parser.getArticle().getStartDate()))
+                .append(parser.readDate())
+                .append(pause(200));
         buffer.append("Today's devotional is entitled").append(pause(200))
                 .append(processSentence(RomanNumeral.convert(parser.getTitle(), true), fixPronu)).append(pause(400))
         ;
@@ -127,7 +129,7 @@ public class Composer extends AbstractComposer {
 //        return "";
         return scripts;
     }
-    
+
 //    @Override
 //    private void sendToPolly(String content, String publishDate){
 //        logger.info("use.polly is " + Boolean.valueOf((String) appProperties.getOrDefault("use.polly", "true")));

@@ -13,9 +13,13 @@ import com.github.houbb.opencc4j.util.ZhConverterUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -83,7 +87,9 @@ public class Composer extends AbstractComposer {
         int scriptCounter = 1;
 
         StringBuilder result = new StringBuilder();
-        result.append(parser.readDate()).append(pause(200));
+        result.append(parser.readDate())
+                .append(findWeekDay(parser.getArticle().getStartDate()))
+                .append(pause(200));
         result.append("今日灵修题目").append(pause(200))
                 .append(processSentence(RomanNumeral.convert(parser.getTitle(), true), fixPronu)).append(pause(400))
         ;
@@ -198,5 +204,20 @@ public class Composer extends AbstractComposer {
             return replacePauseTag(phonetic.convert(replacePunctuationWithBreakTag(abbr.convert(input))));
         }
         return replacePauseTag(replacePunctuationWithBreakTag(abbr.convert(input)));
+    }
+
+    protected String findWeekDay(String startDate) {
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate date = LocalDate.parse(startDate, formatter);
+        DayOfWeek dayOfWeek = date.getDayOfWeek();
+
+//        DateTimeFormatter chineseFormatter = DateTimeFormatter.ofPattern("EEEE", Locale.CHINA);
+        String dayOfWeekInChinese = dayOfWeek.getDisplayName(java.time.format.TextStyle.FULL, Locale.CHINA);
+        if( StringUtils.contains(dayOfWeekInChinese, "日") || StringUtils.contains(dayOfWeekInChinese, "天") ){
+            return "主日";
+        }
+
+        return dayOfWeekInChinese;
     }
 }
