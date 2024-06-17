@@ -52,7 +52,7 @@ public class GenTelegramExcel {
     private static final String month = "07";
 
     private static final String language = "chinese";
-    private static final boolean isTest = false;
+    private static final boolean isTest = true;
 
     /*
     ✝️ 你们在基督里是完整的
@@ -267,7 +267,7 @@ public class GenTelegramExcel {
         List<String> result = new ArrayList<>();
         String content = dataRow.get("description");
         String summary = dataRow.get("summary");
-        int anchorPoint = content.indexOf(summary);
+        int anchorPoint = getAnchorPointAfterTitle(summary, content);
 
         String p = generateVersePattern();
         if (AppProperties.isChinese()) {
@@ -291,9 +291,46 @@ public class GenTelegramExcel {
         return StringUtils.join(result, "; ");
     }
 
+    private static Pattern buildTitlePattern(String title) {
+
+        StringBuilder builder = new StringBuilder("[<strong>]\\s{0,}");
+        for( char c : title.toCharArray() ){
+
+            if( c == '(' || c == ')' || c == '?' ){
+                builder.append('\\');
+            }
+
+            builder.append(c);
+            if( StringUtils.indexOf(title, c) == title.length()-1 ){
+                break;
+            }
+            builder.append("[</strong>|<br\\s{0,}/>|<strong>|</p>|<p[^>]*>]{0,}");
+        }
+
+        builder.append("\\s{0,}</strong>");
+
+        return Pattern.compile(builder.toString());
+    }
+    protected static int getAnchorPointAfterTitle(String summary, String content) {
+        String title = StringUtils.trim(summary);
+//        String content = PunctuationTool.changeFullCharacter(input);
+        if (StringUtils.isEmpty(title) || StringUtils.isEmpty(content)) {
+            return 0;
+        }
+        Pattern titlePattern = buildTitlePattern( title );
+        Matcher matcher = titlePattern.matcher(content);
+        while( matcher.find() ){
+            String result = matcher.group();
+            return StringUtils.indexOf(content, result) + result.length();
+        }
+
+        return 0;
+    }
+
     private static String generateTopicVersePattern() {
         //雅各书一章1节    使徒行传十二章1-2节  哥林多后书6章14-7章1节
         //诗篇一百二十七至一百二十八篇
+        //   诗篇二十八篇
         StringBuilder builder = new StringBuilder("((");
 
         Set<String> keySet = abbre.keySet();
