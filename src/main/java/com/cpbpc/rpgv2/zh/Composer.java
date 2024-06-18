@@ -218,6 +218,6 @@ public class Composer extends AbstractComposer {
             return "主日";
         }
 
-        return dayOfWeekInChinese;
+        return StringUtils.replace(dayOfWeekInChinese, "星期", "禮拜");
     }
 }
