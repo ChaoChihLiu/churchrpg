@@ -87,6 +87,16 @@ public class OpenAIUtil {
         return pinyin;
     }
 
+    public static List<String> suggestedIPA(String text) throws IOException {
+        String question = "could you give me ipa for '"+text+
+                "', and follow this pattern '[original word]:[ipa]' to organise your response?";
+
+        String response = createCompletions(question);
+        System.out.println(response);
+        List<String> pinyin = extractPinyin(response);
+        return pinyin;
+    }
+
     public static String summarise(String text) throws IOException {
         String question = "This is the content of Q n A, could you summarise the answer? Do keep Bible verses in summary if there has any"+text;
 //        String question = "could you tell me when is the Chinese New Year in 2024?";
@@ -160,7 +170,7 @@ public class OpenAIUtil {
         Map<String, Object> elements = new LinkedHashMap<>();
 //        elements.put("model", "gpt-3.5-turbo");
 //        elements.put("model", "gpt-3.5-turbo-instruct");
-        elements.put("model", "gpt-4");
+        elements.put("model", "gpt-4o");
 //        elements.put("model", "text-davinci-003");
 //        elements.put("prompt", text);
         List<Map<String, String>> list = new ArrayList<>();
