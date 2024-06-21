@@ -49,7 +49,7 @@ public class BibleAudio {
 
     public static void main(String args[]) throws IOException, InvalidFormatException, SQLException, InterruptedException {
         AppProperties.loadConfig(System.getProperty("app.properties",
-                                                    "/Users/liuchaochih/Documents/GitHub/churchrpg/src/main/resources/app-bibleplan-chinese.properties"));
+                                                    "/Users/liuchaochih/Documents/GitHub/churchrpg/src/main/resources/app-bibleplan-english.properties"));
         initStorage();
         isTest = Boolean.valueOf((String)appProperties.getOrDefault("isTest", "false"));
 
@@ -137,7 +137,7 @@ public class BibleAudio {
             AWSUtil.uploadS3Object( appProperties.getProperty("script_bucket"),
                     appProperties.getProperty("script_prefix")+StringUtils.remove(book, " "),
                     fileName+".audioMerge",
-                    joinVerses(verse_to_merged),
+                    StringUtils.remove(joinVerses(verse_to_merged), " "),
                     tags
             );
 
@@ -219,7 +219,7 @@ public class BibleAudio {
             AWSUtil.uploadS3Object( appProperties.getProperty("script_bucket"),
                     appProperties.getProperty("script_prefix")+StringUtils.remove(book, " "),
                     entry.getKey()+".audioMerge",
-                    entry.getValue()+",",
+                    StringUtils.remove(entry.getValue(), " ")+",",
                     tags
             );
         }
