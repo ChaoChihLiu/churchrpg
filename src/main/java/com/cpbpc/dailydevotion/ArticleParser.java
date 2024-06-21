@@ -181,7 +181,7 @@ public class ArticleParser extends AbstractArticleParser {
         Pattern pattern = getTopicPattern();
         Matcher matcher = pattern.matcher(input);
         if( matcher.find() ){
-            result = matcher.group(2);
+            result = matcher.group();
         }
 
         return StringUtils.trim(result);

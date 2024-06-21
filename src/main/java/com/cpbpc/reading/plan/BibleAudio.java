@@ -310,7 +310,7 @@ public class BibleAudio {
         if( isTest ){
             return;
         }
-        AWSUtil.putBibleScriptToS3(title, book, String.valueOf(chapterNum), "0");
+        AWSUtil.putBibleScriptToS3(phoneticIntf.convert(title), book, String.valueOf(chapterNum), "0");
 
         String[] verses = StringUtils.split(toBe, System.lineSeparator());
         int verseNum = 1;
