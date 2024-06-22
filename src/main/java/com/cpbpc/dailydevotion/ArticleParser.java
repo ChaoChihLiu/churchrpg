@@ -150,7 +150,7 @@ public class ArticleParser extends AbstractArticleParser {
 
     protected Pattern getTopicPattern() {
 //        return Pattern.compile("([“|\"]{0,})([A-Z\\s\\?,;:]*)([”|\"]{0,})");
-        return Pattern.compile("[A-Z\\s\\?,;:']+");
+        return Pattern.compile("[A-Z\\s\\?,;:'‘]+");
     }
     public String getTopic(){
         String result = "";
