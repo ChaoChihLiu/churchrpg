@@ -2,9 +2,11 @@ package com.cpbpc.rpgv2.en;
 
 import com.cpbpc.comms.AbbreIntf;
 import com.cpbpc.comms.ConfigObj;
+import com.cpbpc.comms.PunctuationTool;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,24 +35,43 @@ public class Abbreviation implements AbbreIntf {
         return "";
     }
 
-    private static String generatePattern() {
+    private static List<List<String>> splitSet(Set<String> set){
+        String[] arrayFromSet = set.toArray(new String[0]);
+        List<List<String>> list = new ArrayList<>();
+        int batchSize = 100;
+        for (int i = 0; i < arrayFromSet.length; i += batchSize) {
+            int endIndex = Math.min(i + batchSize, arrayFromSet.length);
+            String[] subArray = Arrays.copyOfRange(arrayFromSet, i, endIndex);
+            list.add( List.of(subArray) );
+        }
+
+        return list;
+    }
+
+    private static List<String> generatePattern() {
+        List<String> patterns = new ArrayList<>();
+
+        List<List<String>> keySet = splitSet(abbre.keySet());
 
 //        return "([\\s{1,}|,{1,}](e\\.{0,}g\\.{0,}|i\\.{0,}e\\.{0,}|etc\\.{0,}))([\\s{1,}|,{1,}])";
         StringBuilder builder = new StringBuilder("(");
 
-        Set<String> keySet = abbre.keySet();
-        for (String key : keySet) {
+        for (List<String> keys : keySet) {
+            for (String key : keys) {
 //            String newKey = key.trim().replace(".", "\\.{0,}");
-            String newKey = key.replace(".", "\\.");
+                String newKey = key.replace(".", "\\.");
 //            builder.append(newKey).append("|");
-            builder.append("(\\(|&nbsp;|\\s){1,}").append(newKey).append("(&nbsp;|\\s|\\)){1,}|");
-        }
-        if (builder.toString().endsWith("|")) {
-            builder.delete(builder.length() - 1, builder.length());
+                builder.append("(\\(|&nbsp;|\\s){0,}").append(newKey).append("(&nbsp;|\\s|\\)){0,}|");
+            }
+            if (builder.toString().endsWith("|")) {
+                builder.delete(builder.length() - 1, builder.length());
+            }
+
+            builder.append(")");
+            patterns.add(builder.toString());
         }
 
-        builder.append(")");
-        return builder.toString();
+        return patterns;
     }
 
     public void put(String shortForm, String completeForm, boolean isPaused) {
@@ -63,37 +84,73 @@ public class Abbreviation implements AbbreIntf {
             return content;
         }
 
-        String p = generatePattern();
-        logger.info(p);
-        Pattern r = Pattern.compile(p);
-        Matcher matcher = r.matcher(content);
-
-        List<String> finds = new ArrayList<>();
-        while (matcher.find()) {
-            finds.add(matcher.group(1));
-        }
-        logger.info("what is my finds : " + finds.toString());
-
         String replaced = content;
-        int start = 0;
-        for (String key : finds) {
-            key = StringUtils.trim(key).replace("(", "").replace(")", "");
-            if( !abbre.containsKey(key) ){
-                continue;
+        List<String> patterns = generatePattern();
+        for( String p : patterns ){
+            Pattern r = Pattern.compile(p);
+            Matcher matcher = r.matcher(content);
+
+            List<String> finds = new ArrayList<>();
+            while (matcher.find()) {
+                finds.add(matcher.group(1));
             }
-            String completeForm = lookupCompleteForm(key);
-            if( StringUtils.isEmpty(completeForm) ){
-                continue;
+            logger.info("what is my finds : " + finds.toString());
+            for (String key : finds) {
+                key = StringUtils.trim(key);
+                String completeForm = lookupCompleteForm(key);
+//                logger.info("complete form " + completeForm);
+                if (abbre.get(key) != null && abbre.get(key).getPaused()) {
+                    replaced = replaced.replace(" " +StringUtils.capitalize(key)+" ", " " + completeForm + " " + "[pause]") ;
+                    replaced = replaced.replace(" " +StringUtils.lowerCase(key)+" ", " " + completeForm + " " + "[pause]") ;
+                    replaced = replaceWithAllowedPunc(replaced, key,  completeForm, true);
+                    replaced = replaceWordStarting(replaced, key,  completeForm, true);
+                } else {
+                    replaced = replaced.replace(" " +StringUtils.capitalize(key)+" ", " " + completeForm + " ")  ;
+                    replaced = replaced.replace(" " +StringUtils.lowerCase(key)+" ", " " + completeForm + " ")  ;
+                    replaced = replaceWithAllowedPunc(replaced, key,  completeForm, false);
+                    replaced = replaceWordStarting(replaced, key,  completeForm, false);
+                }
             }
-            logger.info("complete form " + completeForm);
-            if (abbre.get(key).getPaused()) {
-                replaced = replaced.replace(key, completeForm + "<break time=\"200ms\"/>");
-            } else {
-                replaced = replaced.replace(key, completeForm);
+        }
+        return replaced;
+    }
+    private String replaceWithAllowedPunc(String input, String key, String replacement, boolean addPaused) {
+        String replaced = input;
+        List<String> allowedPuncs = PunctuationTool.getAllowedPunctuations();
+        allowedPuncs.add("?");
+        allowedPuncs.add("？");
+        allowedPuncs.add("!");
+        allowedPuncs.add("！");
+        allowedPuncs.add(".");
+
+        for( String punc : allowedPuncs ){
+            String completed = " " + replacement + punc;
+            if( addPaused ){
+                completed += "[pause]";
             }
+            replaced = replaced.replace(" " +StringUtils.capitalize(key)+punc, completed);
+            replaced = replaced.replace(" " +StringUtils.lowerCase(key)+punc, completed);
         }
 
         return replaced;
+    }
+    private String replaceWordStarting(String input, String key, String replacement, boolean addPaused){
+        String regex = "(?i)(^|\\.|\\?|!|\\n|\\r\\n)\\s*" + key + "\\b";
+        StringBuffer result = new StringBuffer();
+
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(input);
+
+        while (matcher.find()) {
+            matcher.appendReplacement(result, matcher.group().replaceFirst("(?i)" + key, replacement));
+
+        }
+        matcher.appendTail(result);
+
+        if( addPaused ){
+            result.append("[pause]");
+        }
+        return result.toString();
     }
 
     @Override

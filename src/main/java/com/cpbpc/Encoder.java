@@ -11,6 +11,8 @@ public class Encoder {
 
     public static  void main(String args[]) throws IOException {
 
+        System.out.println("A Saviour's work fulfil? Almighty is His pow'r, He can".replace("pow'r", "power"));
+
 //        String replaced = "Balaam also the son of ";
 //         replaced = replaced.replace("^" +"Balaam"+" ", " " + "test" + " ")  ;
 //         System.out.println(replaced);
