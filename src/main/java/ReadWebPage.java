@@ -6,7 +6,7 @@ public class ReadWebPage {
 
     public static void main(String[] args) {
 
-        Properties properties = AppProperties.readBibleMapping();
+        Properties properties = AppProperties.readEDZXBibleMapping();
 
 
 //        String url = "http://www.edzx.com/bible/read/?id=1&volume=66&chapter=1"; // Replace with the URL of the webpage you want to read

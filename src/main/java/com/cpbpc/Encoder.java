@@ -3,6 +3,7 @@ package com.cpbpc;
 import com.github.houbb.opencc4j.util.ZhConverterUtil;
 
 import java.io.IOException;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -23,7 +24,7 @@ public class Encoder {
         
 //        System.out.println(Integer.parseInt(StringUtils.substring("rpg/2024_06/arpg20240630-1.mp3", StringUtils.indexOf("rpg/2024_06/arpg20240630-1.mp3", "-")+1, StringUtils.indexOf("rpg/2024_06/arpg20240630-1.mp3", ".mp3"))));
 //
-//        System.out.println(URLDecoder.decode("%E8%AF%BB%E7%A5%B7%E9%95%BF"));
+        System.out.println(URLDecoder.decode("%E7%BA%A6%E5%A3%B9"));
 
 //        String htmlString = "<p>This is a <b>bold</b> &amp; <i>italic</i> text.</p>";
 //        String escapedHtml = StringEscapeUtils.unescapeHtml4(htmlString);

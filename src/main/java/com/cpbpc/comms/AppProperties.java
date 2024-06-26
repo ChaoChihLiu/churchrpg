@@ -70,13 +70,13 @@ public class AppProperties {
         }
     }
 
-    private static Properties bookMapping = new Properties();
-    public static Properties readBibleMapping(){
-        if( !bookMapping.isEmpty() ){
-            return bookMapping;
+    private static Properties urVersionBookMapping = new Properties();
+    public static Properties readurVersionBibleMapping(){
+        if( !urVersionBookMapping.isEmpty() ){
+            return urVersionBookMapping;
         }
 
-        try (InputStream input = AppProperties.class.getClassLoader().getResourceAsStream("bible-mapping.properties")) {
+        try (InputStream input = AppProperties.class.getClassLoader().getResourceAsStream("urVersion-mapping.properties")) {
             // Load properties from the InputStream
 //            bookMapping.load(input);
 
@@ -84,13 +84,36 @@ public class AppProperties {
             String line = null;
             while( (line = br.readLine()) != null ){
                 String result = URLDecoder.decode(line).trim();
-                bookMapping.put( result.substring(0, result.indexOf("=")), result.substring(result.indexOf("=")+1) );
+                urVersionBookMapping.put( result.substring(0, result.indexOf("=")), result.substring(result.indexOf("=")+1) );
             }
 
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return bookMapping;
+        return urVersionBookMapping;
+    }
+
+    private static Properties edzxBookMapping = new Properties();
+    public static Properties readEDZXBibleMapping(){
+        if( !edzxBookMapping.isEmpty() ){
+            return edzxBookMapping;
+        }
+
+        try (InputStream input = AppProperties.class.getClassLoader().getResourceAsStream("edzx-mapping.properties")) {
+            // Load properties from the InputStream
+//            bookMapping.load(input);
+
+            BufferedReader br = new BufferedReader(new InputStreamReader(input));
+            String line = null;
+            while( (line = br.readLine()) != null ){
+                String result = URLDecoder.decode(line).trim();
+                edzxBookMapping.put( result.substring(0, result.indexOf("=")), result.substring(result.indexOf("=")+1) );
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return edzxBookMapping;
     }
 
     public static Properties getConfig() {

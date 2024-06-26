@@ -2,6 +2,7 @@ package com.cpbpc.rpgv2.zh;
 
 
 import com.cpbpc.comms.AppProperties;
+import com.cpbpc.comms.PunctuationTool;
 import com.cpbpc.comms.TextUtil;
 import com.github.houbb.opencc4j.util.ZhConverterUtil;
 import org.apache.commons.lang3.StringEscapeUtils;
@@ -35,6 +36,7 @@ public class BibleVerseGrab {
     private static final String[] hyphens_unicode = new String[]{"\\u002d", "\\u2010", "\\u2011", "\\u2012", "\\u2013", "\\u2015", "\\u2212"};
     private static Map<String, String> textCacheBGW = new HashMap<>();
     private static Map<String, String> textCacheEDZX = new HashMap<>();
+    private static Map<String, String> textCacheUrVersion = new HashMap<>();
 
     private static boolean containHyphen(String verseStr) {
 
@@ -88,7 +90,8 @@ public class BibleVerseGrab {
         //        String verseStr = "三十二篇7-9节";
 //        String verseStr = "31篇7,11节";
 //        String verseStr = "三章7-9节";
-        String book = "民数记";
+//        String book = "民数记";
+        String book = "申命記";
 //        String book = "羅馬書";
 //        String book = "列王纪上";
 //        String verseStr = "三十二篇1节-三十六篇";
@@ -98,7 +101,7 @@ public class BibleVerseGrab {
 //        String verseStr = "三十四篇-三十六篇";
 //        String verseStr = "一百二十七至一百二十八篇";
 //        String verseStr = "十二章";
-        String verseStr = "15章38節";
+        String verseStr = "28章57到60節";
         System.out.println(grab(book, verseStr));
     }
 
@@ -250,15 +253,17 @@ public class BibleVerseGrab {
                 if (StringUtils.isEmpty(result)) {
                     continue;
                 }
-                buffer
+                if( !StringUtils.containsAnyIgnoreCase(buffer.toString(), result) ){
+                    buffer
 //                        .append(verseNum).append("節")
 //                        .append("[pause]")
-                        .append(result).append(System.lineSeparator());
+                            .append(result).append(System.lineSeparator());
+                }
             }
         }
 
         String result = buffer.toString();
-        return changeFullCharacter(result);
+        return PunctuationTool.replacePauseTag(changeFullCharacter(result));
     }
 
     private static String recurBibleVerse(String grabResult, String book, int chapter, int verse, String chapterBreak) throws IOException {
@@ -274,10 +279,12 @@ public class BibleVerseGrab {
             }
             return buffer.toString();
         }
-        buffer
+        if( !StringUtils.containsAnyIgnoreCase(buffer.toString(), response) ){
+            buffer
 //                .append(verse).append("節")
 //                .append("[pause]")
-                .append(response).append(System.lineSeparator());
+                    .append(response).append(System.lineSeparator());
+        }
 
         int i = verse + 1;
         return recurBibleVerse(buffer.toString(), book, chapter, i, chapterBreak);
@@ -285,13 +292,45 @@ public class BibleVerseGrab {
 
     private static String grabBibleVerse(String book, int chapter, int verse) throws IOException {
 
-        String result = grabBibleVerseFromEDZX(book, chapter, verse);
+        String result = grabBibleVerseFromUrVersion(book, chapter, verse);
         if( StringUtils.isEmpty(result) ){
-        result = grabBibleVerseFromBGW(book, chapter, verse);
-    }
+            result = grabBibleVerseFromEDZX(book, chapter, verse);
+        }
+        if( StringUtils.isEmpty(result) ){
+            result = grabBibleVerseFromBGW(book, chapter, verse);
+            if( StringUtils.equalsIgnoreCase(StringUtils.trim(result), "a") ){
+                result = PunctuationTool.getPauseTag(100);
+            }
+        }
 
         return result;
+    }
 
+    private static String grabBibleVerseFromUrVersion(String book, int chapter, int verse) throws IOException {
+        String bookChapter = book + chapter;
+        String text = "";
+        Properties bookMapping = AppProperties.readurVersionBibleMapping();
+        if (textCacheUrVersion.containsKey(bookChapter)) {
+            text = textCacheUrVersion.get(bookChapter);
+        } else {
+            text = readFromUrVersion(bookMapping.getProperty(ZhConverterUtil.toSimple(book)), chapter);
+            textCacheUrVersion.put(bookChapter, text);
+        }
+
+        List<String> versePatterns = createVersePatternUrVersion(bookMapping.getProperty(ZhConverterUtil.toSimple(book)), chapter, verse);
+        String result = "";
+        for( String versePattern : versePatterns ){
+            Pattern p = Pattern.compile(versePattern);
+            Matcher matcher = p.matcher(text);
+            if (!matcher.find()) {
+                continue;
+            }
+            int groupId = 1;
+            logger.info(matcher.group(groupId));
+            result = ZhConverterUtil.toSimple(StringUtils.remove(removeHtmlTag(matcher.group(groupId)), " "));
+            result = result.replaceAll("^\\d+[-\\d]+", "");
+        }
+        return StringUtils.trim(result);
     }
 
     private static String grabBibleVerseFromBGW(String book, int chapter, int verse) throws IOException {
@@ -323,7 +362,7 @@ public class BibleVerseGrab {
         if (textCacheEDZX.containsKey(bookChapter)) {
             text = textCacheEDZX.get(bookChapter);
         } else {
-            Properties bookMapping = AppProperties.readBibleMapping();
+            Properties bookMapping = AppProperties.readEDZXBibleMapping();
             text = readFromEDZX(Integer.valueOf(bookMapping.getProperty(ZhConverterUtil.toSimple(book))), chapter);
             textCacheEDZX.put(bookChapter, text);
         }
@@ -368,6 +407,16 @@ public class BibleVerseGrab {
     private static String createVersePatternEDZX(int chapterNumber, int verseNumber) {
         return "<td>"+chapterNumber+":"+verseNumber+"</td>\\s*<td>\\s*<div\\s+class=\"verse_list\">\\s*([^<]+)\\s*</div>\\s*</td>";
     }
+    
+    private static List<String> createVersePatternUrVersion(String bookAbbre, int chapterNumber, int verseNumber) {
+        List<String> patterns = new ArrayList<>();
+        String combination = bookAbbre+"."+chapterNumber+"."+verseNumber;
+        String nextCombination = bookAbbre+"."+chapterNumber+"."+(verseNumber+1);
+        String next2Combination = bookAbbre+"."+chapterNumber+"."+(verseNumber+2);
+        patterns.add("<span data-usfm=\\\""+combination+"\\\" class=\\\"ChapterContent_verse__57FIw\\\">(.*?)<span data-usfm=\\\""+nextCombination);
+        patterns.add("<span data-usfm=\\\""+combination+"\\+"+nextCombination+"\\\" class=\\\"ChapterContent_verse__57FIw\\\">(.*?)<span data-usfm=\\\""+next2Combination);
+        return patterns;
+    }
 
     private static String readFromInternet(String url) throws IOException {
         URL obj = new URL(url);
@@ -385,6 +434,13 @@ public class BibleVerseGrab {
         String html = response.toString();
 //        System.out.println(html);
 
+        return html;
+    }
+
+    private static String readFromUrVersion(String bookName, int chapterNumber) throws IOException {
+
+        String url = "https://www.bible.com/bible/46/"+bookName+"."+chapterNumber+".CUNP-%25E7%25A5%259E";
+        String html = readFromInternet(url);
         return html;
     }
 
