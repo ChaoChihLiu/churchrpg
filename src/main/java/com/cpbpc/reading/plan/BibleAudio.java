@@ -1,6 +1,5 @@
 package com.cpbpc.reading.plan;
 
-import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.amazonaws.services.s3.model.Tag;
 import com.cpbpc.comms.AWSUtil;
 import com.cpbpc.comms.AbbreIntf;
@@ -24,6 +23,7 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -244,20 +244,35 @@ public class BibleAudio {
         return true;
     }
 
-    private static boolean isThisChapterDone(String book, int chapter, int numberOfVerse) {
+    private static boolean isThisChapterDone(String book, int chapter, int numberOfVerse)  {
         logger.info("test output prefix " + appProperties.getProperty("output_prefix")+StringUtils.remove(book, " ")
                 +"/"+chapter+"/");
-        List<S3ObjectSummary> summaries = AWSUtil.listS3Objects(appProperties.getProperty("output_bucket"),
-                                                                appProperties.getProperty("output_prefix")+StringUtils.remove(book, " ")+"/"+chapter+"/");
+//        List<S3ObjectSummary> summaries = AWSUtil.listS3Objects(appProperties.getProperty("output_bucket"),
+//                                                                appProperties.getProperty("output_prefix")+StringUtils.remove(book, " ")+"/"+chapter+"/");
 
-        int count = 0;
-        for( S3ObjectSummary summary : summaries ){
-            if( StringUtils.endsWith(summary.getKey(), appProperties.getProperty("output_format")) ){
-                count++;
+//        int count = 0;
+//        for( S3ObjectSummary summary : summaries ){
+//            if( StringUtils.endsWith(summary.getKey(), appProperties.getProperty("output_format")) ){
+//                count++;
+//            }
+//        }
+//
+//        return count == numberOfVerse;
+        Date uploadTime = new Date();
+        String prefix = appProperties.getProperty("output_prefix")+StringUtils.remove(book, " ")+"/"+chapter+"/";
+        try {
+            for (int i = 0; i <= numberOfVerse; i++) {
+                String objectKey = prefix + i + ".mp3";
+                logger.info("prefix " + prefix);
+                logger.info("object key " + objectKey);
+                AWSUtil.waitUntilObjectReady(appProperties.getProperty("output_bucket"), prefix, objectKey, uploadTime);
             }
+        }catch (InterruptedException e){
+            logger.info(e.getMessage());
+            return false;
         }
 
-        return count == numberOfVerse;
+        return true;
     }
 
     private static List<String> analyseVerse(String verse) {
