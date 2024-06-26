@@ -261,7 +261,7 @@ public class BibleAudio {
         Date uploadTime = new Date();
         String prefix = appProperties.getProperty("output_prefix")+StringUtils.remove(book, " ")+"/"+chapter+"/";
         try {
-            for (int i = 0; i <= numberOfVerse; i++) {
+            for (int i = 0; i < numberOfVerse; i++) {
                 String objectKey = prefix + i + ".mp3";
                 logger.info("prefix " + prefix);
                 logger.info("object key " + objectKey);
