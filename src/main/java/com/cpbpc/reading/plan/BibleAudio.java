@@ -117,8 +117,10 @@ public class BibleAudio {
             }
 
 //            pl_script = PunctuationTool.replacePauseTag(pl_script, "");
+            int sleepCounter = 1;
             while( !isTest && !isAllAudioDone(verseCount) ){
-                Thread.sleep(10*1000);
+                Thread.sleep(sleepCounter*10*1000);
+                sleepCounter++;
             }
 
             List<Tag> tags = new ArrayList<>();
@@ -244,7 +246,6 @@ public class BibleAudio {
 
     private static boolean isThisChapterDone(String book, int chapter, int numberOfVerse) {
         logger.info("test output prefix " + appProperties.getProperty("output_prefix")+StringUtils.remove(book, " ")
-
                 +"/"+chapter+"/");
         List<S3ObjectSummary> summaries = AWSUtil.listS3Objects(appProperties.getProperty("output_bucket"),
                                                                 appProperties.getProperty("output_prefix")+StringUtils.remove(book, " ")+"/"+chapter+"/");
