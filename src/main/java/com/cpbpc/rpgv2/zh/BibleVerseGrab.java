@@ -91,9 +91,9 @@ public class BibleVerseGrab {
 //        String verseStr = "31篇7,11节";
 //        String verseStr = "三章7-9节";
 //        String book = "民数记";
-        String book = "申命記";
+//        String book = "申命記";
 //        String book = "羅馬書";
-//        String book = "列王纪上";
+        String book = "列王纪上";
 //        String verseStr = "三十二篇1节-三十六篇";
 //        String verseStr = "十八章41至十九章7节";
 //        String verseStr = "三十四篇7-9节";
@@ -101,7 +101,7 @@ public class BibleVerseGrab {
 //        String verseStr = "三十四篇-三十六篇";
 //        String verseStr = "一百二十七至一百二十八篇";
 //        String verseStr = "十二章";
-        String verseStr = "28章57到60節";
+        String verseStr = "1章";
         System.out.println(grab(book, verseStr));
     }
 
@@ -328,7 +328,7 @@ public class BibleVerseGrab {
             int groupId = 1;
             logger.info(matcher.group(groupId));
             result = ZhConverterUtil.toSimple(StringUtils.remove(removeHtmlTag(matcher.group(groupId)), " "));
-            result = result.replaceAll("^\\d+[-\\d]+", "");
+            result = result.replaceAll("^\\d+[-\\d]{0,}", "");
         }
         return StringUtils.trim(result);
     }
