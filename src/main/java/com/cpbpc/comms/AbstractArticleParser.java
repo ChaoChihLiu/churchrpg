@@ -37,6 +37,7 @@ public abstract class AbstractArticleParser {
     public AbstractArticleParser(Article article) {
         this.article = article;
         this.content = changeFullCharacter(ZhConverterUtil.toSimple(article.getContent()));
+        this.content = this.content.replaceAll("\\.\\.\\.", ".").replaceAll("\\.\\.", ".");
         this.title = changeFullCharacter(ZhConverterUtil.toSimple(article.getTitle()));
         if( AppProperties.isChinese() ){
             this.title = StringUtils.remove(this.title, " ");
