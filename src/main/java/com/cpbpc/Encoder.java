@@ -12,16 +12,16 @@ public class Encoder {
 
     public static  void main(String args[]) throws IOException {
 
-        String content = "134-1234 大卫王年纪老迈，虽用被遮盖，仍不觉暖。";
-//        System.out.println(content.replaceAll("\\.\\.\\.", ".").replaceAll("\\.\\.", "."));
-        System.out.println(content.replaceAll("^\\d+[-\\d]{0,}", ""));
+//        String content = "134-1234 大卫王年纪老迈，虽用被遮盖，仍不觉暖。";
+////        System.out.println(content.replaceAll("\\.\\.\\.", ".").replaceAll("\\.\\.", "."));
+//        System.out.println(content.replaceAll("^\\d+[-\\d]{0,}", ""));
 
 //        String replaced = "Balaam also the son of ";
 //         replaced = replaced.replace("^" +"Balaam"+" ", " " + "test" + " ")  ;
 //         System.out.println(replaced);
 
 //        System.out.println(URLEncoder.encode(ZhConverterUtil.toSimple("https://www.kepeklian.fr/mm.php")));
-        System.out.println(URLEncoder.encode(ZhConverterUtil.toSimple("王上")));
+        System.out.println(URLEncoder.encode(ZhConverterUtil.toSimple("约")));
 
         
 //        System.out.println(Integer.parseInt(StringUtils.substring("rpg/2024_06/arpg20240630-1.mp3", StringUtils.indexOf("rpg/2024_06/arpg20240630-1.mp3", "-")+1, StringUtils.indexOf("rpg/2024_06/arpg20240630-1.mp3", ".mp3"))));
@@ -43,17 +43,17 @@ public class Encoder {
 //        ssh -L 3306:localhost:3306 tc.george@dst.com.bn@sshbastion1.ams-dst.com
 //        ssh -L 3306:stack-8zctttqoyu8qkvjgp-rdsinstance-w4dyk0s0uosq.ci4ubilvqzsx.ap-southeast-1.rds.amazonaws.com:3306 tc.george@dst.com.bn@sshbastion1.ams-dst.com -N
 
-        for( int i = 1; i<= 24; i++ ){
+        for( int i = 1; i<= 31; i++ ){
             String num = String.valueOf(i);
 //            if( i<10 ){
 //                num = "0"+String.valueOf(i);
 //            }
 //            System.out.println("https://cpbpc-tts.s3.ap-southeast-1.amazonaws.com/remembrance/December/dr_December_"+num+"_Morning.mp3");
 //            System.out.println("https://cpbpc-tts.s3.ap-southeast-1.amazonaws.com/remembrance/December/dr_December_"+num+"_Evening.mp3");
-//            System.out.println("https://cpbpc-bible-reading-plan.s3.ap-southeast-1.amazonaws.com/kjv/Deut"+i+".mp3");
-            System.out.println("https://cpbpc-bible-reading-plan.s3.ap-southeast-1.amazonaws.com/cuvs/%E6%92%92%E4%B8%8B"+i+".mp3");
-//            System.out.println("https://cpbpc-rpg-audio.s3.ap-southeast-1.amazonaws.com/rpg/2024_08/arpg202408"+num+".mp3");
-//            System.out.println("https://cpbpc-rpg-audio.s3.ap-southeast-1.amazonaws.com/rpg-chinese/2024_07/crpg202407"+num+".mp3");
+//            System.out.println("https://cpbpc-bible-reading-plan.s3.ap-southeast-1.amazonaws.com/kjv/2Kgs"+i+".mp3");
+//            System.out.println("https://cpbpc-bible-reading-plan.s3.ap-southeast-1.amazonaws.com/cuvs/%E7%8E%8B%E4%B8%8B"+i+".mp3");
+            System.out.println("https://cpbpc-rpg-audio.s3.ap-southeast-1.amazonaws.com/rpg/2024_09/arpg202409"+num+".mp3");
+//            System.out.println("https://cpbpc-rpg-audio.s3.ap-southeast-1.amazonaws.com/rpg-chinese/2024_09/crpg202409"+num+".mp3");
         }
 
 //        for( int i=1; i<=50; i++ ){
@@ -77,10 +77,10 @@ public class Encoder {
 
         String text = "This is a <test> string with some words that should not match. Another example <tag>Word</tag> is given.";
         Pattern pattern = Pattern.compile("(?<![<>])(Word)+(?![<>])");
-        Matcher matcher = pattern.matcher(text);
+        Matcher m = pattern.matcher(text);
 
-        while (matcher.find()) {
-            System.out.println(matcher.group());
+        while (m.find()) {
+            System.out.println(m.group());
         }
 
         // Specify the access point ARN
