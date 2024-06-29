@@ -69,7 +69,7 @@ public abstract class AbstractArticleParser {
                 parser = new com.cpbpc.rpgv2.zh.ArticleParser(new Article("2024-07-14", content, "在基督里的真正福气：为基督的缘故受逼迫", "", 1));
                 composer = new com.cpbpc.rpgv2.zh.Composer(parser);
             } else{
-                parser = new com.cpbpc.rpgv2.en.ArticleParser(new Article("2024-08-22", content,  "PROVIDENCE, CHOICES, AND FAMILY LIFE (18)", "", 1));
+                parser = new com.cpbpc.rpgv2.en.ArticleParser(new Article("2024-08-22", content,  "LESSONS ON PROVIDENCE (4)", "", 1));
                 composer = new com.cpbpc.rpgv2.en.Composer(parser);
             }
 
