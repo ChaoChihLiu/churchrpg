@@ -292,10 +292,11 @@ public class BibleVerseGrab {
 
     private static String grabBibleVerse(String book, int chapter, int verse) throws IOException {
 
-        String result = grabBibleVerseFromUrVersion(book, chapter, verse);
-        if( StringUtils.isEmpty(result) ){
-            result = grabBibleVerseFromEDZX(book, chapter, verse);
-        }
+//        String result = grabBibleVerseFromUrVersion(book, chapter, verse);
+//        if( StringUtils.isEmpty(result) ){
+//            result = grabBibleVerseFromEDZX(book, chapter, verse);
+//        }
+        String result = grabBibleVerseFromEDZX(book, chapter, verse);
         if( StringUtils.isEmpty(result) ){
             result = grabBibleVerseFromBGW(book, chapter, verse);
             if( StringUtils.equalsIgnoreCase(StringUtils.trim(result), "a") ){
