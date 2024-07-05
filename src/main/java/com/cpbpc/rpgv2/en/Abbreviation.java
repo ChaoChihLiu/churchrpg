@@ -103,7 +103,7 @@ public class Abbreviation implements AbbreIntf {
                     replaced = replaced.replace(" " +StringUtils.capitalize(key)+" ", " " + completeForm + " " + "[pause]") ;
                     replaced = replaced.replace(" " +StringUtils.lowerCase(key)+" ", " " + completeForm + " " + "[pause]") ;
                     replaced = replaceWithAllowedPunc(replaced, key,  completeForm, true);
-                    replaced = replaceWordStarting(replaced, key,  completeForm, true);
+                    replaced = replaceWordStarting(replaced, key,  completeForm, false);
                 } else {
                     replaced = replaced.replace(" " +StringUtils.capitalize(key)+" ", " " + completeForm + " ")  ;
                     replaced = replaced.replace(" " +StringUtils.lowerCase(key)+" ", " " + completeForm + " ")  ;
@@ -143,13 +143,12 @@ public class Abbreviation implements AbbreIntf {
 
         while (matcher.find()) {
             matcher.appendReplacement(result, matcher.group().replaceFirst("(?i)" + key, replacement));
-
         }
         matcher.appendTail(result);
 
-        if( addPaused ){
-            result.append("[pause]");
-        }
+//        if( addPaused ){
+//            result.append("[pause]");
+//        }
         return result.toString();
     }
 

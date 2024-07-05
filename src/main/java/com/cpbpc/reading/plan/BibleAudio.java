@@ -40,7 +40,7 @@ import static com.cpbpc.comms.TextUtil.returnChapterWord;
 
 public class BibleAudio {
     private static Logger logger = Logger.getLogger(BibleAudio.class.getName());
-    private static Boolean isTest = true;
+    private static Boolean isTest = false;
 
     public BibleAudio(){
     }
@@ -49,7 +49,7 @@ public class BibleAudio {
 
     public static void main(String args[]) throws IOException, InvalidFormatException, SQLException, InterruptedException {
         AppProperties.loadConfig(System.getProperty("app.properties",
-                                                    "/Users/liuchaochih/Documents/GitHub/churchrpg/src/main/resources/app-bibleplan-chinese.properties"));
+                                                    "/Users/liuchaochih/Documents/GitHub/churchrpg/src/main/resources/app-bibleplan-english.properties"));
         initStorage();
         isTest = Boolean.valueOf((String)appProperties.getOrDefault("isTest", "false"));
 
@@ -319,7 +319,8 @@ public class BibleAudio {
         PhoneticIntf phoneticIntf = ThreadStorage.getPhonetics();
         AbbreIntf abbreIntf = ThreadStorage.getAbbreviation();
         String toBe = replacePauseTag(PunctuationTool.replaceBiblePunctuationWithBreakTag(content));
-        toBe = phoneticIntf.convert(abbreIntf.convert(toBe));
+        toBe = abbreIntf.convert(toBe);
+        toBe = phoneticIntf.convert(toBe);
 
         String title = breakNewLine(wrapTTS(PunctuationTool.pause(800) + generateTitleAudio(book, chapterNum) + PunctuationTool.pause(800)));
 

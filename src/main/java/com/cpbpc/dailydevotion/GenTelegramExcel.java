@@ -47,7 +47,7 @@ public class GenTelegramExcel {
     private static final Properties appProperties = AppProperties.getConfig();
 
     private static final String year = "2024";
-    private static final String month = "07";
+    private static final String month = "09";
 
     private static final boolean isTest = false;
 
@@ -105,20 +105,43 @@ public class GenTelegramExcel {
         for (Map<String, String> dataRow : rows) {
             int rowNumber = rows.indexOf(dataRow);
             Row row = sheet.createRow(rowNumber);
-            Cell cell = row.createCell(0);
 
-            RichTextString richText = creationHelper.createRichTextString(
+            String audioLink = shortenURL(genAudioLink(dataRow), isTest);
+            String textLink = shortenURL(genArticleLink(dataRow), isTest);
+
+            Cell cell = row.createCell(0);
+            RichTextString richText = creationHelper.createRichTextString(dataRow.get("date"));
+            cell.setCellValue(richText);
+            CellStyle cellStyle = workbook.createCellStyle();
+            cellStyle.setWrapText(true);
+            cell.setCellStyle(cellStyle);
+
+            cell = row.createCell(1);
+            richText = creationHelper.createRichTextString(
                             getTimingEmoji(getTiming(dataRow)) + " " + getTiming(dataRow) + "\n" +
                             "\uD83D\uDCAD" + " " + getTopic(dataRow) + "\n" +
                             "\uD83D\uDCD6" + "“" + getTheme(dataRow) + "” (" + grepThemeVerses(dataRow) + ")\n" +
                             "\n" +
-                            "\uD83D\uDDE3" + " " + shortenURL(genAudioLink(dataRow), isTest) + "\n" +
+                            "\uD83D\uDDE3" + " " + audioLink + "\n" +
                             "\n" +
-                            "\uD83D\uDCDD" + " " + shortenURL(genArticleLink(dataRow), isTest)
+                            "\uD83D\uDCDD" + " " + textLink
             );
             cell.setCellValue(richText);
-            CellStyle cellStyle = workbook.createCellStyle();
-//            cellStyle.setFont(boldFont);
+            cellStyle = workbook.createCellStyle();
+            cellStyle.setWrapText(true);
+            cell.setCellStyle(cellStyle);
+
+            cell = row.createCell(2);
+            richText = creationHelper.createRichTextString(genArticleLink(dataRow));
+            cell.setCellValue(richText);
+            cellStyle = workbook.createCellStyle();
+            cellStyle.setWrapText(true);
+            cell.setCellStyle(cellStyle);
+
+            cell = row.createCell(3);
+            richText = creationHelper.createRichTextString(genAudioLink(dataRow));
+            cell.setCellValue(richText);
+            cellStyle = workbook.createCellStyle();
             cellStyle.setWrapText(true);
             cell.setCellStyle(cellStyle);
         }
