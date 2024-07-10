@@ -253,12 +253,12 @@ public class BibleVerseGrab {
                 if (StringUtils.isEmpty(result)) {
                     continue;
                 }
-                if( !StringUtils.containsAnyIgnoreCase(buffer.toString(), result) ){
+//                if( !StringUtils.containsAnyIgnoreCase(buffer.toString(), result) ){
                     buffer
 //                        .append(verseNum).append("節")
 //                        .append("[pause]")
                             .append(result).append(System.lineSeparator());
-                }
+//                }
             }
         }
 
@@ -296,12 +296,12 @@ public class BibleVerseGrab {
 //        if( StringUtils.isEmpty(result) ){
 //            result = grabBibleVerseFromEDZX(book, chapter, verse);
 //        }
-        String result = grabBibleVerseFromBGW(book, chapter, verse);
-        if( StringUtils.equalsIgnoreCase(StringUtils.trim(result), "a") ){
-            result = PunctuationTool.getPauseTag(100);
-        }
+        String result = grabBibleVerseFromEDZX(book, chapter, verse);
         if( StringUtils.isEmpty(result) ){
-            result = grabBibleVerseFromEDZX(book, chapter, verse);
+            result = grabBibleVerseFromBGW(book, chapter, verse);
+            if( StringUtils.equalsIgnoreCase(StringUtils.trim(result), "a") ){
+                result = PunctuationTool.getPauseTag(100);
+            }
         }
 
         return result;
