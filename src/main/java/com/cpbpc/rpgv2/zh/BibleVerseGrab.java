@@ -279,12 +279,12 @@ public class BibleVerseGrab {
             }
             return buffer.toString();
         }
-        if( !StringUtils.containsAnyIgnoreCase(buffer.toString(), response) ){
+//        if( !StringUtils.containsAnyIgnoreCase(buffer.toString(), response) ){
             buffer
 //                .append(verse).append("節")
 //                .append("[pause]")
                     .append(response).append(System.lineSeparator());
-        }
+//        }
 
         int i = verse + 1;
         return recurBibleVerse(buffer.toString(), book, chapter, i, chapterBreak);
