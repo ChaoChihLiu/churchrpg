@@ -296,12 +296,12 @@ public class BibleVerseGrab {
 //        if( StringUtils.isEmpty(result) ){
 //            result = grabBibleVerseFromEDZX(book, chapter, verse);
 //        }
-        String result = grabBibleVerseFromEDZX(book, chapter, verse);
+        String result = grabBibleVerseFromBGW(book, chapter, verse);
+        if( StringUtils.equalsIgnoreCase(StringUtils.trim(result), "a") ){
+            result = PunctuationTool.getPauseTag(100);
+        }
         if( StringUtils.isEmpty(result) ){
-            result = grabBibleVerseFromBGW(book, chapter, verse);
-            if( StringUtils.equalsIgnoreCase(StringUtils.trim(result), "a") ){
-                result = PunctuationTool.getPauseTag(100);
-            }
+            result = grabBibleVerseFromEDZX(book, chapter, verse);
         }
 
         return result;
