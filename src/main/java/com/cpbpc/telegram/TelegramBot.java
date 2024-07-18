@@ -1,5 +1,7 @@
 package com.cpbpc.telegram;
 
+import com.cpbpc.comms.SecretUtil;
+
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -15,10 +17,10 @@ public class TelegramBot {
     public static void main(String[] args) throws GeneralSecurityException, IOException {
 
         TelegramBot bot = new TelegramBot();
-        GoogleCalendar googleCalendar = new GoogleCalendar();
+//        GoogleCalendar googleCalendar = new GoogleCalendar();
 //        bot.createRPGMsg("<strong>test html code here:</strong><a href='https://calvarypandan.sg/resources/rpg/calendar/eventdetail/68932/86/gideon-iv'><strong>Adult RPG</strong></a>");
-//        bot.createRPGMsg("<b>TEST HTML</b>");
-        bot.createRPGMsg(googleCalendar.getContent());
+        bot.createRPGMsg("<b>TEST HTML</b>");
+//        bot.createRPGMsg(googleCalendar.getContent());
     }
 
     public void createRPGMsg(String input) {
@@ -43,7 +45,7 @@ public class TelegramBot {
         byte[] postData = postMsg.getBytes(StandardCharsets.UTF_8);
         int postDataLength = postData.length;
         logger.info("data length: " + postDataLength);
-        String request = "https://api.telegram.org/bot5779840317:AAE84-drclh_Utfa4QCqfm07i0egvBP0P1M/sendMessage";
+        String request = "https://api.telegram.org/bot"+ SecretUtil.getTelegramBotKey() +"/sendMessage";
         try {
             URL url = new URL(request);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();

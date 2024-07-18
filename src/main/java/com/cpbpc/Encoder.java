@@ -48,8 +48,8 @@ public class Encoder {
 //            if( i<10 ){
 //                num = "0"+String.valueOf(i);
 //            }
-            System.out.println("https://cpbpc-tts.s3.ap-southeast-1.amazonaws.com/remembrance/January/dr_January_"+num+"_Morning.mp3");
-            System.out.println("https://cpbpc-tts.s3.ap-southeast-1.amazonaws.com/remembrance/January/dr_January_"+num+"_Evening.mp3");
+            System.out.println("https://cpbpc-tts.s3.ap-southeast-1.amazonaws.com/remembrance/June/dr_June_"+num+"_Morning.mp3");
+            System.out.println("https://cpbpc-tts.s3.ap-southeast-1.amazonaws.com/remembrance/June/dr_June_"+num+"_Evening.mp3");
 //            System.out.println("https://cpbpc-bible-reading-plan.s3.ap-southeast-1.amazonaws.com/kjv/2Kgs"+i+".mp3");
 //            System.out.println("https://cpbpc-bible-reading-plan.s3.ap-southeast-1.amazonaws.com/cuvs/%E7%8E%8B%E4%B8%8B"+i+".mp3");
 //            System.out.println("https://cpbpc-rpg-audio.s3.ap-southeast-1.amazonaws.com/rpg/2024_09/arpg202409"+num+".mp3");

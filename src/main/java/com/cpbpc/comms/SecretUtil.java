@@ -28,4 +28,7 @@ public class SecretUtil {
     public static String getAzureSpeechKey() {
         return secrets.getProperty("azure_speech_api_key");
     }
+    public static String getTelegramBotKey(){
+        return secrets.getProperty("telemgram_bot_api_key");
+    }
 }
