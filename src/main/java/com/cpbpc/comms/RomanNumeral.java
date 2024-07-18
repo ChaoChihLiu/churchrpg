@@ -1,5 +1,7 @@
 package com.cpbpc.comms;
 
+import software.amazon.awssdk.utils.StringUtils;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -26,6 +28,15 @@ public enum RomanNumeral {
 
     RomanNumeral(int value) {
         this.value = value;
+    }
+
+    public static boolean isRomanNumeral(String s){
+        for( RomanNumeral r : RomanNumeral.values() ){
+            if(StringUtils.equals(r.name(), s) ){
+                return true;
+            }
+        }
+        return false;
     }
 
     public static List<RomanNumeral> getReverseSortedValues() {

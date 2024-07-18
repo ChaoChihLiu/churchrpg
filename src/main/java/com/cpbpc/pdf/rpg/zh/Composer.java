@@ -11,7 +11,7 @@ import java.util.Map;
 public class Composer {
     private final static VelocityEngine velocityEngine = new VelocityEngine();
 
-    public void toHtml( ArticleParser parser ){
+    public String toHtml( ArticleParser parser ){
         velocityEngine.init();
 
         Map<String, Object> dataMap = new HashMap<>();
@@ -28,7 +28,8 @@ public class Composer {
         template.merge(context, writer);
 
         // Print the merged output
-        System.out.println(writer.toString());
+//        System.out.println(writer.toString());
+        return writer.toString();
     }
 
     public static void main(String[] args){

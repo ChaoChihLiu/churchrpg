@@ -2,8 +2,14 @@
 <tbody>
 <tr>
 <td><em>${date}</em><br />
+    #set ($index = 0)
     #foreach( $topicVerse in $topicVerses )
-        <strong>${topicVerse}</strong><br />
+        #if ( $index == 0 )
+            <strong>${topicVerse}</strong><br />
+        #else
+            ${topicVerse}<br />
+        #end
+        #set ($index = $index + 1)
     #end
 </td>
 <td style="text-align: right;">
@@ -22,5 +28,5 @@
 <p>&nbsp;</p>
 <p>&nbsp;</p>
 #foreach($key in $endMap.keySet())
-    <p><strong>$key</strong>$endMap.get($key)</p>
+    <p><strong>$key</strong> $endMap.get($key)</p>
 #end

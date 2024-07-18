@@ -67,14 +67,18 @@ public class ArticleParser {
         VerseIntf verse = ThreadStorage.getVerse();
         List<String> result = new ArrayList<>();
         Pattern versePattern = getTopicVersePattern();
-        Matcher m = versePattern.matcher(content);
         int anchorPoint = getAnchorPointAfterDate();
-        int start = anchorPoint;
+        String contentAfterDate = StringUtils.replace(
+                                                    StringUtils.substring(content, anchorPoint, content.length()),
+                                                    StringUtils.SPACE, System.lineSeparator());
+        Matcher m = versePattern.matcher(contentAfterDate);
+        int start = 0;
         while (m.find(start)) {
             String target = m.group();
             int position = m.end();
             start = position;
-            result.add(verse.appendNextCharTillCompleteVerse(content, target, position, content.length()));
+            String verseRef = verse.appendNextCharTillCompleteVerse(contentAfterDate, target, position, contentAfterDate.length());
+            result.add(verseRef);
         }
         return result;
     }
@@ -82,32 +86,70 @@ public class ArticleParser {
     public List<String> readFocusScripture() {
         List<String> result = new ArrayList<>();
         List<String> verses = readTopicVerses();
-        int anchorPoint = getAnchorPointAfterDate();
-        int start = anchorPoint;
 
+        /*
+        “…就可以喜乐，
+        五月二十日，礼拜一
+        腓立比书二章25节至28节
+        罗马书十二章9节至21节 我也可以少些忧愁。”
+         */
+        //special case handling
+        result.addAll(returnFocusScriptureGoBeforeDate());
+        if( !result.isEmpty() ) {
+            result.removeIf(s -> StringUtils.isEmpty(StringUtils.trim(s)));
+            result.replaceAll(s -> StringUtils.trim(s));
+            return result;
+        }
+
+        int anchorPoint = getAnchorPointAfterDate();
+        
         String focusWords = StringUtils.substring(content, anchorPoint, content.length());
         for( String verse : verses ){
-            focusWords = StringUtils.replace(focusWords, verse, "");
+            focusWords = StringUtils.remove(focusWords, verse);
+            focusWords = StringUtils.trim(focusWords);
         }
 
         result.addAll(List.of(StringUtils.split(focusWords, System.lineSeparator())));
         result.removeIf(s -> StringUtils.isEmpty(StringUtils.trim(s)));
-//        Iterator<String> iterator = result.iterator();
-//        while (iterator.hasNext()) {
-//            String element = iterator.next();
-//            if (StringUtils.isEmpty(element)) {
-//                iterator.remove();
-//            }
-//        }
-
+        result.replaceAll(s -> StringUtils.trim(s));
         return result;
     }
 
-    private static Pattern end_pattern = Pattern.compile("[\\u4E00-\\u9FFF]{2}\\s{0,}：\\s{0,}");
+    //^(“.*?)(五月二十日，礼拜一)\s*(腓立比书二章25节至28节)\s*(罗马书十二章9节至21节)(.*”)
+    private List<String> returnFocusScriptureGoBeforeDate() {
+        String date = readDate();
+        List<String> topicVerses = readTopicVerses();
+        StringBuffer buffer = new StringBuffer("(“[^“”]*)");
+        buffer.append(date).append("\\s*");
+        for( String verse : topicVerses ){
+            buffer.append(verse);
+            int index = topicVerses.indexOf(verse);
+            if( index < topicVerses.size()-1 ){
+                buffer.append("\\s*");
+            }
+        }
+        buffer.append("([^“”]*”{0,})");
+
+        List<String> list = new ArrayList<>();
+//        Pattern p = Pattern.compile("“([^“”]*)五月二十日，礼拜一\\s*腓立比书二章25节至28节\\s*罗马书十二章9节至21节([^“”]*)”");
+        Pattern p = Pattern.compile(buffer.toString());
+        Matcher matcher = p.matcher(content);
+        while ( matcher.find() ){
+            list.add(matcher.group(1));
+            list.add(matcher.group(2));
+        }
+
+        return list;
+    }
+
+    //    private static Pattern end_pattern = Pattern.compile("^[\\u4E00-\\u9FFF]{2}\\s{0,}：\\s{0,}");
+private static Pattern end_pattern = Pattern.compile("[默想|祷告]{2}\\s{0,}：\\s{0,}");
     public Map<String, String> readEnd(){
 
+        int anchorPoint = getAnchorPointBeforeTitle();
         Map<String, String> result = new LinkedHashMap<>();
-        String to_be_searched = StringUtils.substring(content, 0, StringUtils.indexOf(content, System.lineSeparator()+title+System.lineSeparator()));
+//        String to_be_searched = StringUtils.substring(content, 0, StringUtils.indexOf(content, System.lineSeparator()+title+System.lineSeparator()));
+        String to_be_searched = StringUtils.substring(content, 0, anchorPoint);
         Matcher matcher = end_pattern.matcher(to_be_searched);
 
         List<String> startings = new ArrayList<>();
@@ -124,42 +166,70 @@ public class ArticleParser {
                 end_point = StringUtils.indexOf(to_be_searched, startings.get(i+1));
             }
 //            result.add( StringUtils.remove(StringUtils.substring(to_be_searched, start_point, end_point), System.lineSeparator()) );
-            result.put( startings.get(i), StringUtils.remove(StringUtils.substring(to_be_searched, start_point, end_point), System.lineSeparator()) );
+            result.put( StringUtils.trim(startings.get(i)),
+                    StringUtils.trim(StringUtils.remove(StringUtils.substring(to_be_searched, start_point, end_point), System.lineSeparator())) );
         }
 
         return result;
     }
 
-    private Pattern para_pattern = Pattern.compile("[。|?|!|？|！|…]" + System.lineSeparator());
+    private Pattern para_pattern = Pattern.compile("[。|?|!|？|！|…|)|）|]" + System.lineSeparator());
     public List<String> readParagraphs(){
         List<String> paragraphs = new ArrayList<>();
         String date = readDate();
 
-        int start = StringUtils.indexOf(content, title) + title.length();
+        int start = getAnchorPointAfterTitle();
         int end = StringUtils.indexOf(content, date);
 
-        String to_be_searched = StringUtils.substring(content, start, end);
+        String to_be_searched = StringUtils.trim(StringUtils.substring(content, start, end));
+        List<String> focusScriptures = readFocusScripture();
+        for( String scripture : focusScriptures ){
+            to_be_searched = StringUtils.remove(to_be_searched, StringUtils.trim(scripture));
+        }
+
         Matcher matcher = para_pattern.matcher(to_be_searched);
         int start_point = 0;
         while( matcher.find(start_point) ){
             int index = matcher.end();
-            paragraphs.add( StringUtils.remove(StringUtils.substring(to_be_searched, start_point, index), System.lineSeparator()) );
+//            paragraphs.add( StringUtils.remove(StringUtils.substring(to_be_searched, start_point, index), System.lineSeparator()) );
+            paragraphs.add( StringUtils.substring(to_be_searched, start_point, index) );
             start_point = index;
         }
 
-        paragraphs.removeIf(s -> StringUtils.isEmpty(StringUtils.trim(s)));
+        String para = paragraphs.get(paragraphs.size()-1);
+        if( StringUtils.endsWith(to_be_searched, para) ){
+            paragraphs.removeIf(s -> StringUtils.isEmpty(StringUtils.trim(StringUtils.remove(s, System.lineSeparator()))));
+            paragraphs.replaceAll(s -> StringUtils.remove(s, System.lineSeparator()));
+            return paragraphs;
+        }
 
-//        List<String> modifiedList = paragraphs.stream()
-//                .map(line -> StringUtils.remove(line, System.lineSeparator())) // for example, converting to uppercase
-//                .collect(Collectors.toList());
+        start = StringUtils.indexOf(to_be_searched, para) + para.length();
+        end = to_be_searched.length();
+        paragraphs.add(StringUtils.substring(to_be_searched, start, end));
 
-//        Iterator<String> iterator = paragraphs.stream().iterator();
-//        while (iterator.hasNext()) {
-//            String line = iterator.next();
-//            line = StringUtils.remove(line, System.lineSeparator());
-//        }
-
+        paragraphs.removeIf(s -> StringUtils.isEmpty(StringUtils.trim(StringUtils.remove(s, System.lineSeparator()))));
+        paragraphs.replaceAll(s -> StringUtils.remove(s, System.lineSeparator()));
         return paragraphs;
+    }
+
+    private int getAnchorPointAfterTitle() {
+        Pattern title_pattern = Pattern.compile("\\R{1,}" + getTitle() + "\\s{0,}\\R{1,}");
+        Matcher matcher = title_pattern.matcher(content);
+        while( matcher.find() ){
+            return matcher.end();
+        }
+
+        return 0;
+    }
+
+    private int getAnchorPointBeforeTitle() {
+        Pattern title_pattern = Pattern.compile("\\R{1,}" + getTitle() + "\\s{0,}\\R{1,}");
+        Matcher matcher = title_pattern.matcher(content);
+        while( matcher.find() ){
+            return matcher.start();
+        }
+
+        return 0;
     }
 
 }
