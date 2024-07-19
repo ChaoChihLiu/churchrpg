@@ -1,4 +1,4 @@
-package com.cpbpc.telegram;
+package com.cpbpc.rpgv2;
 
 import com.cpbpc.comms.AppProperties;
 import com.cpbpc.comms.DBUtil;
@@ -46,13 +46,18 @@ public class GenTelegramExcel {
     private static final Properties appProperties = AppProperties.getConfig();
 //    private static final String theme = "“Matters of Life Facing Ordinary People: A Study of the Book of Ruth”";
 //    private static final String writer = "Rev Dr Nelson Ng’uono Were";
-    private static final String theme = "“你们在基督里面得了丰盛”";
-    private static final String writer = "阮贤牧师";
-    private static final String year = "2024";
-    private static final String month = "07";
+//    private static final String theme = "“你们在基督里面得了丰盛”";
+//    private static final String writer = "阮贤牧师";
+//    private static final String year = "2024";
+//    private static final String month = "08";
 
-    private static final String language = "chinese";
-    private static final boolean isTest = true;
+    private static final String theme = "“Matters of Life Facing Ordinary People: A Study of the Book of Ruth”";
+    private static final String writer = "Rev Dr Nelson Ng’uono Were";
+    private static final String year = "2024";
+    private static final String month = "08";
+
+    private static final String language = "english";
+    private static final boolean isTest = false;
 
     /*
     ✝️ 你们在基督里是完整的
@@ -123,7 +128,7 @@ public class GenTelegramExcel {
         System.out.println(StringUtils.join(audioURLs, System.lineSeparator()));
 
 //        // Save the workbook to a file or stream
-        try (FileOutputStream fileOut = new FileOutputStream("example.xlsx")) {
+        try (FileOutputStream fileOut = new FileOutputStream("rpg-telegram.xlsx")) {
             workbook.write(fileOut);
         } catch (IOException e) {
             e.printStackTrace();
