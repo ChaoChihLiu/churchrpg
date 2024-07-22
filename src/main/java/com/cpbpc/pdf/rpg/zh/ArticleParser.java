@@ -13,6 +13,8 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.cpbpc.comms.TextUtil.escapeSpecialChar;
+
 public class ArticleParser {
 
     private String content = "";
@@ -213,7 +215,7 @@ private static Pattern end_pattern = Pattern.compile("[默想|祷告]{2}\\s{0,}�
     }
 
     private int getAnchorPointAfterTitle() {
-        String title_escaped = getTitle().replace("?", "\\?").replace(".", "\\.");
+        String title_escaped = escapeSpecialChar(getTitle());
         Pattern title_pattern = Pattern.compile("\\R{1,}" + title_escaped + "\\s{0,}\\R{1,}");
         Matcher matcher = title_pattern.matcher(content);
         while( matcher.find() ){
@@ -224,7 +226,7 @@ private static Pattern end_pattern = Pattern.compile("[默想|祷告]{2}\\s{0,}�
     }
 
     private int getAnchorPointBeforeTitle() {
-        String title_escaped = getTitle().replace("?", "\\?").replace(".", "\\.");
+        String title_escaped = escapeSpecialChar(getTitle());
         Pattern title_pattern = Pattern.compile("\\R{1,}" + title_escaped + "\\s{0,}\\R{1,}");
         Matcher matcher = title_pattern.matcher(content);
         while( matcher.find() ){

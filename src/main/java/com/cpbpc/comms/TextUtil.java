@@ -15,6 +15,18 @@ import java.util.regex.Pattern;
 
 public class TextUtil {
 
+    public static String escapeSpecialChar(String title) {
+        if( StringUtils.isEmpty(title) ){
+            return "";
+        }
+
+        return title.replaceAll("\\(", "\\\\(")
+                .replaceAll("\\)", "\\\\)")
+                .replaceAll("\\?", "\\\\?")
+                ;
+
+    }
+
     private static SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
     public static String currentDateTime(){
         Date today = new Date();

@@ -320,15 +320,4 @@ public class PDFReader {
         return title;
     }
 
-    private static String escapeSpecialChar(String title) {
-        if( StringUtils.isEmpty(title) ){
-            return "";
-        }
-
-        return title.replaceAll("\\(", "\\\\(")
-                .replaceAll("\\)", "\\\\)")
-                .replaceAll("\\?", "\\\\?")
-                ;
-
-    }
 }
