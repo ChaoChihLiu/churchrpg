@@ -2,9 +2,11 @@ package com.cpbpc.rpgv2.zh;
 
 import com.cpbpc.comms.ConfigObj;
 import com.cpbpc.comms.NumberConverter;
+import com.cpbpc.comms.PunctuationTool;
 import com.cpbpc.comms.ThreadStorage;
 import com.cpbpc.comms.VerseIntf;
 import com.github.houbb.opencc4j.util.ZhConverterUtil;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
@@ -41,17 +43,18 @@ public class VerseRegExp implements VerseIntf {
     //    public static void main( String[] args ){
     public String convert(String content, boolean addPause) {
 
-        return convertVerse(content);
+        return convertNoBookVerse(convertNormalVerse(content));
 
     }
+    
     public String convert(String content) {
 
-       return convertVerse(content);
+       return convertNoBookVerse(convertNormalVerse(content));
 
     }
     public String convert(String content, Pattern pattern) {
 
-        return convertVerse(content, pattern);
+        return convertNoBookVerse(convertNormalVerse(content, pattern));
 
     }
 
@@ -180,12 +183,29 @@ public class VerseRegExp implements VerseIntf {
         return result;
     }
 
-    public String convertVerse(String line) {
+    public String convertNormalVerse(String line) {
         Pattern p = getVersePattern();
-        return convertVerse(line, p);
+        return convertNormalVerse(line, p);
     }
 
-    public String convertVerse(String line, Pattern pattern) {
+    private String convertNoBookVerse(String line) {
+
+        return line;
+    }
+
+    protected Pattern genNoBookVersePattern() {
+        String noBookVersePattern = "\\(\\s{0,}[0-9]{1,3}[:;,";
+
+        for (String hyphen_unicode : PunctuationTool.getHyphensUnicode()) {
+            String hyphen = StringEscapeUtils.unescapeJava(hyphen_unicode);
+            noBookVersePattern += hyphen;
+        }
+        noBookVersePattern += "]{0,}\\s{0,}[0-9]{0,3}\\s{0,}\\)";
+
+        return Pattern.compile(noBookVersePattern);
+    }
+
+    public String convertNormalVerse(String line, Pattern pattern) {
 //        Pattern p = getVersePattern();
         Matcher m = pattern.matcher(line);
         int start = 0;

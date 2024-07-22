@@ -213,7 +213,8 @@ private static Pattern end_pattern = Pattern.compile("[默想|祷告]{2}\\s{0,}�
     }
 
     private int getAnchorPointAfterTitle() {
-        Pattern title_pattern = Pattern.compile("\\R{1,}" + getTitle() + "\\s{0,}\\R{1,}");
+        String title_escaped = getTitle().replace("?", "\\?").replace(".", "\\.");
+        Pattern title_pattern = Pattern.compile("\\R{1,}" + title_escaped + "\\s{0,}\\R{1,}");
         Matcher matcher = title_pattern.matcher(content);
         while( matcher.find() ){
             return matcher.end();
@@ -223,7 +224,8 @@ private static Pattern end_pattern = Pattern.compile("[默想|祷告]{2}\\s{0,}�
     }
 
     private int getAnchorPointBeforeTitle() {
-        Pattern title_pattern = Pattern.compile("\\R{1,}" + getTitle() + "\\s{0,}\\R{1,}");
+        String title_escaped = getTitle().replace("?", "\\?").replace(".", "\\.");
+        Pattern title_pattern = Pattern.compile("\\R{1,}" + title_escaped + "\\s{0,}\\R{1,}");
         Matcher matcher = title_pattern.matcher(content);
         while( matcher.find() ){
             return matcher.start();

@@ -8,6 +8,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
+import org.apache.pdfbox.text.TextPosition;
 
 import java.io.File;
 import java.io.IOException;
@@ -21,6 +22,8 @@ import java.util.logging.Logger;
 public class PDFReader {
 
     private static Logger logger = Logger.getLogger(PDFReader.class.getName());
+
+    private static final boolean isTest = true;
 
     private String pdfPath = "";
     public PDFReader(String path){
@@ -55,6 +58,16 @@ public class PDFReader {
                 StringBuffer buffer = new StringBuffer();
                 final boolean[] withinBracket = {false};
                 PDFTextStripper textStripper = new PDFTextStripper() {
+
+                    private static boolean isBoldFont(TextPosition textPosition) {
+                        return textPosition.getFont().getFontDescriptor().isForceBold() ||
+                                (textPosition.getFont().getFontDescriptor().getFontWeight() >= 700);
+                    }
+
+                    private static boolean isItalicFont(TextPosition textPosition) {
+                        return textPosition.getFont().getFontDescriptor().isItalic();
+                    }
+
                     @Override
                     protected void processTextPosition(org.apache.pdfbox.text.TextPosition text) {
 
@@ -63,8 +76,7 @@ public class PDFReader {
                         if(withinBracket[0] && RomanNumeral.isRomanNumeral(text.getUnicode())){
                             buffer.append(text.getUnicode());
                         }
-
-                        //（）
+                        
                         if( Math.round(fontSize) == 14
 //                                && (!StringUtils.equals("(", text.getUnicode()) && !StringUtils.equals(")", text.getUnicode()))
 //                                && (!StringUtils.equals("（", text.getUnicode()) && !StringUtils.equals("）", text.getUnicode()))
@@ -87,9 +99,39 @@ public class PDFReader {
                             buffer.append(text.getUnicode());
                         }
 
+//                        List<List<TextPosition>> textPositionList = getCharactersByArticle();
+//
+//                        // Iterate through text positions
+//                        for (List<TextPosition> textPositions: textPositionList) {
+//                            for( TextPosition textPosition: textPositions){
+//                                // Check if the font is bold
+//                                if (isBoldFont(textPosition)) {
+//                                    System.out.println("Bold text: " + textPosition.getUnicode());
+//                                }
+//                                if (textPosition.getFont().getFontDescriptor().isItalic()) {
+//                                    System.out.println("Text in italics: " + textPosition.getUnicode());
+//                                }
+//                            }
+//                        }
+
                         super.processTextPosition(text);
                     }
+
+//                    @Override
+//                    protected void writeString(String text, List<TextPosition> textPositions) throws IOException {
+//                        // Iterate through each text position
+//                        for (TextPosition textPosition : textPositions) {
+//                            if (isBoldFont(textPosition)) {
+//                                System.out.println("Bold text: " + textPosition.getUnicode());
+//                            }
+//                            if (isItalicFont(textPosition)) {
+//                                System.out.println("Italic text: " + textPosition.getUnicode());
+//                            }
+//                        }
+//                        super.writeString(text, textPositions);
+//                    }
                 };
+
                 
                 textStripper.setStartPage(page);
                 textStripper.setEndPage(page);
@@ -114,8 +156,10 @@ public class PDFReader {
                 logger.info("output: \n" + html);
 
                 String date = dateRange.get(chineseDateRange.indexOf(chineseDate));
-                updateDB( title, html, date );
-
+                if( !isTest ){
+                    updateDB( title, html, date );
+                }
+                
             }
         } catch (IOException | SQLException e) {
             logger.info(ExceptionUtils.getStackTrace(e));
