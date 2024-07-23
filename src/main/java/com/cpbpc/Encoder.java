@@ -51,7 +51,7 @@ public class Encoder {
 //            System.out.println("https://cpbpc-tts.s3.ap-southeast-1.amazonaws.com/remembrance/June/dr_June_"+num+"_Morning.mp3");
 //            System.out.println("https://cpbpc-tts.s3.ap-southeast-1.amazonaws.com/remembrance/June/dr_June_"+num+"_Evening.mp3");
 //            System.out.println("https://cpbpc-bible-reading-plan.s3.ap-southeast-1.amazonaws.com/kjv/2Kgs"+i+".mp3");
-            System.out.println("https://cpbpc-bible-reading-plan.s3.ap-southeast-1.amazonaws.com/cuvs/%E4%BB%A3%E4%B8%8A"+i+".mp3");
+            System.out.println("https://cpbpc-bible-reading-plan.s3.ap-southeast-1.amazonaws.com/cuvs/%E4%BB%A3%E4%B8%8B"+i+".mp3");
 //            System.out.println("https://cpbpc-rpg-audio.s3.ap-southeast-1.amazonaws.com/rpg/2024_09/arpg202409"+num+".mp3");
 //            System.out.println("https://cpbpc-rpg-audio.s3.ap-southeast-1.amazonaws.com/rpg-chinese/2024_09/crpg202409"+num+".mp3");
         }
