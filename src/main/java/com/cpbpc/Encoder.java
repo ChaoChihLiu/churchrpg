@@ -21,7 +21,7 @@ public class Encoder {
 //         System.out.println(replaced);
 
 //        System.out.println(URLEncoder.encode(ZhConverterUtil.toSimple("https://www.kepeklian.fr/mm.php")));
-        System.out.println(URLEncoder.encode(ZhConverterUtil.toSimple("代下")));
+        System.out.println(URLEncoder.encode(ZhConverterUtil.toSimple("代上")));
 
         
 //        System.out.println(Integer.parseInt(StringUtils.substring("rpg/2024_06/arpg20240630-1.mp3", StringUtils.indexOf("rpg/2024_06/arpg20240630-1.mp3", "-")+1, StringUtils.indexOf("rpg/2024_06/arpg20240630-1.mp3", ".mp3"))));

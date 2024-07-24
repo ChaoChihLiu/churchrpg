@@ -186,7 +186,11 @@ private static Pattern end_pattern = Pattern.compile("[默想|祷告]{2}\\s{0,}�
         String to_be_searched = StringUtils.trim(StringUtils.substring(content, start, end));
         List<String> focusScriptures = readFocusScripture();
         for( String scripture : focusScriptures ){
-            to_be_searched = StringUtils.remove(to_be_searched, StringUtils.trim(scripture));
+            if( !to_be_searched.endsWith(scripture) ){
+                 continue;
+            }
+            to_be_searched = StringUtils.substring(to_be_searched, StringUtils.indexOf(to_be_searched, scripture), to_be_searched.length());
+//            to_be_searched = StringUtils.remove(to_be_searched, StringUtils.trim(scripture));
         }
 
         Matcher matcher = para_pattern.matcher(to_be_searched);
