@@ -23,7 +23,7 @@ public class PDFReader {
 
     private static Logger logger = Logger.getLogger(PDFReader.class.getName());
 
-    private static final boolean isTest = true;
+    private static final boolean isTest = false;
 
     private String pdfPath = "";
     public PDFReader(String path){
