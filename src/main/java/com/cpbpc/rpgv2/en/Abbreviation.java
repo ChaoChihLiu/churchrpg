@@ -24,8 +24,8 @@ public class Abbreviation implements AbbreIntf {
 
         for (Map.Entry<String, ConfigObj> entry : abbre.entrySet()) {
 
-            String newFounded = founded.replace(".", "");
-            String key = entry.getKey().replace(".", "");
+            String newFounded = founded.replace(".", "").replace("(", "").replace(")", "");
+            String key = entry.getKey().replace(".", "").replace("(", "").replace(")", "");
 
             if (newFounded.equals(key)) {
                 return entry.getValue().getFullWord();
@@ -99,6 +99,11 @@ public class Abbreviation implements AbbreIntf {
                 key = StringUtils.trim(key);
                 String completeForm = lookupCompleteForm(key);
 //                logger.info("complete form " + completeForm);
+
+                if( StringUtils.startsWith(key, "(") ){
+                    completeForm = "(" + completeForm;
+                }
+
                 if (abbre.get(key) != null && abbre.get(key).getPaused()) {
                     replaced = replaced.replace(" " +StringUtils.capitalize(key)+" ", " " + completeForm + " " + "[pause]") ;
                     replaced = replaced.replace(" " +StringUtils.lowerCase(key)+" ", " " + completeForm + " " + "[pause]") ;
@@ -135,14 +140,18 @@ public class Abbreviation implements AbbreIntf {
         return replaced;
     }
     private String replaceWordStarting(String input, String key, String replacement, boolean addPaused){
-        String regex = "(?i)(^|\\.|\\?|!|\\n|\\r\\n)\\s*" + key + "\\b";
+        String key_trimmed = key;
+        if( key.contains("(") || key.contains(")") ){
+            key_trimmed = StringUtils.remove(StringUtils.remove(key, "("), ")");
+        }
+        String regex = "(?i)(^|\\.|\\?|!|\\n|\\r\\n)\\s*" + key_trimmed + "\\b";
         StringBuffer result = new StringBuffer();
 
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(input);
 
         while (matcher.find()) {
-            matcher.appendReplacement(result, matcher.group().replaceFirst("(?i)" + key, replacement));
+            matcher.appendReplacement(result, matcher.group().replaceFirst("(?i)" + key_trimmed, replacement));
         }
         matcher.appendTail(result);
 
