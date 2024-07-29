@@ -55,7 +55,7 @@ public class ArticleParser extends AbstractArticleParser {
         return result;
     }
 
-    private static String thoughtWord = "<strong>默想</strong>";
+    private static String thoughtWord = "<strong>默想:</strong>";
     @Override
     public String readThought() {
         String[] lines = StringUtils.split(content, System.lineSeparator());
@@ -73,7 +73,7 @@ public class ArticleParser extends AbstractArticleParser {
         return verse.convert(replaceHtmlSpace(result));
     }
 
-    private static String prayerWord = "<strong>祷告</strong>";
+    private static String prayerWord = "<strong>祷告:</strong>";
     @Override
     public String readPrayer() {
         String[] lines = StringUtils.split(content, System.lineSeparator());
