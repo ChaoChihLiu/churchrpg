@@ -5,7 +5,6 @@ import com.cpbpc.comms.DBUtil;
 import com.cpbpc.comms.NumberConverter;
 import com.cpbpc.comms.PunctuationTool;
 import com.cpbpc.comms.SecretUtil;
-import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpResponse;
@@ -14,9 +13,13 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
+import org.apache.poi.common.usermodel.HyperlinkType;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CreationHelper;
+import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.Hyperlink;
+import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.RichTextString;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -46,18 +49,14 @@ public class GenTelegramExcel {
     private static final Properties appProperties = AppProperties.getConfig();
 //    private static final String theme = "“Matters of Life Facing Ordinary People: A Study of the Book of Ruth”";
 //    private static final String writer = "Rev Dr Nelson Ng’uono Were";
-//    private static final String theme = "“你们在基督里面得了丰盛”";
-//    private static final String writer = "阮贤牧师";
-//    private static final String year = "2024";
-//    private static final String month = "08";
+    private static final String theme = "“你们在基督里面得了丰盛”";
+    private static final String writer = "阮贤牧师";
 
-    private static final String theme = "“Matters of Life Facing Ordinary People: A Study of the Book of Ruth”";
-    private static final String writer = "Rev Dr Nelson Ng’uono Were";
     private static final String year = "2024";
-    private static final String month = "08";
+    private static final String month = "09";
 
-    private static final String language = "english";
-    private static final boolean isTest = false;
+    private static final String language = "chinese";
+    private static final boolean isTest = true;
 
     /*
     ✝️ 你们在基督里是完整的
@@ -120,6 +119,30 @@ public class GenTelegramExcel {
             CellStyle cellStyle = workbook.createCellStyle();
             cellStyle.setWrapText(true);
             cell.setCellStyle(cellStyle);
+
+            CellStyle hlinkStyle = workbook.createCellStyle();
+            Font hlinkFont = workbook.createFont();
+            hlinkFont.setUnderline(Font.U_SINGLE);
+            hlinkFont.setColor(IndexedColors.BLUE.getIndex());
+            hlinkStyle.setFont(hlinkFont);
+
+            String articleLink = genArticleLink(dataRow);
+            cell = row.createCell(1);
+            Hyperlink hyperlink = creationHelper.createHyperlink(HyperlinkType.URL);
+            hyperlink.setAddress(articleLink);
+            cell.setCellValue(articleLink);
+            cell.setHyperlink(hyperlink);
+            cell.setCellStyle(hlinkStyle);
+
+
+            String audioLink = genAudioLink(dataRow);
+            cell = row.createCell(2);
+            hyperlink = creationHelper.createHyperlink(HyperlinkType.URL);
+            hyperlink.setAddress(genAudioLink(dataRow));
+            cell.setCellValue(audioLink);
+            cell.setHyperlink(hyperlink);
+            cell.setCellStyle(hlinkStyle);
+
         }
 
         System.out.println( "text url:" );
@@ -128,7 +151,7 @@ public class GenTelegramExcel {
         System.out.println(StringUtils.join(audioURLs, System.lineSeparator()));
 
 //        // Save the workbook to a file or stream
-        try (FileOutputStream fileOut = new FileOutputStream("rpg-telegram.xlsx")) {
+        try (FileOutputStream fileOut = new FileOutputStream("rpg-telegram-"+language+".xlsx")) {
             workbook.write(fileOut);
         } catch (IOException e) {
             e.printStackTrace();
@@ -238,7 +261,8 @@ public class GenTelegramExcel {
 
     //https://calvarypandan.sg/resources/rpg/calendar/eventdetail/69825/86/israel-worshipped-in-thanksgiving
     private static String genEngArticleLink(Map<String, String> dataRow) {
-        return "https://calvarypandan.sg/resources/rpg/calendar/eventdetail/" + dataRow.get("rp_id") + "/" + dataRow.get("catid") + "/" + RegExUtils.replaceAll(StringUtils.lowerCase(dataRow.get("summary")), " ", "-");
+//        return "https://calvarypandan.sg/resources/rpg/calendar/eventdetail/" + dataRow.get("rp_id") + "/" + dataRow.get("catid") + "/" + RegExUtils.replaceAll(StringUtils.lowerCase(dataRow.get("summary")), " ", "-");
+        return "https://calvarypandan.sg/resources/rpg/calendar/eventdetail/" + dataRow.get("rp_id");
     }
 
     //https://mandarin.calvarypandan.sg/%E8%B5%84%E6%BA%90/%E8%AF%BB,%E7%A5%B7,%E9%95%BF-%E6%97%A5%E5%8E%86/eventdetail/67101
