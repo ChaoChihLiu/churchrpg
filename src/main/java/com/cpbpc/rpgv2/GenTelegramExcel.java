@@ -126,20 +126,19 @@ public class GenTelegramExcel {
             hlinkFont.setColor(IndexedColors.BLUE.getIndex());
             hlinkStyle.setFont(hlinkFont);
 
-            String articleLink = genArticleLink(dataRow);
+            Hyperlink articleHyperlink = creationHelper.createHyperlink(HyperlinkType.URL);
+            articleHyperlink.setAddress(genArticleLink(dataRow));
             cell = row.createCell(1);
-            Hyperlink hyperlink = creationHelper.createHyperlink(HyperlinkType.URL);
-            hyperlink.setAddress(articleLink);
-            cell.setCellValue(articleLink);
-            cell.setHyperlink(hyperlink);
+            cell.setCellValue(genArticleLink(dataRow));
+            cell.setHyperlink(articleHyperlink);
             cell.setCellStyle(hlinkStyle);
 
 
-            String audioLink = genAudioLink(dataRow);
+            Hyperlink audioHyperlink = creationHelper.createHyperlink(HyperlinkType.URL);
+            audioHyperlink.setAddress(genAudioLink(dataRow));
             cell = row.createCell(2);
-            hyperlink.setAddress(genAudioLink(dataRow));
-            cell.setCellValue(audioLink);
-            cell.setHyperlink(hyperlink);
+            cell.setCellValue(genAudioLink(dataRow));
+            cell.setHyperlink(audioHyperlink);
             cell.setCellStyle(hlinkStyle);
 
         }

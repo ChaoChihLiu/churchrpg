@@ -52,7 +52,7 @@ public class GenTelegramExcel {
     private static final String year = "2024";
     private static final String month = "10";
 
-    private static final boolean isTest = false;
+    private static final boolean isTest = true;
 
     /*
 
@@ -129,7 +129,7 @@ public class GenTelegramExcel {
                             "\n" +
                             "\uD83D\uDCDD" + " " + articleLink
             );
-            Hyperlink hyperlink = creationHelper.createHyperlink(HyperlinkType.URL);
+
             CellStyle hlinkStyle = workbook.createCellStyle();
             Font hlinkFont = workbook.createFont();
             hlinkFont.setUnderline(Font.U_SINGLE);
@@ -141,16 +141,18 @@ public class GenTelegramExcel {
             cellStyle.setWrapText(true);
             cell.setCellStyle(cellStyle);
 
+            Hyperlink articleHyperlink = creationHelper.createHyperlink(HyperlinkType.URL);
+            articleHyperlink.setAddress(genArticleLink(dataRow));
             cell = row.createCell(2);
-            hyperlink.setAddress(genArticleLink(dataRow));
             cell.setCellValue(genArticleLink(dataRow));
-            cell.setHyperlink(hyperlink);
+            cell.setHyperlink(articleHyperlink);
             cell.setCellStyle(hlinkStyle);
 
+            Hyperlink audioHyperlink = creationHelper.createHyperlink(HyperlinkType.URL);
+            audioHyperlink.setAddress(genAudioLink(dataRow));
             cell = row.createCell(3);
-            hyperlink.setAddress(genAudioLink(dataRow));
             cell.setCellValue(genAudioLink(dataRow));
-            cell.setHyperlink(hyperlink);
+            cell.setHyperlink(audioHyperlink);
             cell.setCellStyle(hlinkStyle);
         }
 
