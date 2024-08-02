@@ -14,10 +14,13 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
+import org.apache.poi.common.usermodel.HyperlinkType;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CreationHelper;
 import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.Hyperlink;
+import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.RichTextString;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -47,7 +50,7 @@ public class GenTelegramExcel {
     private static final Properties appProperties = AppProperties.getConfig();
 
     private static final String year = "2024";
-    private static final String month = "09";
+    private static final String month = "10";
 
     private static final boolean isTest = false;
 
@@ -107,7 +110,7 @@ public class GenTelegramExcel {
             Row row = sheet.createRow(rowNumber);
 
             String audioLink = shortenURL(genAudioLink(dataRow), isTest);
-            String textLink = shortenURL(genArticleLink(dataRow), isTest);
+            String articleLink = shortenURL(genArticleLink(dataRow), isTest);
 
             Cell cell = row.createCell(0);
             RichTextString richText = creationHelper.createRichTextString(dataRow.get("date"));
@@ -124,26 +127,31 @@ public class GenTelegramExcel {
                             "\n" +
                             "\uD83D\uDDE3" + " " + audioLink + "\n" +
                             "\n" +
-                            "\uD83D\uDCDD" + " " + textLink
+                            "\uD83D\uDCDD" + " " + articleLink
             );
+            Hyperlink hyperlink = creationHelper.createHyperlink(HyperlinkType.URL);
+            CellStyle hlinkStyle = workbook.createCellStyle();
+            Font hlinkFont = workbook.createFont();
+            hlinkFont.setUnderline(Font.U_SINGLE);
+            hlinkFont.setColor(IndexedColors.BLUE.getIndex());
+            hlinkStyle.setFont(hlinkFont);
+
             cell.setCellValue(richText);
             cellStyle = workbook.createCellStyle();
             cellStyle.setWrapText(true);
             cell.setCellStyle(cellStyle);
 
             cell = row.createCell(2);
-            richText = creationHelper.createRichTextString(genArticleLink(dataRow));
-            cell.setCellValue(richText);
-            cellStyle = workbook.createCellStyle();
-            cellStyle.setWrapText(true);
-            cell.setCellStyle(cellStyle);
+            hyperlink.setAddress(genArticleLink(dataRow));
+            cell.setCellValue(genArticleLink(dataRow));
+            cell.setHyperlink(hyperlink);
+            cell.setCellStyle(hlinkStyle);
 
             cell = row.createCell(3);
-            richText = creationHelper.createRichTextString(genAudioLink(dataRow));
-            cell.setCellValue(richText);
-            cellStyle = workbook.createCellStyle();
-            cellStyle.setWrapText(true);
-            cell.setCellStyle(cellStyle);
+            hyperlink.setAddress(genAudioLink(dataRow));
+            cell.setCellValue(genAudioLink(dataRow));
+            cell.setHyperlink(hyperlink);
+            cell.setCellStyle(hlinkStyle);
         }
 
         System.out.println( "text url:" );

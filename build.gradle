@@ -120,6 +120,12 @@ dependencies {
 
     // https://mvnrepository.com/artifact/org.apache.velocity/velocity-engine-core
     implementation group: 'org.apache.velocity', name: 'velocity-engine-core', version: '2.3'
+
+    // https://mvnrepository.com/artifact/com.amazonaws/aws-java-sdk-comprehend
+    implementation group: 'com.amazonaws', name: 'aws-java-sdk-comprehend', version: '1.12.767'
+    // https://mvnrepository.com/artifact/software.amazon.awssdk/comprehend
+    implementation group: 'software.amazon.awssdk', name: 'comprehend', version: '2.26.27'
+
 }
 
 task buildZip(type: Zip) {

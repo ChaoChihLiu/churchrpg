@@ -137,7 +137,6 @@ public class GenTelegramExcel {
 
             String audioLink = genAudioLink(dataRow);
             cell = row.createCell(2);
-            hyperlink = creationHelper.createHyperlink(HyperlinkType.URL);
             hyperlink.setAddress(genAudioLink(dataRow));
             cell.setCellValue(audioLink);
             cell.setHyperlink(hyperlink);
