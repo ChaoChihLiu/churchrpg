@@ -55,6 +55,16 @@ public class OpenAIUtil {
         
     }
 
+    public static String comprehendQuestion(String question) throws IOException {
+        String statement = "Comprehend the meaning of the following question and provide keywords or key phrases only, " +
+                "including synonyms of keywords/key phrases: '"+question + "\n"
+                + "and please organise your answer in array only"
+                ;
+
+        String response = createCompletions(statement);
+        return response;
+    }
+
     private static Pattern open_ai_thread_response_pattern = Pattern.compile("\"id\":\\s*\"([^\"]+)\"");
     private static String extractThreadId(String resonse) {
 
@@ -131,6 +141,34 @@ public class OpenAIUtil {
         return response;
     }
 
+    private static String genCompletionJsonInput(String text) {
+
+//        String requestData = "{\"messages\": [{\"role\": \"system\", \"content\": \"You are a helpful assistant.\"}, {\"role\": \"user\", \"content\": \"" + prompt + "\"}]}";
+
+        Map<String, Object> elements = new LinkedHashMap<>();
+//        elements.put("model", "gpt-3.5-turbo");
+//        elements.put("model", "gpt-3.5-turbo-instruct");
+        elements.put("model", "gpt-4o");
+//        elements.put("model", "text-davinci-003");
+//        elements.put("prompt", text);
+        List<Map<String, String>> list = new ArrayList<>();
+        Map<String, String> input = new HashMap<>();
+        input.put("role", "user");
+        input.put("content", text);
+        list.add(input);
+
+        elements.put("messages", list);
+        elements.put("max_tokens", 150);
+//        elements.put("temperature", 0.7);
+//        elements.put("n", "1");
+//        elements.put("max_tokens", "16");
+
+
+        Gson gson = new Gson();
+        Type gsonType = new TypeToken<HashMap>(){}.getType();
+        return gson.toJson(elements,gsonType);
+    }
+
     private static Pattern open_ai_response_pattern = Pattern.compile("\"text\":\\s*\"([^\"]+)\"");
     private static String extractCompletionsResponse (String response){
         Matcher matcher = open_ai_response_pattern.matcher(response);
@@ -162,35 +200,7 @@ public class OpenAIUtil {
         Type gsonType = new TypeToken<HashMap>(){}.getType();
         return gson.toJson(elements,gsonType);
     }
-
-    private static String genCompletionJsonInput(String text) {
-
-//        String requestData = "{\"messages\": [{\"role\": \"system\", \"content\": \"You are a helpful assistant.\"}, {\"role\": \"user\", \"content\": \"" + prompt + "\"}]}";
-
-        Map<String, Object> elements = new LinkedHashMap<>();
-//        elements.put("model", "gpt-3.5-turbo");
-//        elements.put("model", "gpt-3.5-turbo-instruct");
-        elements.put("model", "gpt-4o");
-//        elements.put("model", "text-davinci-003");
-//        elements.put("prompt", text);
-        List<Map<String, String>> list = new ArrayList<>();
-        Map<String, String> input = new HashMap<>();
-        input.put("role", "user");
-        input.put("content", text);
-        list.add(input);
-
-        elements.put("messages", list);
-//        elements.put("max_tokens", 100);
-//        elements.put("temperature", 0.7);
-//        elements.put("n", "1");
-//        elements.put("max_tokens", "16");
-
-
-        Gson gson = new Gson();
-        Type gsonType = new TypeToken<HashMap>(){}.getType();
-        return gson.toJson(elements,gsonType);
-    }
-
+    
     private static String genChatCompletionJsonInput(String text) {
 
         List<Map<String, String>> messages = new ArrayList<>();
