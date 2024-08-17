@@ -38,8 +38,10 @@ public class ArticleParser extends AbstractArticleParser {
         List<String> splits = List.of(text.split("</p>"));
         try{
             for (String split : splits) {
-                if( StringUtils.contains(split, thoughtWord)
-                        || StringUtils.contains(split, prayerWord) ){
+                if( StringUtils.contains(split, thoughtWord1)
+                        || StringUtils.contains(split, prayerWord1)
+                        || StringUtils.contains(split, thoughtWord2)
+                        || StringUtils.contains(split, prayerWord2)){
                     continue;
                 }
                 String line = StringUtils.trim(removeHtmlTag(split));
@@ -55,7 +57,8 @@ public class ArticleParser extends AbstractArticleParser {
         return result;
     }
 
-    private static String thoughtWord = "<strong>默想:</strong>";
+    private static String thoughtWord1 = "<strong>默想:</strong>";
+    private static String thoughtWord2 = "<strong>默想</strong>:";
     @Override
     public String readThought() {
         String[] lines = StringUtils.split(content, System.lineSeparator());
@@ -65,7 +68,10 @@ public class ArticleParser extends AbstractArticleParser {
                 continue;
             }
             line = removeDoubleQuote(line);
-            if (StringUtils.contains(line, thoughtWord)) {
+            if (StringUtils.contains(line, thoughtWord1)) {
+                result = removeHtmlTag(line).trim();
+            }
+            if (StringUtils.contains(line, thoughtWord2)) {
                 result = removeHtmlTag(line).trim();
             }
         }
@@ -73,7 +79,8 @@ public class ArticleParser extends AbstractArticleParser {
         return verse.convert(replaceHtmlSpace(result));
     }
 
-    private static String prayerWord = "<strong>祷告:</strong>";
+    private static String prayerWord1 = "<strong>祷告:</strong>";
+    private static String prayerWord2 = "<strong>祷告</strong>:";
     @Override
     public String readPrayer() {
         String[] lines = StringUtils.split(content, System.lineSeparator());
@@ -83,7 +90,10 @@ public class ArticleParser extends AbstractArticleParser {
                 continue;
             }
             line = removeDoubleQuote(line);
-            if (StringUtils.contains(line, prayerWord)) {
+            if (StringUtils.contains(line, prayerWord1)) {
+                result = removeHtmlTag(line).trim();
+            }
+            if (StringUtils.contains(line, prayerWord2)) {
                 result = removeHtmlTag(line).trim();
             }
         }
