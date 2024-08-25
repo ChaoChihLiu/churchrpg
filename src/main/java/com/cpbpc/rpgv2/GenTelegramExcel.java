@@ -47,15 +47,15 @@ import java.util.regex.Pattern;
 
 public class GenTelegramExcel {
     private static final Properties appProperties = AppProperties.getConfig();
-//    private static final String theme = "“Matters of Life Facing Ordinary People: A Study of the Book of Ruth”";
-//    private static final String writer = "Rev Dr Nelson Ng’uono Were";
-    private static final String theme = "“你们在基督里面得了丰盛”";
-    private static final String writer = "阮贤牧师";
+    private static final String theme = "Matters of Life Facing Ordinary People: A Study of the Book of Ruth";
+    private static final String writer = "Rev Dr Nelson Ng’uono Were";
+//    private static final String theme = "“你们在基督里面得了丰盛”";
+//    private static final String writer = "阮贤牧师";
 
     private static final String year = "2024";
     private static final String month = "09";
 
-    private static final String language = "chinese";
+    private static final String language = "english";
     private static final boolean isTest = true;
 
     /*
@@ -172,7 +172,7 @@ public class GenTelegramExcel {
         String[] strs = StringUtils.split(summary, " ");
 
         for (String str : strs) {
-            result += StringUtils.capitalize(str);
+            result += StringUtils.capitalize(str) + " ";
         }
 
         return result;
@@ -331,7 +331,10 @@ public class GenTelegramExcel {
             if( StringUtils.indexOf(title, c) == title.length()-1 ){
                 break;
             }
-            builder.append("[</strong>|<br\\s{0,}/>|<strong>|</p>|<p[^>]*>]{0,}");
+
+            if( c == ' ' ){
+                builder.append("[</strong>|<br\\s{0,}/>|<strong>|</p>|<p[^>]*>]{0,}");
+            }
         }
 
         builder.append("\\s{0,}</strong>");
@@ -348,6 +351,7 @@ public class GenTelegramExcel {
         Matcher matcher = titlePattern.matcher(content);
         while( matcher.find() ){
             String result = matcher.group();
+//            return matcher.end();
             return StringUtils.indexOf(content, result) + result.length();
         }
 
