@@ -97,6 +97,8 @@ dependencies {
 
     // https://mvnrepository.com/artifact/org.apache.pdfbox/pdfbox
     implementation group: 'org.apache.pdfbox', name: 'pdfbox', version: '2.0.30'
+    // https://mvnrepository.com/artifact/org.apache.pdfbox/pdfbox-tools
+    implementation group: 'org.apache.pdfbox', name: 'pdfbox-tools', version: '2.0.30'
 
     // https://mvnrepository.com/artifact/software.amazon.awssdk/transcribe
     implementation group: 'software.amazon.awssdk', name: 'transcribe', version: '2.21.29'

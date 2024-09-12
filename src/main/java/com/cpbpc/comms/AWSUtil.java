@@ -88,7 +88,7 @@ public class AWSUtil {
         return tags;
     }
 
-    public static void putBibleScriptToS3(String content, String book, String chapter, String verseNum) throws IOException {
+    public static void putBibleScriptToS3(String content, String book, String chapter, String verseNum) throws IOException, InterruptedException {
 
         book = StringUtils.replace(book, " ", "");
         String bucketName = AppProperties.getConfig().getProperty("script_bucket");
@@ -102,6 +102,8 @@ public class AWSUtil {
         String objectKey = prefix + book + "/" + nameToBe + "." + objectType;
         String audioKey =  AppProperties.getConfig().getProperty("output_prefix") + book + "/" + nameToBe + "."
                 + AppProperties.getConfig().getProperty("output_format");
+
+        Thread.sleep(100);
 
         saveToS3(content, bucketName, objectKey, audioKey, 0);
 

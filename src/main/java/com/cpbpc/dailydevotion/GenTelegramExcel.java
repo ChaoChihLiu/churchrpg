@@ -50,9 +50,9 @@ public class GenTelegramExcel {
     private static final Properties appProperties = AppProperties.getConfig();
 
     private static final String year = "2024";
-    private static final String month = "10";
+    private static final String month = "11";
 
-    private static final boolean isTest = true;
+    private static final boolean isTest = false;
 
     /*
 

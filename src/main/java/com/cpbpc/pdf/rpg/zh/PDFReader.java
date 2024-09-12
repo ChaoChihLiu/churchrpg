@@ -50,54 +50,51 @@ public class PDFReader {
             logger.info("wrong data range, change date_from and date_to");
             return;
         }
-        
-        Composer composer = new Composer();
-        try (PDDocument document = PDDocument.load(new File(pdfFilePath))) {
 
-            for (int page = 2; page <= document.getNumberOfPages(); ++page) {
-                StringBuffer buffer = new StringBuffer();
-                final boolean[] withinBracket = {false};
-                PDFTextStripper textStripper = new PDFTextStripper() {
 
-                    private static boolean isBoldFont(TextPosition textPosition) {
-                        return textPosition.getFont().getFontDescriptor().isForceBold() ||
-                                (textPosition.getFont().getFontDescriptor().getFontWeight() >= 700);
-                    }
+        final StringBuffer buffer = new StringBuffer();
+        final boolean[] withinBracket = {false};
+        PDFTextStripper textStripper = new PDFTextStripper() {
 
-                    private static boolean isItalicFont(TextPosition textPosition) {
-                        return textPosition.getFont().getFontDescriptor().isItalic();
-                    }
+            private static boolean isBoldFont(TextPosition textPosition) {
+                return textPosition.getFont().getFontDescriptor().isForceBold() ||
+                        (textPosition.getFont().getFontDescriptor().getFontWeight() >= 700);
+            }
 
-                    @Override
-                    protected void processTextPosition(org.apache.pdfbox.text.TextPosition text) {
+            private static boolean isItalicFont(TextPosition textPosition) {
+                return textPosition.getFont().getFontDescriptor().isItalic();
+            }
 
-                        float fontSize = text.getWidth();
+            @Override
+            protected void processTextPosition(org.apache.pdfbox.text.TextPosition text) {
 
-                        if(withinBracket[0] && RomanNumeral.isRomanNumeral(text.getUnicode())){
-                            buffer.append(text.getUnicode());
-                        }
-                        
-                        if( Math.round(fontSize) == 14
+                float fontSize = text.getWidth();
+
+                if(withinBracket[0] && RomanNumeral.isRomanNumeral(text.getUnicode())){
+                    buffer.append(text.getUnicode());
+                }
+
+                if( Math.round(fontSize) == 14
 //                                && (!StringUtils.equals("(", text.getUnicode()) && !StringUtils.equals(")", text.getUnicode()))
 //                                && (!StringUtils.equals("（", text.getUnicode()) && !StringUtils.equals("）", text.getUnicode()))
-                        ){
-                            buffer.append(text.getUnicode());
-                            if( StringUtils.equals("(", text.getUnicode()) || StringUtils.equals("（", text.getUnicode()) ){
-                                withinBracket[0] = true;
-                            }
-                            if( StringUtils.equals(")", text.getUnicode()) || StringUtils.equals("）", text.getUnicode()) ){
-                                withinBracket[0] = false;
-                            }
-                        }
+                ){
+                    buffer.append(text.getUnicode());
+                    if( StringUtils.equals("(", text.getUnicode()) || StringUtils.equals("（", text.getUnicode()) ){
+                        withinBracket[0] = true;
+                    }
+                    if( StringUtils.equals(")", text.getUnicode()) || StringUtils.equals("）", text.getUnicode()) ){
+                        withinBracket[0] = false;
+                    }
+                }
 
-                        if(     Math.round(fontSize) == 5
-                                &&
-                                (StringUtils.equals("(", text.getUnicode()) || StringUtils.equals(")", text.getUnicode())
+                if(     Math.round(fontSize) == 5
+                        &&
+                        (StringUtils.equals("(", text.getUnicode()) || StringUtils.equals(")", text.getUnicode())
                                 || StringUtils.equals("（", text.getUnicode()) || StringUtils.equals("）", text.getUnicode())
                                 || StringUtils.equals("?", text.getUnicode()) || StringUtils.equals("？", text.getUnicode()))
-                        ){
-                            buffer.append(text.getUnicode());
-                        }
+                ){
+                    buffer.append(text.getUnicode());
+                }
 
 //                        List<List<TextPosition>> textPositionList = getCharactersByArticle();
 //
@@ -114,8 +111,8 @@ public class PDFReader {
 //                            }
 //                        }
 
-                        super.processTextPosition(text);
-                    }
+                super.processTextPosition(text);
+            }
 
 //                    @Override
 //                    protected void writeString(String text, List<TextPosition> textPositions) throws IOException {
@@ -130,9 +127,15 @@ public class PDFReader {
 //                        }
 //                        super.writeString(text, textPositions);
 //                    }
-                };
+        };
+        
+        Composer composer = new Composer();
+        try (PDDocument document = PDDocument.load(new File(pdfFilePath))) {
 
-                
+            for (int page = 2; page <= document.getNumberOfPages(); ++page) {
+                buffer.delete(0, buffer.toString().length());
+                withinBracket[0] = false;
+
                 textStripper.setStartPage(page);
                 textStripper.setEndPage(page);
 
