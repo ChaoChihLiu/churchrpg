@@ -327,6 +327,7 @@ public class AWSUtil {
 
             PutObjectResult result = s3Client.putObject(request);
             logger.info("Object uploaded successfully to S3 bucket: " + localFile.getName());
+            Thread.sleep(1000);
         } catch (Exception e) {
             logger.info(ExceptionUtils.getStackTrace(e));
         }
@@ -347,6 +348,7 @@ public class AWSUtil {
 
             PutObjectResult result = s3Client.putObject(request);
             logger.info("Object uploaded successfully to S3 bucket");
+            Thread.sleep(1000);
         } catch (Exception e) {
             logger.info(ExceptionUtils.getStackTrace(e));
         }
