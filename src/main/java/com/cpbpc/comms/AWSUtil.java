@@ -414,7 +414,8 @@ public class AWSUtil {
         try{
             s3Object = s3Client.getObject(bucketName, objectKey);
             if( s3Object != null ){
-                if( s3Object.getObjectMetadata().getLastModified().getTime() >= timeToUpload.getTime() ){
+                if( s3Object.getObjectMetadata().getLastModified().getTime() >= timeToUpload.getTime()
+                    && s3Object.getObjectMetadata().getContentLength() > 0 ){
                     s3Object.close();
                     return;
                 }

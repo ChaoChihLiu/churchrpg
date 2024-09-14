@@ -245,7 +245,7 @@ public class BibleAudio {
     }
 
     private static boolean isThisChapterDone(String book, int chapter, int numberOfVerse)  {
-        logger.info("test output prefix " + appProperties.getProperty("output_prefix")+StringUtils.remove(book, " ")
+        logger.info("output prefix " + appProperties.getProperty("output_prefix")+StringUtils.remove(book, " ")
                 +"/"+chapter+"/");
 //        List<S3ObjectSummary> summaries = AWSUtil.listS3Objects(appProperties.getProperty("output_bucket"),
 //                                                                appProperties.getProperty("output_prefix")+StringUtils.remove(book, " ")+"/"+chapter+"/");
