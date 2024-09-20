@@ -1,6 +1,7 @@
 package com.cpbpc;
 
 import com.github.houbb.opencc4j.util.ZhConverterUtil;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
 import java.net.URLDecoder;
@@ -43,6 +44,8 @@ public class Encoder {
 //        ssh -L 3306:localhost:3306 tc.george@dst.com.bn@sshbastion1.ams-dst.com
 //        ssh -L 3306:stack-8zctttqoyu8qkvjgp-rdsinstance-w4dyk0s0uosq.ci4ubilvqzsx.ap-southeast-1.rds.amazonaws.com:3306 tc.george@dst.com.bn@sshbastion1.ams-dst.com -N
 
+        System.out.println(StringUtils.rightPad("", 10, "-"));
+        
         for( int i = 1; i<= 150; i++ ){
             String num = String.valueOf(i);
 //            if( i<10 ){
@@ -50,8 +53,8 @@ public class Encoder {
 //            }
 //            System.out.println("https://cpbpc-tts.s3.ap-southeast-1.amazonaws.com/remembrance/April/dr_April_"+num+"_Morning.mp3");
 //            System.out.println("https://cpbpc-tts.s3.ap-southeast-1.amazonaws.com/remembrance/April/dr_April_"+num+"_Evening.mp3");
-            System.out.println("https://cpbpc-bible-reading-plan.s3.ap-southeast-1.amazonaws.com/kjv/Psa"+i+".mp3");
-//            System.out.println("https://cpbpc-bible-reading-plan.s3.ap-southeast-1.amazonaws.com/cuvs/%E8%AF%97"+i+".mp3");
+//            System.out.println("https://cpbpc-bible-reading-plan.s3.ap-southeast-1.amazonaws.com/kjv/Psa"+i+".mp3");
+            System.out.println("https://cpbpc-bible-reading-plan.s3.ap-southeast-1.amazonaws.com/cuvs/%E8%AF%97"+i+".mp3");
 //            System.out.println("https://cpbpc-rpg-audio.s3.ap-southeast-1.amazonaws.com/rpg/2024_12/arpg202412"+num+".mp3");
 //            System.out.println("https://cpbpc-rpg-audio.s3.ap-southeast-1.amazonaws.com/rpg-chinese/2024_12/crpg202412"+num+".mp3");
         }

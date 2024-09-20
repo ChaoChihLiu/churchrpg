@@ -35,3 +35,7 @@ correct-control-files/Incoming/*.DAT
 /access/**/*
 .secret
 node_modules/*
+/src/main/resources/hymnal_content_cropped_for telegram testing.pdf
+/src/main/resources/church_hymn.pdf
+/hymn_output/
+/detected_text_output.txt
