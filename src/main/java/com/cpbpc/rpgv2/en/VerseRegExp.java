@@ -299,7 +299,8 @@ public class VerseRegExp implements VerseIntf {
             return book;
         }
 
-        if( StringUtils.countMatches(verseStr, ":") >=2 ){
+        if( StringUtils.countMatches(verseStr, ":") >= 2
+                || StringUtils.countMatches(verseStr, ":") <= 0 ){
             return "Psalms";
         }
         String hyphen = getHyphen(verseStr);
