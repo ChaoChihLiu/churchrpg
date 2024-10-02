@@ -1,5 +1,6 @@
 package com.cpbpc.comms;
 
+import com.github.houbb.heaven.util.lang.StringUtil;
 import com.github.houbb.opencc4j.util.ZhConverterUtil;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.RegExUtils;
@@ -46,7 +47,7 @@ public abstract class AbstractArticleParser {
 
     public static void main(String args[]) {
         try {
-            String language = "chinese";
+            String language = "english";
 
             String propPath = "/Users/liuchaochih/Documents/GitHub/churchrpg/src/main/resources/app-"+language+".properties";
             FileInputStream in = new FileInputStream(propPath);
@@ -69,11 +70,11 @@ public abstract class AbstractArticleParser {
                 parser = new com.cpbpc.rpgv2.zh.ArticleParser(new Article("2024-10-12", content, "喇合的认罪和请求(二)", "", 1));
                 composer = new com.cpbpc.rpgv2.zh.Composer(parser);
             } else{
-                parser = new com.cpbpc.rpgv2.en.ArticleParser(new Article("2024-10-03", content,  "LIGHT SHINES BRIGHTEST IN DARKEST NIGHT", "", 1));
+                parser = new com.cpbpc.rpgv2.en.ArticleParser(new Article("2025-01-06", content,  "THE LORD COMETH WITH 10,000s OF HIS SAINTS", "", 1));
                 composer = new com.cpbpc.rpgv2.en.Composer(parser);
             }
 
-            List<ComposerResult> results = composer.toTTS(true, "2024-10-12");
+            List<ComposerResult> results = composer.toTTS(true, "2025-01-06");
             StringBuilder script = new StringBuilder();
             for(ComposerResult result : results){
                 script.append(result.getScript());
@@ -131,20 +132,22 @@ public abstract class AbstractArticleParser {
     public String readFocusScripture() {
         VerseIntf verseIntf = ThreadStorage.getVerse();
         String content_removed = removeUnwantedBetweenQuotes(content);
-        int anchorPoint = getAnchorPointAfterTitle(title, content_removed);
+        int dateAnchorPoint = getAnchorPointAfterDate(content_removed);
+        int titleAnchorPoint = getAnchorPointAfterTitle(title, content_removed);
         Pattern pattern = getFocusScripturePattern();
         Matcher m = pattern.matcher(content_removed);
-        if (m.find()) {
-            String targe = m.group(2);
+        StringBuffer buffer = new StringBuffer();
+        while (m.find()) {
+            String targe = m.group();
             int position = m.start();
-            if (position > anchorPoint) {
-                return "";
+            if (position < dateAnchorPoint || position > titleAnchorPoint) {
+                continue;
             }
             String result = removeHtmlTag(replaceWithPause(replaceHtmlSpace(targe)));
-            return verseIntf.convert(result);
+            buffer.append(StringUtil.trim(verseIntf.convert(result))).append(" ");
         }
 
-        return "";
+        return buffer.toString().trim();
     }
     private final List<Pattern> quote_patterns = List.of(Pattern.compile("(\")(([^\"]|\\\\\")*)(\")"), Pattern.compile("(“)(([^“])*)(”)"));
     private String removeUnwantedBetweenQuotes(String input) {
@@ -245,23 +248,10 @@ public abstract class AbstractArticleParser {
         return readTopicVerses(content);
     }
 
-//    public int getAnchorPointAfterScriptureFocus() {
-////        String tag = getParagraphTag();
-////        if (StringUtils.isEmpty(content) || !StringUtils.contains(content, tag)) {
-////            return 0;
-////        }
-//        return StringUtils.indexOf(content, title, 0)+title.length()+1;
-//    }
-
     protected int getAnchorPointAfterTitle(String title, String content) {
         if (StringUtils.isEmpty(title) || StringUtils.isEmpty(content)) {
             return 0;
         }
-//        if (StringUtils.isEmpty(content) || !StringUtils.contains(content, title)) {
-//            return 0;
-//        }
-//        String titleWithTag = "<strong>"+title+"</strong>";
-//        return StringUtils.indexOf(content, titleWithTag, 0) + titleWithTag.length();
         Pattern titlePattern = buildTitlePattern( title );
         Matcher matcher = titlePattern.matcher(content);
         while( matcher.find() ){
@@ -272,6 +262,20 @@ public abstract class AbstractArticleParser {
         return 0;
     }
 
+    protected int getAnchorPointAfterDate(String content) {
+        if (StringUtils.isEmpty(content)) {
+            return 0;
+        }
+        Pattern datePattern = getDatePattern();
+        Matcher matcher = datePattern.matcher(content);
+        while( matcher.find() ){
+            String result = matcher.group();
+            return StringUtils.indexOf(content, result) + result.length();
+        }
+
+        return 0;
+    }
+    
     protected int findNextParagraph(String paragraphTag, int start) {
         if (StringUtils.isEmpty(content) || StringUtils.isEmpty(paragraphTag)) {
             return 0;

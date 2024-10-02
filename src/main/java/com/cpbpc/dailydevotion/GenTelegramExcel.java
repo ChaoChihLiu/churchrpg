@@ -49,8 +49,8 @@ import static com.cpbpc.comms.TextUtil.capitalizeEveryWord;
 public class GenTelegramExcel {
     private static final Properties appProperties = AppProperties.getConfig();
 
-    private static final String year = "2024";
-    private static final String month = "11";
+    private static final String year = "2025";
+    private static final String month = "01";
 
     private static final boolean isTest = false;
 

@@ -104,8 +104,11 @@ public class ArticleParser extends AbstractArticleParser {
 
     @Override
     protected Pattern getFocusScripturePattern() {
-        return Pattern.compile("(“)(.*)(”)");
+        return Pattern.compile("<em>(.*?)</em>");
     }
+//    protected Pattern getFocusScripturePattern() {
+//        return Pattern.compile("(“)(.*)(”)");
+//    }
     
     @Override
     protected Pattern getDatePattern() {

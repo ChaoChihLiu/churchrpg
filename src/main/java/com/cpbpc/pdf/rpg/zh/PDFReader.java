@@ -291,9 +291,9 @@ public class PDFReader {
             return "";
         }
 
-        if( StringUtils.startsWith(input, "0") ){
-            return StringUtils.remove(input, "0");
-        }
+//        if( StringUtils.startsWith(input, "0") ){
+//            return StringUtils.remove(input, "0");
+//        }
 
         return input;
     }

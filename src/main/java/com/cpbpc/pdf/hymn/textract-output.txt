@@ -1,0 +1,52 @@
+Detected Text: WORSHIP OF THE TRIUNE GOD
+Detected Text: Praise and Thanksgiving
+Detected Text: 4
+Detected Text: Holy, Holy, Holy
+Detected Text: NICAEA
+Detected Text: Reginald Heber, 1783-1826
+Detected Text: John B. Dykes, 1823-1876
+Detected Text: 1. Ho -ly, Ho-ly, Ho
+Detected Text: -
+Detected Text: ly,
+Detected Text: Lord
+Detected Text: God Al-might - y!
+Detected Text: Ear - ly in
+Detected Text: the
+Detected Text: 2. Ho -ly, Ho-ly, Ho - ly!
+Detected Text: All the saints a - dore Thee,
+Detected Text: Cast - ing down their
+Detected Text: 3. Ho -ly, Ho-ly, Ho - ly!
+Detected Text: Tho the dark-ness hide Thee,
+Detected Text: Tho the eye
+Detected Text: of
+Detected Text: 4. Ho -ly, Ho-ly, Ho - ly,
+Detected Text: Lord
+Detected Text: God Al - might y!
+Detected Text: All Thy works shall
+Detected Text: morn
+Detected Text: ing our song shall rise to Thee;
+Detected Text: Ho - ly, Ho - ly, Ho ly!
+Detected Text: gold - en crowns a-round - the glass - y
+Detected Text: sea;
+Detected Text: Cher-u -bim - and ser - a - phim -
+Detected Text: sin - ful man Thy glo - ry may not see;
+Detected Text: On - ly Thou art ho - -
+Detected Text: praise Thy name in earth and sky and sea;
+Detected Text: Ho - ly, Ho - ly, Ho - ly!
+Detected Text: Mer - ci - ful and Might - y! God in Three Per - sons, bless - ed Trin - ty!
+Detected Text: fall - ing down be - fore Thee, Which wert and art and ev-er-more shalt be.
+Detected Text: there is none be - side Thee Per - fect in pow'r, in love and pur - i - ty.
+Detected Text: Mer - ci - ful and Might - y! God in Three Per - sons, bless - ed Trin - i - - ty!
+Detected Text: "And one cried unto another, and said, Holy, holy, holy, is the LORD of hosts:
+Detected Text: the whole earth is full of his glory."
+Detected Text: Isaiah 6:3
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 8.0.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+See https://docs.gradle.org/7.5.1/userguide/command_line_interface.html#sec:command_line_warnings
+
+BUILD SUCCESSFUL in 3s
+3 actionable tasks: 2 executed, 1 up-to-date
+5:16:56 pm: Execution finished ':PDFTextract.main()'.

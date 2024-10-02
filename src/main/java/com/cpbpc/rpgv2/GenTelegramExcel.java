@@ -47,15 +47,15 @@ import java.util.regex.Pattern;
 
 public class GenTelegramExcel {
     private static final Properties appProperties = AppProperties.getConfig();
-//    private static final String theme = "The Book of First Samuel";
-//    private static final String writer = "Rev Dr Michael Koech";
-    private static final String theme = "约书亚记";
-    private static final String writer = "麦克 柯业主教";
+    private static final String theme = "The Book of First Samuel";
+    private static final String writer = "Rev Dr Michael Koech";
+//    private static final String theme = "约书亚记";
+//    private static final String writer = "麦克 柯业主教";
 
     private static final String year = "2024";
-    private static final String month = "10";
+    private static final String month = "11";
 
-    private static final String language = "chinese";
+    private static final String language = "english";
     private static final boolean isTest = false;
 
     /*
