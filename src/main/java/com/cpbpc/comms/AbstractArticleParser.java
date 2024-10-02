@@ -23,6 +23,7 @@ import java.util.regex.Pattern;
 import static com.cpbpc.comms.PunctuationTool.changeFullCharacter;
 import static com.cpbpc.comms.PunctuationTool.getPauseTag;
 import static com.cpbpc.comms.TextUtil.removeHtmlTag;
+import static com.cpbpc.comms.TextUtil.removeMultiSpace;
 import static com.cpbpc.comms.TextUtil.replaceHtmlSpace;
 
 public abstract class AbstractArticleParser {
@@ -70,7 +71,7 @@ public abstract class AbstractArticleParser {
                 parser = new com.cpbpc.rpgv2.zh.ArticleParser(new Article("2024-10-12", content, "喇合的认罪和请求(二)", "", 1));
                 composer = new com.cpbpc.rpgv2.zh.Composer(parser);
             } else{
-                parser = new com.cpbpc.rpgv2.en.ArticleParser(new Article("2025-01-06", content,  "THE LORD COMETH WITH 10,000s OF HIS SAINTS", "", 1));
+                parser = new com.cpbpc.rpgv2.en.ArticleParser(new Article("2025-01-06", content,  "BEHOLD, HE COMETH WITH CLOUDS", "", 1));
                 composer = new com.cpbpc.rpgv2.en.Composer(parser);
             }
 
@@ -96,7 +97,7 @@ public abstract class AbstractArticleParser {
     
     private Pattern buildTitlePattern(String title) {
 
-        StringBuilder builder = new StringBuilder("<strong>\\s*");
+        StringBuilder builder = new StringBuilder("<strong>“?\\s*");
         for( char c : title.toCharArray() ){
 
             if( c == '(' || c == ')' || c == '?' ){
@@ -113,7 +114,7 @@ public abstract class AbstractArticleParser {
             }
         }
 
-        builder.append("\\s*<\\/strong>");
+        builder.append("”?\\s*<\\/strong>");
 
         return Pattern.compile(builder.toString());
     }
@@ -144,7 +145,7 @@ public abstract class AbstractArticleParser {
                 continue;
             }
             String result = removeHtmlTag(replaceWithPause(replaceHtmlSpace(targe)));
-            buffer.append(StringUtil.trim(verseIntf.convert(result))).append(" ");
+            buffer.append(removeMultiSpace(StringUtil.trim(verseIntf.convert(result)))).append(" ");
         }
 
         return buffer.toString().trim();
