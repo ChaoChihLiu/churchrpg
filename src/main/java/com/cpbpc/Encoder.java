@@ -46,17 +46,17 @@ public class Encoder {
 
         System.out.println(StringUtils.rightPad("", 10, "-"));
         
-        for( int i = 1; i<= 8; i++ ){
+        for( int i = 1; i<= 28; i++ ){
             String num = String.valueOf(i);
-//            if( i<10 ){
-//                num = "0"+String.valueOf(i);
-//            }
+            if( i<10 ){
+                num = "0"+String.valueOf(i);
+            }
 //            System.out.println("https://cpbpc-tts.s3.ap-southeast-1.amazonaws.com/remembrance/May/dr_May_"+num+"_Morning.mp3");
 //            System.out.println("https://cpbpc-tts.s3.ap-southeast-1.amazonaws.com/remembrance/May/dr_May_"+num+"_Evening.mp3");
 //            System.out.println("https://cpbpc-bible-reading-plan.s3.ap-southeast-1.amazonaws.com/kjv/Acts"+i+".mp3");
-            System.out.println("https://cpbpc-bible-reading-plan.s3.ap-southeast-1.amazonaws.com/cuvs/%E6%9E%97%E5%89%8D"+i+".mp3");
-//            System.out.println("https://cpbpc-rpg-audio.s3.ap-southeast-1.amazonaws.com/rpg/2025_02/arpg202502"+num+".mp3");
-//            System.out.println("https://cpbpc-rpg-audio.s3.ap-southeast-1.amazonaws.com/rpg-chinese/2024_12/crpg202412"+num+".mp3");
+//            System.out.println("https://cpbpc-bible-reading-plan.s3.ap-southeast-1.amazonaws.com/cuvs/%E6%9E%97%E5%89%8D"+i+".mp3");
+            System.out.println("https://cpbpc-rpg-audio.s3.ap-southeast-1.amazonaws.com/rpg/2025_03/arpg202503"+num+".mp3");
+//            System.out.println("https://cpbpc-rpg-audio.s3.ap-southeast-1.amazonaws.com/rpg-chinese/2025_03/crpg202503"+num+".mp3");
         }
 
 //        for( int i=1; i<=50; i++ ){
