@@ -71,7 +71,7 @@ public abstract class AbstractArticleParser {
                 parser = new com.cpbpc.rpgv2.zh.ArticleParser(new Article("2024-10-12", content, "喇合的认罪和请求(二)", "", 1));
                 composer = new com.cpbpc.rpgv2.zh.Composer(parser);
             } else{
-                parser = new com.cpbpc.rpgv2.en.ArticleParser(new Article("2025-01-06", content,  "BEHOLD, HE COMETH WITH CLOUDS", "", 1));
+                parser = new com.cpbpc.rpgv2.en.ArticleParser(new Article("2025-01-16", content,  "“THEY SHALL BE MY PEOPLE” (by Charles Spurgeon)", "", 1));
                 composer = new com.cpbpc.rpgv2.en.Composer(parser);
             }
 

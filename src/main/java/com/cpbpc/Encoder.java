@@ -22,7 +22,7 @@ public class Encoder {
 //         System.out.println(replaced);
 
 //        System.out.println(URLEncoder.encode(ZhConverterUtil.toSimple("https://www.kepeklian.fr/mm.php")));
-        System.out.println(URLEncoder.encode(ZhConverterUtil.toSimple("伯")));
+        System.out.println(URLEncoder.encode(ZhConverterUtil.toSimple("林前")));
 
         
 //        System.out.println(Integer.parseInt(StringUtils.substring("rpg/2024_06/arpg20240630-1.mp3", StringUtils.indexOf("rpg/2024_06/arpg20240630-1.mp3", "-")+1, StringUtils.indexOf("rpg/2024_06/arpg20240630-1.mp3", ".mp3"))));
@@ -46,17 +46,17 @@ public class Encoder {
 
         System.out.println(StringUtils.rightPad("", 10, "-"));
         
-        for( int i = 1; i<= 31; i++ ){
+        for( int i = 1; i<= 8; i++ ){
             String num = String.valueOf(i);
 //            if( i<10 ){
 //                num = "0"+String.valueOf(i);
 //            }
 //            System.out.println("https://cpbpc-tts.s3.ap-southeast-1.amazonaws.com/remembrance/May/dr_May_"+num+"_Morning.mp3");
 //            System.out.println("https://cpbpc-tts.s3.ap-southeast-1.amazonaws.com/remembrance/May/dr_May_"+num+"_Evening.mp3");
-//            System.out.println("https://cpbpc-bible-reading-plan.s3.ap-southeast-1.amazonaws.com/kjv/Psa"+i+".mp3");
-//            System.out.println("https://cpbpc-bible-reading-plan.s3.ap-southeast-1.amazonaws.com/cuvs/%E8%AF%97"+i+".mp3");
+//            System.out.println("https://cpbpc-bible-reading-plan.s3.ap-southeast-1.amazonaws.com/kjv/Acts"+i+".mp3");
+            System.out.println("https://cpbpc-bible-reading-plan.s3.ap-southeast-1.amazonaws.com/cuvs/%E6%9E%97%E5%89%8D"+i+".mp3");
 //            System.out.println("https://cpbpc-rpg-audio.s3.ap-southeast-1.amazonaws.com/rpg/2025_02/arpg202502"+num+".mp3");
-            System.out.println("https://cpbpc-rpg-audio.s3.ap-southeast-1.amazonaws.com/rpg-chinese/2024_12/crpg202412"+num+".mp3");
+//            System.out.println("https://cpbpc-rpg-audio.s3.ap-southeast-1.amazonaws.com/rpg-chinese/2024_12/crpg202412"+num+".mp3");
         }
 
 //        for( int i=1; i<=50; i++ ){

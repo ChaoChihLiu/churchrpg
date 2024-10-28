@@ -30,7 +30,7 @@ public class ArticleParser {
         return title;
     }
 
-    private static Pattern date_pattern = Pattern.compile("(?:一|二|三|四|五|六|七|八|九|十|十一|十二)月[一|二|三|四|五|六|七|八|九|十]{1,3}日，(礼拜|星期|主)(?:一|二|三|四|五|六|日)");
+    private static Pattern date_pattern = Pattern.compile("(?:一|二|三|四|五|六|七|八|九|十|十一|十二)月[一|二|三|四|五|六|七|八|九|十]{1,3}日{0,}[（上）|（下）]{0,}，(礼拜|星期|主)(?:一|二|三|四|五|六|日)");
     public String readDate(){
         Matcher matcher = date_pattern.matcher(content);
 

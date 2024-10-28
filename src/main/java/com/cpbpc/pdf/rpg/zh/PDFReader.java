@@ -23,7 +23,7 @@ public class PDFReader {
 
     private static Logger logger = Logger.getLogger(PDFReader.class.getName());
 
-    private static final boolean isTest = false;
+    private static final boolean isTest = true;
 
     private String pdfPath = "";
     public PDFReader(String path){
@@ -132,7 +132,7 @@ public class PDFReader {
         Composer composer = new Composer();
         try (PDDocument document = PDDocument.load(new File(pdfFilePath))) {
 
-            for (int page = 2; page <= document.getNumberOfPages(); ++page) {
+            for (int page = 61; page <= document.getNumberOfPages(); ++page) {
                 buffer.delete(0, buffer.toString().length());
                 withinBracket[0] = false;
 
@@ -231,7 +231,8 @@ public class PDFReader {
         int from = Integer.valueOf(from_date_str);
         int to = Integer.valueOf(to_date_str);
         for( int i = from; i<=to; i++ ){
-            list.add( NumberConverter.toChineseNumber(Integer.valueOf(from_month_str)) + "月" + NumberConverter.toChineseNumber(i) + "日" );
+//            list.add( NumberConverter.toChineseNumber(Integer.valueOf(from_month_str)) + "月" + NumberConverter.toChineseNumber(i) + "日" );
+            list.add( NumberConverter.toChineseNumber(Integer.valueOf(from_month_str)) + "月" + NumberConverter.toChineseNumber(i) );
         }
 
         return list;

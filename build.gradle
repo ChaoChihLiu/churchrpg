@@ -137,6 +137,8 @@ dependencies {
     implementation group: 'com.amazonaws', name: 'aws-java-sdk-textract', version: '1.12.772'
 //    implementation group: 'software.amazon.awssdk', name: 'textract', version: '2.28.3'
 
+    // https://mvnrepository.com/artifact/org.jsoup/jsoup
+    implementation group: 'org.jsoup', name: 'jsoup', version: '1.18.1'
 }
 
 task buildZip(type: Zip) {
