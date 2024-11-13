@@ -63,23 +63,46 @@ public class BibleVerseGrab {
     }
 
     static int toNumber(String s) {
+//        if (NumberUtils.isCreatable(s)) {
+//            return NumberUtils.createInteger(s);
+//        }
+//
+//        String x = " 一二三四五六七八九十百";
+//        int l = s.length(),
+//                i = x.indexOf(s.charAt(l - 1)),
+//                j = x.indexOf(s.charAt(0));
+//        if (l < 2) return i; // 1-10
+//        if (l < 3) {
+//            if (i == 10) return j * 10; // 20,30,40,50,60,70,80,90
+//            if (i > 10) return j * 100; // 100,200,300,400,500,600,700,800,900
+//            return 10 + i; // 11-19
+//        }
+//        if (l < 4) return j * 10 + i; // 21-29,31-39,41-49,51-59,61-69,71-79,81-89,91-99
+//        if (l < 5) return j * 100 + i; // 101-109,201-209,301-309,401-409,501-509,601-609,701-709,801-809,901-909
+//        return j * 100 + i + x.indexOf(s.charAt(2)) * 10; // 111-119,121-129,131-139,...,971-979,981-989,991-999
+
         if (NumberUtils.isCreatable(s)) {
             return NumberUtils.createInteger(s);
         }
 
         String x = " 一二三四五六七八九十百";
-        int l = s.length(),
-                i = x.indexOf(s.charAt(l - 1)),
-                j = x.indexOf(s.charAt(0));
-        if (l < 2) return i; // 1-10
-        if (l < 3) {
-            if (i == 10) return j * 10; // 20,30,40,50,60,70,80,90
-            if (i > 10) return j * 100; // 100,200,300,400,500,600,700,800,900
-            return 10 + i; // 11-19
+        int l = s.length();
+        int result = 0;
+
+        int hundreds = s.contains("百") ? x.indexOf(s.charAt(s.indexOf("百") - 1)) : 0;
+        int tens = s.contains("十") ? x.indexOf(s.charAt(s.indexOf("十") - 1)) : 0;
+        int ones = (s.charAt(l - 1) != '十' && s.charAt(l - 1) != '百') ? x.indexOf(s.charAt(l - 1)) : 0;
+
+        if (hundreds > 0) {
+            result += hundreds * 100;
         }
-        if (l < 4) return j * 10 + i; // 21-29,31-39,41-49,51-59,61-69,71-79,81-89,91-99
-        if (l < 5) return j * 100 + i; // 101-109,201-209,301-309,401-409,501-509,601-609,701-709,801-809,901-909
-        return j * 100 + i + x.indexOf(s.charAt(2)) * 10; // 111-119,121-129,131-139,...,971-979,981-989,991-999
+
+        if (tens > 0 || s.contains("十")) {  // Handle cases like "十" (10), "二十" (20), etc.
+            result += (tens > 0 ? tens : 1) * 10;
+        }
+
+        result += ones;
+        return result;
     }
 
     public static void main(String[] args) throws IOException {

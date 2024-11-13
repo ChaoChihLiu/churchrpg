@@ -50,7 +50,7 @@ public class GenTelegramExcel {
     private static final Properties appProperties = AppProperties.getConfig();
 
     private static final String year = "2025";
-    private static final String month = "01";
+    private static final String month = "03";
 
     private static final boolean isTest = false;
 
@@ -156,10 +156,10 @@ public class GenTelegramExcel {
             cell.setCellStyle(hlinkStyle);
         }
 
-        System.out.println( "text url:" );
-        System.out.println(StringUtils.join(textUrls, System.lineSeparator()));
-        System.out.println( "audio url:" );
-        System.out.println(StringUtils.join(audioURLs, System.lineSeparator()));
+//        System.out.println( "text url:" );
+//        System.out.println(StringUtils.join(textUrls, System.lineSeparator()));
+//        System.out.println( "audio url:" );
+//        System.out.println(StringUtils.join(audioURLs, System.lineSeparator()));
 
 //        // Save the workbook to a file or stream
         try (FileOutputStream fileOut = new FileOutputStream("daily_remembrance.xlsx")) {

@@ -103,6 +103,7 @@ public class BibleAudio {
                     singleChapters.put( extractBook(verse)+i, result.get(0)+"|"+i );
 
                     count++;
+
                 }
                 pl_script = StringUtils.join(chapterContents, System.lineSeparator());
             }//end of if
@@ -337,12 +338,12 @@ public class BibleAudio {
                 script = breakNewLine(wrapTTS(verse));
 //                script = breakNewLine(wrapTTS(verse));
             }else{
-                Thread.sleep(3000);
                 script = breakNewLine(wrapTTS(verse));
             }
 //            System.out.println(script);
             AWSUtil.putBibleScriptToS3(script, book, String.valueOf(chapterNum), String.valueOf(verseNum));
             verseNum++;
+            Thread.sleep(3000);
         }
     }
 

@@ -47,15 +47,15 @@ import java.util.regex.Pattern;
 
 public class GenTelegramExcel {
     private static final Properties appProperties = AppProperties.getConfig();
-    private static final String theme = "The Book of First Samuel";
-    private static final String writer = "Rev Dr Michael Koech";
-//    private static final String theme = "约书亚记";
-//    private static final String writer = "麦克 柯业主教";
+//    private static final String theme = "The Book of First Samuel";
+//    private static final String writer = "Rev Dr Michael Koech";
+    private static final String theme = "约书亚记";
+    private static final String writer = "麦克 柯业主教";
 
     private static final String year = "2024";
-    private static final String month = "11";
+    private static final String month = "12";
 
-    private static final String language = "english";
+    private static final String language = "chinese";
     private static final boolean isTest = false;
 
     /*
@@ -143,10 +143,10 @@ public class GenTelegramExcel {
 
         }
 
-        System.out.println( "text url:" );
-        System.out.println(StringUtils.join(textUrls, System.lineSeparator()));
-        System.out.println( "audio url:" );
-        System.out.println(StringUtils.join(audioURLs, System.lineSeparator()));
+//        System.out.println( "text url:" );
+//        System.out.println(StringUtils.join(textUrls, System.lineSeparator()));
+//        System.out.println( "audio url:" );
+//        System.out.println(StringUtils.join(audioURLs, System.lineSeparator()));
 
 //        // Save the workbook to a file or stream
         try (FileOutputStream fileOut = new FileOutputStream("rpg-telegram-"+language+".xlsx")) {
