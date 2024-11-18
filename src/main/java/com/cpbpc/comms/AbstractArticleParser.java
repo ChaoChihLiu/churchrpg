@@ -40,6 +40,7 @@ public abstract class AbstractArticleParser {
         this.article = article;
         this.content = changeFullCharacter(ZhConverterUtil.toSimple(article.getContent()));
         this.content = this.content.replaceAll("\\.\\.\\.", ".").replaceAll("\\.\\.", ".");
+        this.content = TextUtil.replaceHtmlSpace(this.content);
         this.title = changeFullCharacter(ZhConverterUtil.toSimple(article.getTitle()));
         if( AppProperties.isChinese() ){
             this.title = StringUtils.remove(this.title, " ");
@@ -48,7 +49,7 @@ public abstract class AbstractArticleParser {
 
     public static void main(String args[]) {
         try {
-            String language = "chinese";
+            String language = "english";
 
             String propPath = "/Users/liuchaochih/Documents/GitHub/churchrpg/src/main/resources/app-"+language+".properties";
             FileInputStream in = new FileInputStream(propPath);
@@ -71,7 +72,7 @@ public abstract class AbstractArticleParser {
                 parser = new com.cpbpc.rpgv2.zh.ArticleParser(new Article("2025-02-26", content, "神的话语防备网罗", "", 1));
                 composer = new com.cpbpc.rpgv2.zh.Composer(parser);
             } else{
-                parser = new com.cpbpc.rpgv2.en.ArticleParser(new Article("2025-01-16", content,  "“THEY SHALL BE MY PEOPLE” (by Charles Spurgeon)", "", 1));
+                parser = new com.cpbpc.rpgv2.en.ArticleParser(new Article("2025-03-08", content,  "YIELDING AND TRUSTING", "", 1));
                 composer = new com.cpbpc.rpgv2.en.Composer(parser);
             }
 
@@ -97,7 +98,29 @@ public abstract class AbstractArticleParser {
     
     private Pattern buildTitlePattern(String title) {
 
-        StringBuilder builder = new StringBuilder("<strong>“?\\s*");
+//        StringBuilder builder = new StringBuilder("<strong>“?\\s*");
+//        for( char c : title.toCharArray() ){
+//
+//            if( c == '(' || c == ')' || c == '?' ){
+//                builder.append('\\');
+//            }
+//
+//            builder.append(c);
+//            if( StringUtils.indexOf(title, c) == title.length()-1 ){
+//                break;
+//            }
+//            if( c == ' ' ){
+////                builder.append("[<\\/strong>|<br\\s{0,}/>|<strong>|</p>|<p[^>]*>]{0,}");
+//                builder.append("(?:<\\/strong>|<br\\s*\\/?>|<strong>|<\\/p>|<p[^>]*>)*\\s*");
+//            }
+//        }
+//
+//        builder.append("”?\\s*<\\/strong>");
+//
+//        return Pattern.compile(builder.toString());
+
+//        String title_replaced = title.replaceAll("“", "");
+        StringBuilder builder = new StringBuilder();
         for( char c : title.toCharArray() ){
 
             if( c == '(' || c == ')' || c == '?' ){
@@ -109,12 +132,9 @@ public abstract class AbstractArticleParser {
                 break;
             }
             if( c == ' ' ){
-//                builder.append("[<\\/strong>|<br\\s{0,}/>|<strong>|</p>|<p[^>]*>]{0,}");
-                builder.append("(?:<\\/strong>|<br\\s*\\/?>|<strong>|<\\/p>|<p[^>]*>)*\\s*");
+                builder.append("(?:<\\/strong>|<br\\s*\\/?>|<strong>|<\\/p>|<p[^>]*>|<\\/span>|<span[^>]*>|<\\/div>|<div[^>]*>)*\\s*");
             }
         }
-
-        builder.append("”?\\s*<\\/strong>");
 
         return Pattern.compile(builder.toString());
     }

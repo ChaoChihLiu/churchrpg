@@ -64,15 +64,15 @@ public class BibleVerseGrab {
 //                String verseStr = "32:7";
 //        String verseStr = "31:1,7, 9,11";
 //        String verseStr = "3:7-9";
-        String book = "Leviticus";
+        String book = "Genesis";
 //        String book = "Proverbs";
 //        String verseStr = "32:7-34";
-//        String verseStr = "32:7-34:9";
+        String verseStr = "42:29-43:14";
 //        String verseStr = "24:1-8";
 //        String verseStr = "24-26:8";                  
 //        String verseStr = "9";
 //        String verseStr = "25:23-28, 47-55";
-        String verseStr = "25:23-28, 47,49,51";
+//        String verseStr = "25:23-28, 47,49,51";
         System.out.println(grab(book, verseStr));
     }
     public static String grab(String book, String verseStr) throws IOException {
@@ -90,7 +90,6 @@ public class BibleVerseGrab {
             return attachBibleVerses(book, result, chapterBreak);
         }
         //3:7-9
-        //32:7-34:9
         else if (checkCondition1(verseStr)) {
             List<String> result = new ArrayList<>();
             result.addAll(returnVerses(verseStr));
@@ -110,8 +109,9 @@ public class BibleVerseGrab {
             }
             return builder.toString();
         }
+        //32:7-34:9
         //24-26:8
-        else if (checkCondition4(verseStr)
+        else if (checkCondition5(verseStr)
                 || checkCondition2(verseStr)) {
             List<String> result = new ArrayList<>();
             String hyphen = getHyphen(verseStr);
@@ -138,7 +138,7 @@ public class BibleVerseGrab {
                 result.addAll(returnVerses(i + ""));
             }
             result.addAll(list2);
-
+            return attachBibleVerses(book, result, chapterBreak);
         }
         //only has 1 but entire chapter
         else if( NumberUtils.isCreatable(StringUtils.trim(verseStr)) ){
@@ -150,8 +150,8 @@ public class BibleVerseGrab {
             result.addAll(returnVerses(verseStr));
             return attachBibleVerses(book, result, chapterBreak);
         }
-
-        return "";
+//
+//        return "";
     }
 
     //25:23-28, 47-55
@@ -175,6 +175,11 @@ public class BibleVerseGrab {
 
     //24-26:8
     private static boolean checkCondition2(String verseStr) {
+
+        if( StringUtils.countMatches(verseStr, ":") != 1 ){
+            return false;
+        }
+
         StringBuilder pattern_str = new StringBuilder("[0-9]{1,3}");
         pattern_str.append("[");
         String[] hyphens = PunctuationTool.getHyphensUnicode();
@@ -192,15 +197,39 @@ public class BibleVerseGrab {
     }
 
     //3:7-9
-    //32:7-34:9
     private static boolean checkCondition1(String verseStr) {
+        if( StringUtils.countMatches(verseStr, ":") > 1 ){
+            return false;
+        }
+
         StringBuilder pattern_str = new StringBuilder("[0-9]{1,3}:[0-9]{1,3}");
         pattern_str.append("[");
         String[] hyphens = PunctuationTool.getHyphensUnicode();
         for( String hyphen : hyphens ){
             pattern_str.append(hyphen);
         }
-        pattern_str.append("][0-9]{1,3}:{0,}[0-9]{0,3}");
+        pattern_str.append("][0-9]{1,3}");
+
+        Pattern patter1 = Pattern.compile(pattern_str.toString());
+        Matcher matcher = patter1.matcher(verseStr);
+        if( matcher.find() ){
+            return true;
+        }
+        return false;
+    }
+    //32:7-34:9
+    private static boolean checkCondition5(String verseStr) {
+        if( StringUtils.countMatches(verseStr, ":") < 2 ){
+            return false;
+        }
+
+        StringBuilder pattern_str = new StringBuilder("[0-9]{1,3}:[0-9]{1,3}");
+        pattern_str.append("[");
+        String[] hyphens = PunctuationTool.getHyphensUnicode();
+        for( String hyphen : hyphens ){
+            pattern_str.append(hyphen);
+        }
+        pattern_str.append("][0-9]{1,3}:[0-9]{1,3}");
 
         Pattern patter1 = Pattern.compile(pattern_str.toString());
         Matcher matcher = patter1.matcher(verseStr);
@@ -211,6 +240,10 @@ public class BibleVerseGrab {
     }
     //3-9
     private static boolean checkCondition4(String verseStr) {
+        if( StringUtils.countMatches(verseStr, ":") > 0 ){
+            return false;
+        }
+
         StringBuilder pattern_str = new StringBuilder("[0-9]{1,3}");
         pattern_str.append("[");
         String[] hyphens = PunctuationTool.getHyphensUnicode();
