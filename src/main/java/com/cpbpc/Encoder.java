@@ -46,7 +46,7 @@ public class Encoder {
 
         System.out.println(StringUtils.rightPad("", 10, "-"));
         
-        for( int i = 1; i<= 19; i++ ){
+        for( int i = 1; i<= 30; i++ ){
             String num = String.valueOf(i);
             if( i<10 ){
                 num = "0"+String.valueOf(i);

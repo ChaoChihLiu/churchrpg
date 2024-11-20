@@ -40,7 +40,7 @@ import static com.cpbpc.comms.TextUtil.returnChapterWord;
 
 public class BibleAudio {
     private static Logger logger = Logger.getLogger(BibleAudio.class.getName());
-    private static Boolean isTest = false;
+    private static Boolean isTest = true;
 
     public BibleAudio(){
     }

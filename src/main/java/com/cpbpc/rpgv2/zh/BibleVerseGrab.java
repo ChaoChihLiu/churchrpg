@@ -89,20 +89,31 @@ public class BibleVerseGrab {
         int l = s.length();
         int result = 0;
 
+        // Handle hundreds place
         int hundreds = s.contains("百") ? x.indexOf(s.charAt(s.indexOf("百") - 1)) : 0;
-        int tens = s.contains("十") ? x.indexOf(s.charAt(s.indexOf("十") - 1)) : 0;
+
+        // Handle tens place
+        int tens = 0;
+        if (s.contains("十")) {
+            int tenIndex = s.indexOf("十");
+            tens = (tenIndex > 0) ? x.indexOf(s.charAt(tenIndex - 1)) : 1; // Use 1 if "十" is the first character
+        }
+
+        // Handle ones place
         int ones = (s.charAt(l - 1) != '十' && s.charAt(l - 1) != '百') ? x.indexOf(s.charAt(l - 1)) : 0;
 
         if (hundreds > 0) {
             result += hundreds * 100;
         }
 
-        if (tens > 0 || s.contains("十")) {  // Handle cases like "十" (10), "二十" (20), etc.
-            result += (tens > 0 ? tens : 1) * 10;
+        if (tens > 0 || s.contains("十")) { // Handle cases like "十" (10), "二十" (20), etc.
+            result += tens * 10;
         }
 
         result += ones;
+
         return result;
+
     }
 
     public static void main(String[] args) throws IOException {
