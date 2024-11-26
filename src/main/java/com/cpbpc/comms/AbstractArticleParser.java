@@ -49,7 +49,7 @@ public abstract class AbstractArticleParser {
 
     public static void main(String args[]) {
         try {
-            String language = "english";
+            String language = "chinese";
 
             String propPath = "/Users/liuchaochih/Documents/GitHub/churchrpg/src/main/resources/app-"+language+".properties";
             FileInputStream in = new FileInputStream(propPath);
@@ -69,7 +69,7 @@ public abstract class AbstractArticleParser {
             AbstractArticleParser parser = null;
             AbstractComposer composer = null;
             if( language.equals("chinese") ){
-                parser = new com.cpbpc.rpgv2.zh.ArticleParser(new Article("2025-02-26", content, "神的话语防备网罗", "", 1));
+                parser = new com.cpbpc.rpgv2.zh.ArticleParser(new Article("2025-01-31", content, "神给遵守之人的话", "", 1));
                 composer = new com.cpbpc.rpgv2.zh.Composer(parser);
             } else{
                 parser = new com.cpbpc.rpgv2.en.ArticleParser(new Article("2025-03-08", content,  "YIELDING AND TRUSTING", "", 1));
