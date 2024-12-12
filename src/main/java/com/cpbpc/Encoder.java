@@ -46,7 +46,7 @@ public class Encoder {
 
         System.out.println(StringUtils.rightPad("", 10, "-"));
         
-        for( int i = 1; i<= 30; i++ ){
+        for( int i = 1; i<= 6; i++ ){
             String num = String.valueOf(i);
             if( i<10 ){
                 num = "0"+String.valueOf(i);
@@ -54,7 +54,7 @@ public class Encoder {
 //            System.out.println("https://cpbpc-tts.s3.ap-southeast-1.amazonaws.com/remembrance/May/dr_May_"+num+"_Morning.mp3");
 //            System.out.println("https://cpbpc-tts.s3.ap-southeast-1.amazonaws.com/remembrance/May/dr_May_"+num+"_Evening.mp3");
 //            System.out.println("https://cpbpc-bible-reading-plan.s3.ap-southeast-1.amazonaws.com/kjv/Acts"+i+".mp3");
-            System.out.println("https://cpbpc-bible-reading-plan.s3.ap-southeast-1.amazonaws.com/cuvs/%E8%B5%9B"+i+".mp3");
+            System.out.println("https://cpbpc-bible-reading-plan.s3.ap-southeast-1.amazonaws.com/cuvs/%E8%85%93"+i+".mp3");
 //            System.out.println("https://cpbpc-rpg-audio.s3.ap-southeast-1.amazonaws.com/rpg/2025_03/arpg202503"+num+".mp3");
 //            System.out.println("https://cpbpc-rpg-audio.s3.ap-southeast-1.amazonaws.com/rpg-chinese/2025_03/crpg202503"+num+".mp3");
         }

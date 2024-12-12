@@ -26,11 +26,11 @@ public class PronunciationFix {
     private static Logger logger = Logger.getLogger(PronunciationFix.class.getName());
 
     private static String csvfile = "test.csv";
-//    private static String folder_path = "/Users/liuchaochih/Downloads/";
-//    private static String folder = "kjv";
+    private static String folder_path = "/Users/liuchaochih/Downloads/";
+    private static String folder = "kjv";
 //        private static String folder = "cpbpc-tts-script/kjv";
-    private static String folder = "";
-    private static String folder_path = "/sftpusers/chroot/coder/";
+//    private static String folder = "";
+//    private static String folder_path = "/sftpusers/chroot/coder/";
 
     private static Map<String, String> fixes = new HashMap<>();
     private static Pattern phonemePattern = null;
