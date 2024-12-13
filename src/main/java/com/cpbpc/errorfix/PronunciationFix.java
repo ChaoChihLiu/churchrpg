@@ -95,7 +95,7 @@ public class PronunciationFix {
     private static void processXmlFile(File xmlFile) throws IOException, InterruptedException {
         String original_transcript = readContent(xmlFile);
         String transcript = fixPhoneme(original_transcript, fixes, phonemePattern);
-        transcript = fixPronunciation(transcript, fixes, wordPattern, false);
+        transcript = fixPronunciation(transcript, fixes, wordPattern, true);
 
         if( StringUtils.equals(original_transcript, transcript) ){
             return;
