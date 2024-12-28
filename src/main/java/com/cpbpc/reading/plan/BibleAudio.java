@@ -51,7 +51,7 @@ public class BibleAudio {
         AppProperties.loadConfig(System.getProperty("app.properties",
                                                     "/Users/liuchaochih/Documents/GitHub/churchrpg/src/main/resources/app-bibleplan-chinese.properties"));
         initStorage();
-        isTest = Boolean.valueOf((String)appProperties.getOrDefault("isTest", "false"));
+        isTest = Boolean.valueOf((String)appProperties.getOrDefault("isTest", "true"));
 
         List<String> verses = new ArrayList<>();
         List<String> objectURLs = new ArrayList<>();

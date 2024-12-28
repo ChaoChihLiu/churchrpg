@@ -52,11 +52,11 @@ public class GenTelegramExcel {
 //    private static final int end = 1;
     private static final int start = 2;
     private static final int end = 2;
-    private static final boolean isTest = false;
+    private static final boolean isTest = true;
 
     private static final String filePath = "/Users/liuchaochih/Documents/GitHub/churchrpg/src/main/resources/2-year-reading-plan.xlsx";
 //    private static List<Integer> columnsToRead = Arrays.asList(1, 4, 7, 10, 13, 16);
-private static List<Integer> columnsToRead = Arrays.asList(1);
+    private static List<Integer> columnsToRead = Arrays.asList(1);
 
     /*
     ✝️ 彼得前书1-3章
@@ -132,6 +132,10 @@ private static List<Integer> columnsToRead = Arrays.asList(1);
                 workbook.write(fos);
                 System.out.println("Workbook updated successfully!");
             }
+
+            audioURLs.forEach(url -> {
+                System.out.println(url);
+            });
         } catch (IOException e) {
             System.err.println("Error reading the Excel file: " + e.getMessage());
         }

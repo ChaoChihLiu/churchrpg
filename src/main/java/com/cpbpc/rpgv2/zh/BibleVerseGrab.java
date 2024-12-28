@@ -379,7 +379,7 @@ public class BibleVerseGrab {
             textCacheBGW.put(bookChapter, text);
         }
 
-        String versePattern = createVersePatternBGW(chapter, verse);
+        String versePattern = createVersePatternBGW(book, chapter, verse);
         Pattern p = Pattern.compile(versePattern);
         Matcher matcher = p.matcher(text);
         String result = "";
@@ -416,15 +416,15 @@ public class BibleVerseGrab {
         return result;
     }
 
-    private static boolean verifyVerse(String text, int chapter, int verse, boolean isBGW) {
-        String versePattern = createVersePatternEDZX(chapter, verse);
-        if( isBGW ){
-            versePattern = createVersePatternBGW(chapter, verse);
-        }
-        Pattern p = Pattern.compile(versePattern);
-        Matcher matcher = p.matcher(text);
-        return matcher.find();
-    }
+//    private static boolean verifyVerse(String text, int chapter, int verse, boolean isBGW) {
+//        String versePattern = createVersePatternEDZX(chapter, verse);
+//        if( isBGW ){
+//            versePattern = createVersePatternBGW(chapter, verse);
+//        }
+//        Pattern p = Pattern.compile(versePattern);
+//        Matcher matcher = p.matcher(text);
+//        return matcher.find();
+//    }
 
     /*
     <td>8:21</td>
@@ -432,8 +432,8 @@ public class BibleVerseGrab {
       <div class="verse_list">                                    西巴和撒慕拿说，你自己起来杀我们吧。因为人如何，力量也是如何。基甸就起来，杀了西巴和撒慕拿，夺获他们骆驼项上戴的月牙圈。                                </div>
    </td>
      */
-    private static String createVersePatternBGW(int chapterNumber, int verseNumber) {
-        if (verseNumber == 1) {
+    private static String createVersePatternBGW(String book, int chapterNumber, int verseNumber) {
+        if (verseNumber == 1 && !StringUtils.equals(book, "腓利門書")) {
             return "(<span\\s{1,}class=\"chapternum\">" + chapterNumber + "[\\u00A0|&nbsp;]</span>)([^<>]*)(</span>)";
         }
 
