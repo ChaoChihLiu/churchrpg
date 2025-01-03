@@ -16,6 +16,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -23,7 +24,7 @@ public class PDFReader {
 
     private static Logger logger = Logger.getLogger(PDFReader.class.getName());
 
-    private static final boolean isTest = true;
+    private static final boolean isTest = false;
 
     private String pdfPath = "";
     public PDFReader(String path){
@@ -132,7 +133,7 @@ public class PDFReader {
         Composer composer = new Composer();
         try (PDDocument document = PDDocument.load(new File(pdfFilePath))) {
 
-            for (int page = 61; page <= document.getNumberOfPages(); ++page) {
+            for (int page = 2; page <= document.getNumberOfPages(); ++page) {
                 buffer.delete(0, buffer.toString().length());
                 withinBracket[0] = false;
 
@@ -235,6 +236,7 @@ public class PDFReader {
             list.add( NumberConverter.toChineseNumber(Integer.valueOf(from_month_str)) + "月" + NumberConverter.toChineseNumber(i) );
         }
 
+        Collections.reverse(list);
         return list;
     }
 

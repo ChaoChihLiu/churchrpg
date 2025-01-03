@@ -202,4 +202,18 @@ public class TextUtil {
     public static Pattern getDatePattern() {
         return Pattern.compile("\\b(?:January|February|March|April|May|June|July|August|September|October|November|December)\\s+(\\d{1,2})\\s+\\b");
     }
+
+    public static String insertWhitespace(String input) {
+        if( StringUtils.isEmpty(input) ){
+            return input;
+        }
+
+        char[] chars = input.toCharArray();
+        StringBuffer buffer = new StringBuffer();
+        for( char c : chars ){
+            buffer.append(c).append(" ");
+        }
+
+        return buffer.toString();
+    }
 }

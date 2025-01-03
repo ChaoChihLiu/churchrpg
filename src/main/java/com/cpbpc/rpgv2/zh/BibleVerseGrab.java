@@ -434,10 +434,10 @@ public class BibleVerseGrab {
      */
     private static String createVersePatternBGW(String book, int chapterNumber, int verseNumber) {
         if (verseNumber == 1 && !StringUtils.equals(book, "腓利門書")) {
-            return "(<span\\s{1,}class=\"chapternum\">" + chapterNumber + "[\\u00A0|&nbsp;]</span>)([^<>]*)(</span>)";
+            return "(<span\\s{1,}class=\"chapternum\">" + chapterNumber + "[\\u00A0|&nbsp;|\\s]</span>)([^<>]*)(</span>)";
         }
 
-        return "(<sup\\s{1,}class=\"versenum\">" + verseNumber + "[\\u00A0|&nbsp;]</sup>)([^<>]*)(</span>)";
+        return "(<sup\\s{1,}class=\"versenum\">" + verseNumber + "[\\u00A0|&nbsp;|\\s]</sup>)([^<>]*)(</span>)";
     }
 
     private static String createVersePatternEDZX(int chapterNumber, int verseNumber) {
