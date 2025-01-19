@@ -272,6 +272,7 @@ public class PDFReader {
             list.add( from_year_str + "-" + from_month_str + "-" + date_num );
         }
 
+        Collections.reverse(list);
         return list;
     }
 

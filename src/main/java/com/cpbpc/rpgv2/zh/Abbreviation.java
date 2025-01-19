@@ -2,6 +2,7 @@ package com.cpbpc.rpgv2.zh;
 
 import com.cpbpc.comms.AbbreIntf;
 import com.cpbpc.comms.ConfigObj;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -11,6 +12,7 @@ import java.util.Set;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class Abbreviation implements AbbreIntf {
 
@@ -74,12 +76,16 @@ public class Abbreviation implements AbbreIntf {
         }
         logger.info("what is my finds : " + finds.toString());
 
+        Map<String, ConfigObj> updatedAbbre = abbre.entrySet().stream()
+                .collect(Collectors.toMap(
+                        entry -> StringUtils.remove(entry.getKey(), "\\"), Map.Entry::getValue
+                ));
         String replaced = content;
         int start = 0;
         for (String key : finds) {
             String completeForm = lookupCompleteForm(key);
             logger.info("complete form " + completeForm);
-            if (abbre.get(key).getPaused()) {
+            if (updatedAbbre.get(key) != null && updatedAbbre.get(key).getPaused()) {
                 replaced = replaced.replace(key, completeForm + "<break time=\"200ms\"/>");
             } else {
                 replaced = replaced.replace(key, completeForm);
