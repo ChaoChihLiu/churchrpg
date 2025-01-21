@@ -17,6 +17,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -432,8 +433,10 @@ public class BibleVerseGrab {
       <div class="verse_list">                                    西巴和撒慕拿说，你自己起来杀我们吧。因为人如何，力量也是如何。基甸就起来，杀了西巴和撒慕拿，夺获他们骆驼项上戴的月牙圈。                                </div>
    </td>
      */
+    //約翰二書 腓利門書 猶大書  俄巴底亞書   約翰三書
+    private static final List<String> oneChapterBooks = Arrays.asList("約翰二書", "腓利門書", "猶大書", "俄巴底亞書", "約翰三書");
     private static String createVersePatternBGW(String book, int chapterNumber, int verseNumber) {
-        if (verseNumber == 1 && !StringUtils.equals(book, "腓利門書")) {
+        if (verseNumber == 1 && !oneChapterBooks.contains(book)) {
             return "(<span\\s{1,}class=\"chapternum\">" + chapterNumber + "[\\u00A0|&nbsp;|\\s]</span>)([^<>]*)(</span>)";
         }
 

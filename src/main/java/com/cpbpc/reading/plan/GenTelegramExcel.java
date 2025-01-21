@@ -52,11 +52,11 @@ public class GenTelegramExcel {
 //    private static final int end = 1;
     private static final int start = 2;
     private static final int end = 2;
-    private static final boolean isTest = true;
+    private static final boolean isTest = false;
 
     private static final String filePath = "/Users/liuchaochih/Documents/GitHub/churchrpg/src/main/resources/2-year-reading-plan.xlsx";
 //    private static List<Integer> columnsToRead = Arrays.asList(1, 4, 7, 10, 13, 16);
-    private static List<Integer> columnsToRead = Arrays.asList(1);
+    private static List<Integer> columnsToRead = Arrays.asList(4);
 
     /*
     ✝️ 彼得前书1-3章
@@ -93,8 +93,8 @@ public class GenTelegramExcel {
             hlinkFont.setUnderline(Font.U_SINGLE);
             hlinkFont.setColor(IndexedColors.BLUE.getIndex());
             hlinkStyle.setFont(hlinkFont);
-            
-            // Get the first sheet
+
+            // Get the sheet
             for( int idx=start; idx<=end; idx++ ){
                 Sheet sheet = workbook.getSheetAt(idx);
 
