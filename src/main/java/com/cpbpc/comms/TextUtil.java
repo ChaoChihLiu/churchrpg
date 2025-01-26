@@ -23,6 +23,7 @@ public class TextUtil {
         return title.replaceAll("\\(", "\\\\(")
                 .replaceAll("\\)", "\\\\)")
                 .replaceAll("\\?", "\\\\?")
+                .replaceAll("\\!", "\\\\!")
                 ;
 
     }

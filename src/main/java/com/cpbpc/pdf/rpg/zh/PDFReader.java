@@ -25,6 +25,7 @@ public class PDFReader {
     private static Logger logger = Logger.getLogger(PDFReader.class.getName());
 
     private static final boolean isTest = false;
+    private static final int starting_page = 2;
 
     private String pdfPath = "";
     public PDFReader(String path){
@@ -88,11 +89,22 @@ public class PDFReader {
                     }
                 }
 
-                if(     Math.round(fontSize) == 5
-                        &&
-                        (StringUtils.equals("(", text.getUnicode()) || StringUtils.equals(")", text.getUnicode())
-                                || StringUtils.equals("（", text.getUnicode()) || StringUtils.equals("）", text.getUnicode())
-                                || StringUtils.equals("?", text.getUnicode()) || StringUtils.equals("？", text.getUnicode()))
+                if(     (
+                            Math.round(fontSize) == 5
+                            &&
+                            (StringUtils.equals("(", text.getUnicode()) || StringUtils.equals(")", text.getUnicode())
+                                    || StringUtils.equals("（", text.getUnicode()) || StringUtils.equals("）", text.getUnicode())
+                                    || StringUtils.equals("?", text.getUnicode()) || StringUtils.equals("？", text.getUnicode())
+                            )
+                        )
+                        ||
+                        (
+                                Math.round(fontSize) == 3
+                                        &&
+                                        ( StringUtils.equals("!", text.getUnicode()) || StringUtils.equals("！", text.getUnicode())
+                                        )
+                        )
+                        || StringUtils.equals(" ", text.getUnicode())
                 ){
                     buffer.append(text.getUnicode());
                 }
@@ -133,7 +145,7 @@ public class PDFReader {
         Composer composer = new Composer();
         try (PDDocument document = PDDocument.load(new File(pdfFilePath))) {
 
-            for (int page = 2; page <= document.getNumberOfPages(); ++page) {
+            for (int page = starting_page; page <= document.getNumberOfPages(); ++page) {
                 buffer.delete(0, buffer.toString().length());
                 withinBracket[0] = false;
 
@@ -145,7 +157,7 @@ public class PDFReader {
                     break;
                 }
 
-                String title = getCompleteTitle(pageText, buffer.toString());
+                String title = getCompleteTitle(pageText, StringUtils.trim(buffer.toString()));
 
                 ArticleParser parser = new ArticleParser(pageText, title);
                 String chineseDate = getDateRange(chineseDateRange, parser.readDate());

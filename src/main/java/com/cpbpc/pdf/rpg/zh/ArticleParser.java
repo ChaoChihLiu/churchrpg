@@ -145,7 +145,7 @@ public class ArticleParser {
     }
 
     //    private static Pattern end_pattern = Pattern.compile("^[\\u4E00-\\u9FFF]{2}\\s{0,}：\\s{0,}");
-private static Pattern end_pattern = Pattern.compile("[默想|祷告]{2}\\s{0,}：\\s{0,}");
+private static Pattern end_pattern = Pattern.compile("[默想|祷告|背诵]{2}\\s{0,}：\\s{0,}");
     public Map<String, String> readEnd(){
 
         int anchorPoint = getAnchorPointBeforeTitle();
