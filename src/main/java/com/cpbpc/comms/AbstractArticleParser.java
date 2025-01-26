@@ -42,9 +42,9 @@ public abstract class AbstractArticleParser {
         this.content = this.content.replaceAll("\\.\\.\\.", ".").replaceAll("\\.\\.", ".");
         this.content = TextUtil.replaceHtmlSpace(this.content);
         this.title = changeFullCharacter(ZhConverterUtil.toSimple(article.getTitle()));
-        if( AppProperties.isChinese() ){
-            this.title = StringUtils.remove(this.title, " ");
-        }
+//        if( AppProperties.isChinese() ){
+//            this.title = StringUtils.remove(this.title, " ");
+//        }
     }
 
     public static void main(String args[]) {
@@ -69,7 +69,7 @@ public abstract class AbstractArticleParser {
             AbstractArticleParser parser = null;
             AbstractComposer composer = null;
             if( language.equals("chinese") ){
-                parser = new com.cpbpc.rpgv2.zh.ArticleParser(new Article("2025-01-31", content, "神给遵守之人的话", "", 1));
+                parser = new com.cpbpc.rpgv2.zh.ArticleParser(new Article("2025-04-21", content, "素祭 – 仅供圣洁的人使用", "", 1));
                 composer = new com.cpbpc.rpgv2.zh.Composer(parser);
             } else{
                 parser = new com.cpbpc.rpgv2.en.ArticleParser(new Article("2025-03-08", content,  "YIELDING AND TRUSTING", "", 1));

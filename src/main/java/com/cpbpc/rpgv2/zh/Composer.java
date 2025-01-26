@@ -110,6 +110,9 @@ public class Composer extends AbstractComposer {
                     ;
                     List<String> verseContents = grabAndSplitVerse(BibleVerseGrab.grab(mapBookAbbre(book), makeCompleteVerse(refs.get(1), refs.get(i))));
                     for( String verseContent : verseContents ){
+                        if( StringUtils.isEmpty(verseContent) ){
+                            continue;
+                        }
                         if(verseContents.indexOf(verseContent) == 0){
                             result.append(processSentence(verseContent, fixPronu));
                             scripts.put(scriptCounter+"_biblePassage_"+count+"_"+(verseContents.indexOf(verseContent)+1), result.toString());
