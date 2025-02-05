@@ -1,6 +1,7 @@
 package com.cpbpc.rpgv2.zh;
 
 
+import com.cpbpc.comms.AWSUtil;
 import com.cpbpc.comms.AppProperties;
 import com.cpbpc.comms.PunctuationTool;
 import com.cpbpc.comms.TextUtil;
@@ -373,11 +374,42 @@ public class BibleVerseGrab {
     private static String grabBibleVerseFromBGW(String book, int chapter, int verse) throws IOException {
         String bookChapter = book + chapter;
         String text = "";
+
+        text = AWSUtil.readS3Object(AppProperties.getConfig().getProperty("bible_script_bucket"),
+                AppProperties.getConfig().getProperty("bible_script_prefix")
+                        +book+"/"+chapter+"/"+verse+"."+AppProperties.getConfig().getProperty("bible_script_format"));
+        if( !StringUtils.isEmpty(text) ){
+            return extractVerse(text, book, chapter, verse);
+        }
+
         if (textCacheBGW.containsKey(bookChapter)) {
             text = textCacheBGW.get(bookChapter);
         } else {
             text = readFromBGW(book, chapter);
             textCacheBGW.put(bookChapter, text);
+        }
+
+        String result = extractVerse(text, book, chapter, verse);
+
+        return result;
+    }
+
+    private static String extractVerse(String input) {
+        String regex = "<prosody[^>]*>(.*?)</prosody>";
+        Pattern pattern = Pattern.compile(regex, Pattern.DOTALL);
+        Matcher matcher = pattern.matcher(input);
+
+        while (matcher.find()) {
+//            System.out.println(matcher.group(1));
+            return matcher.group(1);
+        }
+
+        return StringUtils.EMPTY;
+    }
+
+    private static String extractVerse(String text, String book, int chapter, int verse) {
+        if( StringUtils.startsWith(StringUtils.trim(text), "<speak") ){
+            return extractVerse(text);
         }
 
         String versePattern = createVersePatternBGW(book, chapter, verse);
@@ -389,7 +421,6 @@ public class BibleVerseGrab {
             logger.info(matcher.group(groupId));
             result = ZhConverterUtil.toSimple(StringUtils.remove(removeHtmlTag(matcher.group(groupId)), " "));
         }
-
         return result;
     }
 

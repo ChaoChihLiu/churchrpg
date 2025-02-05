@@ -50,6 +50,10 @@ public abstract class AbstractComposer {
     }
 
     protected String processSentence(String content, boolean fixPronu, boolean replacePunc) {
+        if( StringUtils.contains(content, "<") ){
+            return content;
+        }
+
         String result = "";
 
         if( replacePunc ){
@@ -67,6 +71,9 @@ public abstract class AbstractComposer {
     }
 
     protected String processSentence(String content, boolean fixPronu, String type) {
+        if( StringUtils.contains(content, "<") ){
+            return content;
+        }
         String result = "";
 
         if( StringUtils.equalsIgnoreCase(type, "remembrance") ){

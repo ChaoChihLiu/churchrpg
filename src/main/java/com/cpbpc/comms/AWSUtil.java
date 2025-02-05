@@ -12,6 +12,7 @@ import com.amazonaws.services.s3.model.ObjectTagging;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.PutObjectResult;
 import com.amazonaws.services.s3.model.S3Object;
+import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.amazonaws.services.s3.model.StorageClass;
 import com.amazonaws.services.s3.model.Tag;
@@ -312,6 +313,34 @@ public class AWSUtil {
             }
         }
 
+    }
+    public static String readS3Object(String bucketName, String objectKey) {
+        S3Object s3Object = null;
+        S3ObjectInputStream inputStream = null;
+
+        try {
+            s3Object = s3Client.getObject(bucketName, objectKey);
+            if (s3Object == null) {
+                return StringUtils.EMPTY;
+            }
+
+            inputStream = s3Object.getObjectContent();
+            return IOUtils.toString(inputStream);
+        } catch (Exception e) {
+            logger.info("Error reading S3 object: " + ExceptionUtils.getStackTrace(e));
+        } finally {
+            try {
+                if( s3Object != null ){
+                    s3Object.close();
+                }
+                if( inputStream != null ){
+                    inputStream.close();
+                }
+            } catch (IOException e) {
+            }
+        }
+
+        return StringUtils.EMPTY;
     }
     public static void uploadS3Object(String bucketName, String prefix, String objectKey, File localFile, List<Tag> tags){
 

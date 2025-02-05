@@ -1,6 +1,7 @@
 package com.cpbpc.rpgv2.en;
 
 
+import com.cpbpc.comms.AWSUtil;
 import com.cpbpc.comms.AppProperties;
 import com.cpbpc.comms.PunctuationTool;
 import org.apache.commons.lang3.StringEscapeUtils;
@@ -345,6 +346,14 @@ public class BibleVerseGrab {
     private static String grabBibleVerse(String book, int chapter, int verse) throws IOException {
         String bookChapter = book + chapter;
         String text = "";
+
+        text = AWSUtil.readS3Object(AppProperties.getConfig().getProperty("bible_script_bucket"),
+                AppProperties.getConfig().getProperty("bible_script_prefix")
+                        +book+"/"+chapter+"/"+verse+"."+AppProperties.getConfig().getProperty("bible_script_format"));
+        if( !StringUtils.isEmpty(text) ){
+            return extractVerse(text, chapter, verse);
+        }
+
         if (textCache.containsKey(bookChapter)) {
             text = textCache.get(bookChapter);
         } else {
@@ -361,11 +370,29 @@ public class BibleVerseGrab {
     <span id="en-KJV-14343" class="text Ps-31-11"><sup class="versenum">11&nbsp;</sup>I was a reproach among all mine enemies, but especially among my neighbours, and a fear to mine acquaintance: they that did see me without fled from me.</span>
      */
     private static String extractVerse(String input, int chapterNumber, int verseNumber) {
+
+        if( StringUtils.startsWith(StringUtils.trim(input), "<speak") ){
+            return extractVerse(input);
+        }
+
         if (verseNumber == 1) {
             return extractVerse(input, "<span\\s{1,}class=\"chapternum\">" + chapterNumber + "\\u00A0</span>", "</span></p>");
         }
 
         return extractVerse(input, "<sup\\s{1,}class=\"versenum\">" + verseNumber + "\\u00A0</sup>", "</span></p>");
+    }
+
+    private static String extractVerse(String input) {
+        String regex = "<prosody[^>]*>(.*?)</prosody>";
+        Pattern pattern = Pattern.compile(regex, Pattern.DOTALL);
+        Matcher matcher = pattern.matcher(input);
+
+        while (matcher.find()) {
+//            System.out.println(matcher.group(1));
+            return matcher.group(1);
+        }
+
+        return StringUtils.EMPTY;
     }
 
     private static String extractVerse(String input, String startAnchor, String endAnchor) {

@@ -69,7 +69,7 @@ public abstract class AbstractArticleParser {
             AbstractArticleParser parser = null;
             AbstractComposer composer = null;
             if( language.equals("chinese") ){
-                parser = new com.cpbpc.rpgv2.zh.ArticleParser(new Article("2025-04-21", content, "素祭 – 仅供圣洁的人使用", "", 1));
+                parser = new com.cpbpc.rpgv2.zh.ArticleParser(new Article("2025-05-29", content, "用新的经验取代旧的经验！", "", 1));
                 composer = new com.cpbpc.rpgv2.zh.Composer(parser);
             } else{
                 parser = new com.cpbpc.rpgv2.en.ArticleParser(new Article("2025-03-08", content,  "YIELDING AND TRUSTING", "", 1));
