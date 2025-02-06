@@ -32,54 +32,54 @@ import static com.cpbpc.comms.TextUtil.removeZhWhitespace;
 
 public class Composer extends AbstractComposer {
 
-    private static final Properties appProperties = AppProperties.getConfig();
-    private static Logger logger = Logger.getLogger(Composer.class.getName());
+            private static final Properties appProperties = AppProperties.getConfig();
+            private static Logger logger = Logger.getLogger(Composer.class.getName());
     public Composer(AbstractArticleParser parser) {
-        super(parser);
-    }
-    
-    private VerseIntf verse = ThreadStorage.getVerse();
-
-    protected String mapBookAbbre(String book) {
-
-        if (null == book || book.trim().length() <= 0) {
-            return book;
-        }
-
-        book = book.replace(".", "");
-
-        Map<String, ConfigObj> verseMap = verse.getVerseMap();
-        Set<Map.Entry<String, ConfigObj>> entries = verseMap.entrySet();
-        for (Map.Entry<String, ConfigObj> entry : entries) {
-            ConfigObj obj = entry.getValue();
-            if (StringUtils.equalsIgnoreCase(book, obj.getShortForm())) {
-                return obj.getFullWord();
+                super(parser);
             }
-        }
 
-        return book;
-    }
+            private VerseIntf verse = ThreadStorage.getVerse();
 
-    @Override
-    public List<ComposerResult> toTTS(boolean fixPronu, String publishDate) {
-        List<ComposerResult> result = new ArrayList<>();
+            protected String mapBookAbbre(String book) {
 
-        Map<String, String> scripts = splitPolly(fixPronu);
-        scripts = houseKeepRedundantTag(scripts);
-        Set<Map.Entry<String, String>> entries = scripts.entrySet();
-        for( Map.Entry<String, String> entry : entries ){
-            ComposerResult composerResult = new ComposerResult();
-            result.add(composerResult);
-            
-            String fileName = entry.getKey();
-            String script = entry.getValue();
+                if (null == book || book.trim().length() <= 0) {
+                    return book;
+                }
 
-            composerResult.setScript(script);
-            composerResult.setFileName(fileName);
-            composerResult.addTags(sendToTTS(fileName, wrapToAzure(prettyPrintln(script)), publishDate, parser.getArticle().getCounter()));
-        }
-        
-        return result;
+                book = book.replace(".", "");
+
+                Map<String, ConfigObj> verseMap = verse.getVerseMap();
+                Set<Map.Entry<String, ConfigObj>> entries = verseMap.entrySet();
+                for (Map.Entry<String, ConfigObj> entry : entries) {
+                    ConfigObj obj = entry.getValue();
+                    if (StringUtils.equalsIgnoreCase(book, obj.getShortForm())) {
+                        return obj.getFullWord();
+                    }
+                }
+
+                return book;
+            }
+
+            @Override
+            public List<ComposerResult> toTTS(boolean fixPronu, String publishDate) {
+                List<ComposerResult> result = new ArrayList<>();
+
+                Map<String, String> scripts = splitPolly(fixPronu);
+                scripts = houseKeepRedundantTag(scripts);
+                Set<Map.Entry<String, String>> entries = scripts.entrySet();
+                for( Map.Entry<String, String> entry : entries ){
+                    ComposerResult composerResult = new ComposerResult();
+                    result.add(composerResult);
+
+                    String fileName = entry.getKey();
+                    String script = entry.getValue();
+
+                    composerResult.setScript(script);
+                    composerResult.setFileName(fileName);
+                    composerResult.addTags(sendToTTS(fileName, wrapToAzure(prettyPrintln(script)), publishDate, parser.getArticle().getCounter()));
+                }
+
+                return result;
     }
     
     protected Map<String, String> splitPolly(boolean fixPronu) {

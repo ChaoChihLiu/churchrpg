@@ -135,6 +135,7 @@ public abstract class AbstractComposer {
         return scripts;
     }
 
+    private int script_line_limit = 10;
     protected List<String> grabAndSplitVerse(String content) {
         content = StringUtils.trim(content);
         List<String> result = new ArrayList<>();
@@ -144,8 +145,7 @@ public abstract class AbstractComposer {
 
         String[] splits = content.split(System.lineSeparator());
         int lineNumber = splits.length;
-        int quotient = Math.floorDiv(lineNumber, 10);
-        int remainder = lineNumber%10;
+        int quotient = Math.floorDiv(lineNumber, script_line_limit);
 
         if( quotient <= 0 ){
             result.add(content);
@@ -160,8 +160,8 @@ public abstract class AbstractComposer {
 
         if( quotient > 1 ){
             for( int i=1; i<=quotient+1; i++ ){
-                int start = (i-1)*10;
-                int end = i*10;
+                int start = (i-1)*script_line_limit;
+                int end = i*script_line_limit;
 
                 if( end <= lineNumber ){
                     result.add(StringUtils.join(Arrays.copyOfRange(splits, start, end), System.lineSeparator()));
