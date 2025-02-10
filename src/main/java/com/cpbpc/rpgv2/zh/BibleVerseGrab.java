@@ -142,9 +142,10 @@ public class BibleVerseGrab {
     }
 
     public static String grab(String book, String verseStr) throws IOException {
-        return grab(book, verseStr, "");
+        return grab(book, verseStr, "", true);
     }
-    public static String grab(String book, String verseStr, String chapterBreak) throws IOException {
+
+    public static String grab(String book, String verseStr, String chapterBreak, boolean fromS3Bucket) throws IOException {
         
         verseStr = StringUtils.trim(verseStr);
         List<String> result = new ArrayList<>();
@@ -172,7 +173,7 @@ public class BibleVerseGrab {
         } else {
             result.addAll(returnVerses(book, verseStr));
         }
-        return attachBibleVerses(book, result, chapterBreak);
+        return attachBibleVerses(book, result, chapterBreak, fromS3Bucket);
     }
 
     private static String fromStartVerses(String verseStr, String chapterWord) {
@@ -254,7 +255,7 @@ public class BibleVerseGrab {
         return new String[]{};
     }
 
-    private static String attachBibleVerses(String book, List<String> verses, String chapterBreak) throws IOException {
+    private static String attachBibleVerses(String book, List<String> verses, String chapterBreak, boolean fromS3Bucket) throws IOException {
         StringBuffer buffer = new StringBuffer();
         String currentBookChapter = "";
         for (String verse : verses) {
@@ -283,9 +284,9 @@ public class BibleVerseGrab {
             }
 
             if (verseNum == 0) {
-                buffer.append(recurBibleVerse("", book, chapterNum, verseNum, chapterBreak));
+                buffer.append(recurBibleVerse("", book, chapterNum, verseNum, chapterBreak, fromS3Bucket));
             } else {
-                String result = grabBibleVerse(book, chapterNum, verseNum);
+                String result = grabBibleVerse(book, chapterNum, verseNum, fromS3Bucket);
                 if (StringUtils.isEmpty(result)) {
                     continue;
                 }
@@ -302,13 +303,13 @@ public class BibleVerseGrab {
         return PunctuationTool.replacePauseTag(changeFullCharacter(result));
     }
 
-    private static String recurBibleVerse(String grabResult, String book, int chapter, int verse, String chapterBreak) throws IOException {
+    private static String recurBibleVerse(String grabResult, String book, int chapter, int verse, String chapterBreak, boolean fromS3Bucket) throws IOException {
         if (verse == 0) {
-            return recurBibleVerse("", book, chapter, 1, chapterBreak);
+            return recurBibleVerse("", book, chapter, 1, chapterBreak, fromS3Bucket);
         }
 
         StringBuffer buffer = new StringBuffer(grabResult);
-        String response = grabBibleVerse(book, chapter, verse);
+        String response = grabBibleVerse(book, chapter, verse, fromS3Bucket);
         if (StringUtils.isEmpty(response)) {
             if( !StringUtils.isEmpty(chapterBreak) ){
                 return buffer.toString() + System.lineSeparator() + chapterBreak;
@@ -323,10 +324,10 @@ public class BibleVerseGrab {
 //        }
 
         int i = verse + 1;
-        return recurBibleVerse(buffer.toString(), book, chapter, i, chapterBreak);
+        return recurBibleVerse(buffer.toString(), book, chapter, i, chapterBreak, fromS3Bucket);
     }
 
-    private static String grabBibleVerse(String book, int chapter, int verse) throws IOException {
+    private static String grabBibleVerse(String book, int chapter, int verse, boolean fromS3Bucket) throws IOException {
 
 //        String result = grabBibleVerseFromUrVersion(book, chapter, verse);
 //        if( StringUtils.isEmpty(result) ){
@@ -339,7 +340,7 @@ public class BibleVerseGrab {
 //                result = PunctuationTool.getPauseTag(100);
 //            }
 //        }
-        String result = grabBibleVerseFromBGW(book, chapter, verse);
+        String result = grabBibleVerseFromBGW(book, chapter, verse, fromS3Bucket);
 
         return result;
     }
@@ -371,13 +372,15 @@ public class BibleVerseGrab {
         return StringUtils.trim(result);
     }
 
-    private static String grabBibleVerseFromBGW(String book, int chapter, int verse) throws IOException {
+    private static String grabBibleVerseFromBGW(String book, int chapter, int verse, boolean fromS3Bucket) throws IOException {
         String bookChapter = book + chapter;
         String text = "";
 
-        text = AWSUtil.readS3Object(AppProperties.getConfig().getProperty("bible_script_bucket"),
-                AppProperties.getConfig().getProperty("bible_script_prefix")
-                        +book+"/"+chapter+"/"+verse+"."+AppProperties.getConfig().getProperty("bible_script_format"));
+        if( fromS3Bucket ){
+            text = AWSUtil.readS3Object(AppProperties.getConfig().getProperty("bible_script_bucket"),
+                    AppProperties.getConfig().getProperty("bible_script_prefix")
+                            +book+"/"+chapter+"/"+verse+"."+AppProperties.getConfig().getProperty("bible_script_format"));
+        }
         if( !StringUtils.isEmpty(text) ){
             return extractVerse(text, book, chapter, verse);
         }

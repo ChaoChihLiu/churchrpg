@@ -74,7 +74,7 @@ public class BibleAudio {
             Map<String, String> singleChapters = new HashMap<>();
 
             String book = result.get(0);
-            String content = scrapBibleVerse(book, result.get(1), chapterBreak);
+            String content = grabBibleVerse(book, result.get(1), chapterBreak);
             String chapterWord = TextUtil.returnChapterWord(book);
 
             String pl_script = "";
@@ -382,11 +382,11 @@ public class BibleAudio {
         DBUtil.initStorage(appProperties);
     }
 
-    private static String scrapBibleVerse(String book, String verse, String chapterBreak) throws IOException {
+    private static String grabBibleVerse(String book, String verse, String chapterBreak) throws IOException {
         if( AppProperties.isChinese() ){
-            return BibleVerseGrab.grab(book, verse, chapterBreak);
+            return BibleVerseGrab.grab(book, verse, chapterBreak, false);
         }
-        return com.cpbpc.rpgv2.en.BibleVerseGrab.grab(book, verse, chapterBreak);
+        return com.cpbpc.rpgv2.en.BibleVerseGrab.grab(book, verse, chapterBreak, false);
     }
     
 }
