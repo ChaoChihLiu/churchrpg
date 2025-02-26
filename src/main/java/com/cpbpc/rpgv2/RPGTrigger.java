@@ -173,7 +173,7 @@ public class RPGTrigger implements RequestHandler {
 //        logger.info( "content_category : " + URLDecoder.decode(appProperties.getProperty("content_category"), StandardCharsets.UTF_8) );
 
         String sql = SEARCH_CONTENT_BY_ID
-                + " cc.id in ( '" + appProperties.getProperty("content_category") + "' ) "
+                + " cj.state = '1' and cc.id in ( '" + appProperties.getProperty("content_category") + "' ) "
                 ;
 
         if (!appProperties.getOrDefault("publish.date", "0").equals("0")) {

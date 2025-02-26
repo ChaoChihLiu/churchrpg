@@ -391,7 +391,7 @@ public class BibleVerseGrab {
 
         while (matcher.find()) {
 //            System.out.println(matcher.group(1));
-            return StringUtils.replace(matcher.group(1), System.lineSeparator(), " ");
+            return StringUtils.trim(StringUtils.replace(matcher.group(1), System.lineSeparator(), " "));
         }
 
         return StringUtils.EMPTY;

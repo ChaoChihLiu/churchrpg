@@ -68,6 +68,9 @@ public class BibleAudio {
         for( String verse : verses ){
             verseCount.clear();
             List<String> result = analyseVerse(verse);
+            if( result.isEmpty() ){
+                continue;
+            }
             List<String> verse_to_merged = new ArrayList<>();
             verse_to_merged.add(result.get(0)+"|"+result.get(1));
 
