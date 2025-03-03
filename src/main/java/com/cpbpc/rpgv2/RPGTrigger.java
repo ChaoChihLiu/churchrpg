@@ -173,8 +173,11 @@ public class RPGTrigger implements RequestHandler {
 //        logger.info( "content_category : " + URLDecoder.decode(appProperties.getProperty("content_category"), StandardCharsets.UTF_8) );
 
         String sql = SEARCH_CONTENT_BY_ID
-                + " cj.state = '1' and cc.id in ( '" + appProperties.getProperty("content_category") + "' ) "
+                + " cc.id in ( '" + appProperties.getProperty("content_category") + "' ) "
                 ;
+        if( AppProperties.isEnglish() ){
+            sql += " and cj.state = '1' ";
+        }
 
         if (!appProperties.getOrDefault("publish.date", "0").equals("0")) {
             sql += " and DATE_FORMAT(cjr.startrepeat, \"%Y-%m-%d\")=? ";

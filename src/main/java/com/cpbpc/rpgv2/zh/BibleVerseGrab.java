@@ -404,10 +404,11 @@ public class BibleVerseGrab {
 
         while (matcher.find()) {
 //            System.out.println(matcher.group(1));
-            return StringUtils.replace(matcher.group(1), System.lineSeparator(), " ");
+            return StringUtils.replace(StringUtils.trim(matcher.group(1)), System.lineSeparator(), "");
         }
 
         return StringUtils.EMPTY;
+//        return StringUtils.trim(TextUtil.removeXMLTag(input));
     }
 
     private static String extractVerse(String text, String book, int chapter, int verse) {

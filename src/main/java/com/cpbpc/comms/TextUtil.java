@@ -137,6 +137,18 @@ public class TextUtil {
         return result;
     }
 
+    public static String removeXMLTag(String input){
+        return removeXMLTag(input,"");
+    }
+
+    public static String removeXMLTag(String input, String replacement){
+        if (StringUtils.isEmpty(input)) {
+            return "";
+        }
+
+        return input.replaceAll("<[^>]+>", replacement);
+    }
+
     public static String removeHtmlTag(String input){
         return removeHtmlTag(input," ");
     }

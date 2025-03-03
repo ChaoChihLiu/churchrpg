@@ -47,13 +47,13 @@ import java.util.regex.Pattern;
 
 public class GenTelegramExcel {
     private static final Properties appProperties = AppProperties.getConfig();
-    private static final String theme = "“The Return of Jesus Christ”";
-    private static final String writer = "Rev Dr Tow Siang Hwa";
+    private static final String theme = "“The Life of Christ” (Part I)";
+    private static final String writer = "Rev Dr Jeffrey Khoo";
 //    private static final String theme = "“诗篇119：神的话显为大”";
 //    private static final String writer = "Jose Trinipil G. Lagapa 牧师博士";
 
     private static final String year = "2025";
-    private static final String month = "03";
+    private static final String month = "04";
 
     private static final String language = "english";
     private static final boolean isTest = false;

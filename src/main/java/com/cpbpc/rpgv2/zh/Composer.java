@@ -113,11 +113,15 @@ public class Composer extends AbstractComposer {
                         if( StringUtils.isEmpty(verseContent) ){
                             continue;
                         }
+                        String processedVerse = verseContent;
+                        if( AppProperties.isEnglish() ){
+                            processedVerse = processSentence(verseContent, fixPronu);
+                        }
                         if(verseContents.indexOf(verseContent) == 0){
-                            result.append(processSentence(verseContent, fixPronu));
+                            result.append(processedVerse);
                             scripts.put(scriptCounter+"_biblePassage_"+count+"_"+(verseContents.indexOf(verseContent)+1), result.toString());
                         }else{
-                            scripts.put(scriptCounter+"_biblePassage_"+count+"_"+(verseContents.indexOf(verseContent)+1), processSentence(verseContent, fixPronu));
+                            scripts.put(scriptCounter+"_biblePassage_"+count+"_"+(verseContents.indexOf(verseContent)+1), processedVerse);
                         }
                         scriptCounter++;
                     }

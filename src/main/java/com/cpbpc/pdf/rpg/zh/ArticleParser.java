@@ -175,7 +175,7 @@ private static Pattern end_pattern = Pattern.compile("[默想|祷告|背诵]{2}\
         return result;
     }
 
-    private Pattern para_pattern = Pattern.compile("[。|?|!|？|！|…|)|）|]" + System.lineSeparator());
+    private Pattern para_pattern = Pattern.compile("[。|。”|?|!|？|！|…|)|）|]" + System.lineSeparator());
     public List<String> readParagraphs(){
         List<String> paragraphs = new ArrayList<>();
         String date = readDate();
