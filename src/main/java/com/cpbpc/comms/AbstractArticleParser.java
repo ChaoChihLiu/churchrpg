@@ -69,14 +69,14 @@ public abstract class AbstractArticleParser {
             AbstractArticleParser parser = null;
             AbstractComposer composer = null;
             if( language.equals("chinese") ){
-                parser = new com.cpbpc.rpgv2.zh.ArticleParser(new Article("2025-06-29", content, "不断燃烧的灯台！", "", 1));
+                parser = new com.cpbpc.rpgv2.zh.ArticleParser(new Article("2025-06-05", content, "你要永远圣洁！", "", 1));
                 composer = new com.cpbpc.rpgv2.zh.Composer(parser);
             } else{
                 parser = new com.cpbpc.rpgv2.en.ArticleParser(new Article("2025-06-29", content,  "JESUS AND TAXES", "", 1));
                 composer = new com.cpbpc.rpgv2.en.Composer(parser);
             }
 
-            List<ComposerResult> results = composer.toTTS(true, "2025-06-29");
+            List<ComposerResult> results = composer.toTTS(true, "2025-06-05");
             StringBuilder script = new StringBuilder();
             for(ComposerResult result : results){
                 script.append(result.getScript());

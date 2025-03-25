@@ -47,15 +47,15 @@ import java.util.regex.Pattern;
 
 public class GenTelegramExcel {
     private static final Properties appProperties = AppProperties.getConfig();
-    private static final String theme = "“The Life of Christ” (Part I)";
-    private static final String writer = "Rev Dr Jeffrey Khoo";
-//    private static final String theme = "“诗篇119：神的话显为大”";
-//    private static final String writer = "Jose Trinipil G. Lagapa 牧师博士";
+//    private static final String theme = "“The Life of Christ” (Part I)";
+//    private static final String writer = "Rev Dr Jeffrey Khoo";
+    private static final String theme = "“利未记”";
+    private static final String writer = "郭全佑牧师博士";
 
     private static final String year = "2025";
     private static final String month = "04";
 
-    private static final String language = "english";
+    private static final String language = "chinese";
     private static final boolean isTest = false;
 
     /*
@@ -77,7 +77,7 @@ public class GenTelegramExcel {
             "     left join cpbpc_jevents_vevent cj on cj.ev_id = cjv.evdet_id\n" +
             "     left join cpbpc_categories cc on cc.id = cj.catid\n" +
             "     left join cpbpc_jevents_repetition cjr on cjr.eventdetail_id  = cjv.evdet_id\n" +
-            "     where  cc.id =? \n" +
+            "     where cj.state = '1' and cc.id =? \n" +
 //            "     and DATE_FORMAT(cjr.startrepeat, \"%Y-%m-%d\")=? \n" +
             "     and DATE_FORMAT(cjr.startrepeat, \"%Y-%m\")=? \n" +
             "     order by cjr.startrepeat asc \n";

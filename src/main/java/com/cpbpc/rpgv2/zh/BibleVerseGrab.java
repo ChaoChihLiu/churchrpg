@@ -562,10 +562,14 @@ public class BibleVerseGrab {
         } else if (verses.contains(",")) {
             String array[] = verses.split(",");
             for (String verse_ind : array) {
-                result.add(chapter + "." + verse_ind);
+                result.add(chapter + "." + toNumber(verse_ind));
             }
         } else {
-            result.add(chapter + "." + verses);
+            if( StringUtils.isEmpty(verses) ){
+                result.add(chapter + ".");
+            }else{
+                result.add(chapter + "." + toNumber(verses));
+            }
         }
 
         return result;

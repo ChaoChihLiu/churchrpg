@@ -6,6 +6,7 @@ import com.cpbpc.comms.VerseIntf;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -87,13 +88,70 @@ public class ArticleParser {
 
     public List<String> readFocusScripture() {
         List<String> result = new ArrayList<>();
-        List<String> verses = readTopicVerses();
+        result.addAll(parse1stFocusScripturePattern());
+        if( !result.isEmpty() ){
+            return result;
+        }
+        result.addAll(parse2ndFocusScripturePattern());
+        return result;
+    }
 
-        /*
+    /*
+    “……我的肉身也要安然居住。”
+    七月十四日，礼拜一
+    路得记二章4-7节
+    诗篇三十七篇3-7节
+     */
+    //but sometimes it may be on 1 line
+    private Collection<String> parse2ndFocusScripturePattern() {
+        int anchorPoint = getAnchorPointAfterDate();
+
+        List<String> result = new ArrayList<>();
+        String regex = "“([\\s\\S]*?)”";
+        Pattern secondPattern = Pattern.compile(regex);
+        Matcher m = secondPattern.matcher(content);
+        int previousMatchedPosition = 0;
+        String matched = "";
+        while( m.find() ){
+            String line = m.group();
+            int currentMatchedPosition = m.start();
+            if( currentMatchedPosition >= anchorPoint ){
+                break;
+            }
+
+            if( currentMatchedPosition > previousMatchedPosition ){
+                matched = line;
+            }
+        }
+        if( !StringUtils.isEmpty(matched) ){
+            result.add(matched);
+        }
+
+        return result;
+    }
+
+    /*
         “…就可以喜乐，
         五月二十日，礼拜一
         腓立比书二章25节至28节
         罗马书十二章9节至21节 我也可以少些忧愁。”
+         */
+    /*
+    六月二十九日，主日傍晚 “……祭司就要估定价值。
+    利未记二十七章 房屋是好是坏，祭司怎样估定，
+    传道书十章12节 就要以怎样为定。”
+     */
+    //sometimes focus scripture mixed with topic verses
+    private Collection<String> parse1stFocusScripturePattern() {
+
+        List<String> result = new ArrayList<>();
+        List<String> verses = readTopicVerses();
+
+        /*
+        “……我的肉身也要安然居住。”
+        七月十四日，礼拜一
+        路得记二章4-7节
+        诗篇三十七篇3-7节
          */
         //special case handling
         result.addAll(returnFocusScriptureGoBeforeDate());
@@ -104,7 +162,7 @@ public class ArticleParser {
         }
 
         int anchorPoint = getAnchorPointAfterDate();
-        
+
         String focusWords = StringUtils.substring(content, anchorPoint, content.length());
         for( String verse : verses ){
             focusWords = StringUtils.remove(focusWords, verse);
@@ -184,14 +242,14 @@ private static Pattern end_pattern = Pattern.compile("[默想|祷告|背诵]{2}\
         int end = StringUtils.indexOf(content, date);
 
         String to_be_searched = StringUtils.trim(StringUtils.substring(content, start, end));
-        List<String> focusScriptures = readFocusScripture();
-        for( String scripture : focusScriptures ){
-            if( !to_be_searched.endsWith(System.lineSeparator() + scripture) ){
-                 continue;
-            }
-            to_be_searched = StringUtils.substring(to_be_searched, StringUtils.indexOf(to_be_searched, scripture), to_be_searched.length());
-//            to_be_searched = StringUtils.remove(to_be_searched, StringUtils.trim(scripture));
-        }
+//        List<String> focusScriptures = readFocusScripture();
+//        for( String scripture : focusScriptures ){
+//            if( !to_be_searched.endsWith(System.lineSeparator() + scripture) ){
+//                 continue;
+//            }
+//            to_be_searched = StringUtils.substring(to_be_searched, StringUtils.indexOf(to_be_searched, scripture), to_be_searched.length());
+////            to_be_searched = StringUtils.remove(to_be_searched, StringUtils.trim(scripture));
+//        }
 
         Matcher matcher = para_pattern.matcher(to_be_searched);
         int start_point = 0;
@@ -220,7 +278,7 @@ private static Pattern end_pattern = Pattern.compile("[默想|祷告|背诵]{2}\
 
     private int getAnchorPointAfterTitle() {
         String title_escaped = escapeSpecialChar(getTitle());
-        Pattern title_pattern = Pattern.compile("\\R{1,}" + title_escaped + "\\s{0,}\\R{1,}");
+        Pattern title_pattern = Pattern.compile("\\R{0,}" + title_escaped + "\\s{0,}\\R{1,}");
         Matcher matcher = title_pattern.matcher(content);
         while( matcher.find() ){
             return matcher.end();

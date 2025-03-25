@@ -6,6 +6,7 @@ import com.cpbpc.comms.NumberConverter;
 import com.cpbpc.comms.RomanNumeral;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
 import org.apache.pdfbox.text.TextPosition;
@@ -72,13 +73,24 @@ public class PDFReader {
 
                 float fontSize = text.getWidth();
 
-                if(withinBracket[0] && RomanNumeral.isRomanNumeral(text.getUnicode())){
+                if(withinBracket[0]
+                        && (
+                                RomanNumeral.isRomanNumeral(text.getUnicode())
+                                || NumberUtils.isCreatable(String.valueOf(text.getUnicode()))
+                            ) ){
                     buffer.append(text.getUnicode());
                 }
 
-                if( Math.round(fontSize) == 14
-//                                && (!StringUtils.equals("(", text.getUnicode()) && !StringUtils.equals(")", text.getUnicode()))
-//                                && (!StringUtils.equals("（", text.getUnicode()) && !StringUtils.equals("）", text.getUnicode()))
+                if( Math.round(fontSize) == 14 ){
+                    buffer.append(text.getUnicode());
+                }
+
+                if( (Math.round(fontSize) == 5 || Math.round(fontSize) == 14)
+                        &&
+                        (StringUtils.equals("(", text.getUnicode()) || StringUtils.equals(")", text.getUnicode())
+                                || StringUtils.equals("（", text.getUnicode()) || StringUtils.equals("）", text.getUnicode())
+                                || StringUtils.equals("?", text.getUnicode()) || StringUtils.equals("？", text.getUnicode())
+                        )
                 ){
                     buffer.append(text.getUnicode());
                     if( StringUtils.equals("(", text.getUnicode()) || StringUtils.equals("（", text.getUnicode()) ){
@@ -89,15 +101,7 @@ public class PDFReader {
                     }
                 }
 
-                if(     (
-                            Math.round(fontSize) == 5
-                            &&
-                            (StringUtils.equals("(", text.getUnicode()) || StringUtils.equals(")", text.getUnicode())
-                                    || StringUtils.equals("（", text.getUnicode()) || StringUtils.equals("）", text.getUnicode())
-                                    || StringUtils.equals("?", text.getUnicode()) || StringUtils.equals("？", text.getUnicode())
-                            )
-                        )
-                        ||
+                if(
                         (
                                 Math.round(fontSize) == 3
                                         &&
