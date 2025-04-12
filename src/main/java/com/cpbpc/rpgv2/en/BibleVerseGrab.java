@@ -79,6 +79,9 @@ public class BibleVerseGrab {
     public static String grab(String book, String verseStr) throws IOException {
         return grab(book, verseStr, "", true);
     }
+    public static String grab(String book, String verseStr, boolean fromS3Bucket) throws IOException {
+        return grab(book, verseStr, "", fromS3Bucket);
+    }
 
     public static String grab(String book, String verseStr, String chapterBreak, boolean fromS3Bucket) throws IOException {
         book = convertOrdinalNumber(book);

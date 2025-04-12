@@ -49,7 +49,7 @@ public abstract class AbstractArticleParser {
 
     public static void main(String args[]) {
         try {
-            String language = "chinese";
+            String language = "english";
 
             String propPath = "/Users/liuchaochih/Documents/GitHub/churchrpg/src/main/resources/app-"+language+".properties";
             FileInputStream in = new FileInputStream(propPath);
@@ -72,11 +72,11 @@ public abstract class AbstractArticleParser {
                 parser = new com.cpbpc.rpgv2.zh.ArticleParser(new Article("2025-06-05", content, "你要永远圣洁！", "", 1));
                 composer = new com.cpbpc.rpgv2.zh.Composer(parser);
             } else{
-                parser = new com.cpbpc.rpgv2.en.ArticleParser(new Article("2025-06-29", content,  "JESUS AND TAXES", "", 1));
+                parser = new com.cpbpc.rpgv2.en.ArticleParser(new Article("2025-07-09", content,  "JESUS THE LIGHT OF LIFE", "", 1));
                 composer = new com.cpbpc.rpgv2.en.Composer(parser);
             }
 
-            List<ComposerResult> results = composer.toTTS(true, "2025-06-05");
+            List<ComposerResult> results = composer.toTTS(true, "2025-07-09");
             StringBuilder script = new StringBuilder();
             for(ComposerResult result : results){
                 script.append(result.getScript());
@@ -245,18 +245,18 @@ public abstract class AbstractArticleParser {
             Matcher matcher = versePattern.matcher(toProcessed);
             if (matcher.find()) {
                 String group0 = matcher.group(0);
-                String book = matcher.group(2);
-                
-                String grabbedVerse = verseIntf.appendNextCharTillCompleteVerse(toProcessed, group0, group0.length(), toProcessed.length());
-                if( StringUtils.contains(grabbedVerse, ";") ){
-                    String[] splitted = StringUtils.split(grabbedVerse, ";");
-                    for( String element : splitted ){
-                        if( StringUtils.startsWith(element, book) ){
-                            result.add(element);
-                            continue;
+                    String book = matcher.group(2);
+
+                    String grabbedVerse = verseIntf.appendNextCharTillCompleteVerse(toProcessed, group0, group0.length(), toProcessed.length());
+                    if( StringUtils.contains(grabbedVerse, ";") ){
+                        String[] splitted = StringUtils.split(grabbedVerse, ";");
+                        for( String element : splitted ){
+                            if( StringUtils.startsWith(element, book) ){
+                                result.add(element);
+                                continue;
+                            }
+                            result.add(book+" "+element);
                         }
-                        result.add(book+" "+element);
-                    }
                     continue;
                 }
                 result.add(grabbedVerse);
