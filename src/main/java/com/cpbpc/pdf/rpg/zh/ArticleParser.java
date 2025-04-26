@@ -1,6 +1,7 @@
 package com.cpbpc.pdf.rpg.zh;
 
 
+import com.cpbpc.comms.TextUtil;
 import com.cpbpc.comms.ThreadStorage;
 import com.cpbpc.comms.VerseIntf;
 import org.apache.commons.lang3.StringUtils;
@@ -233,6 +234,33 @@ private static Pattern end_pattern = Pattern.compile("[默想|祷告|背诵]{2}\
         return result;
     }
 
+    private String removeEnd(String input){
+        if( StringUtils.isEmpty(input) ){
+            return input;
+        }
+
+        Map<String, String> ends = readEnd();
+        String result = input;
+        for( String end : ends.values() ){
+            result = result.replaceAll(TextUtil.escapeSpecialChar(end), "");
+        }
+
+        return result;
+    }
+    private String removeFocusedScripture(String input){
+        if( StringUtils.isEmpty(input) ){
+            return input;
+        }
+
+        List<String> scriptures = readFocusScripture();
+        String result = input;
+        for( String scripture : scriptures ){
+            result = result.replaceAll(TextUtil.escapeSpecialChar(scripture), "");
+        }
+
+        return result;
+    }
+
     private Pattern para_pattern = Pattern.compile("[。|。”|?|!|？|！|…|)|）|]" + System.lineSeparator());
     public List<String> readParagraphs(){
         List<String> paragraphs = new ArrayList<>();
@@ -242,6 +270,9 @@ private static Pattern end_pattern = Pattern.compile("[默想|祷告|背诵]{2}\
         int end = StringUtils.indexOf(content, date);
 
         String to_be_searched = StringUtils.trim(StringUtils.substring(content, start, end));
+
+        to_be_searched = removeEnd(to_be_searched);
+        to_be_searched = removeFocusedScripture(to_be_searched);
 //        List<String> focusScriptures = readFocusScripture();
 //        for( String scripture : focusScriptures ){
 //            if( !to_be_searched.endsWith(System.lineSeparator() + scripture) ){
@@ -260,6 +291,7 @@ private static Pattern end_pattern = Pattern.compile("[默想|祷告|背诵]{2}\
             start_point = index;
         }
 
+        List<String> focusedScriptures = readFocusScripture();
         String para = paragraphs.get(paragraphs.size()-1);
         if( StringUtils.endsWith(to_be_searched, para) ){
             paragraphs.removeIf(s -> StringUtils.isEmpty(StringUtils.trim(StringUtils.remove(s, System.lineSeparator()))));

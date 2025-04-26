@@ -24,6 +24,8 @@ public class TextUtil {
                 .replaceAll("\\)", "\\\\)")
                 .replaceAll("\\?", "\\\\?")
                 .replaceAll("\\!", "\\\\!")
+                .replaceAll("（", "\\（")
+                .replaceAll("）", "\\）")
                 ;
 
     }
