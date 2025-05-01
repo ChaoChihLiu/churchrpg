@@ -14,7 +14,7 @@ version '1.0-SNAPSHOT'
 
 repositories {
     google()
-    jcenter()
+//    jcenter()
     mavenCentral()
 }
 
@@ -28,7 +28,8 @@ dependencies {
     implementation group: 'com.amazonaws', name: 'aws-lambda-java-events', version: '3.11.3'
     // https://mvnrepository.com/artifact/com.amazonaws/aws-lambda-java-core
     implementation group: 'com.amazonaws', name: 'aws-lambda-java-core', version: '1.2.3'
-    implementation group: 'com.amazonaws', name: 'aws-java-sdk-s3', version: '1.12.588'
+//    implementation group: 'com.amazonaws', name: 'aws-java-sdk-s3', version: '2.26.27'
+    implementation("software.amazon.awssdk:s3:2.31.32")
     implementation group: 'com.amazonaws', name: 'aws-java-sdk-core', version: '1.12.588'
     // https://mvnrepository.com/artifact/software.amazon.awssdk/sdk-core
     implementation group: 'software.amazon.awssdk', name: 'sdk-core'
@@ -48,17 +49,12 @@ dependencies {
     implementation 'mysql:mysql-connector-java:8.0.33'
 
     // https://mvnrepository.com/artifact/com.amazonaws/aws-java-sdk-lambda
-    implementation 'com.amazonaws:aws-java-sdk-lambda:1.12.472'
+//    implementation 'com.amazonaws:aws-java-sdk-lambda:1.12.588'
+    implementation 'software.amazon.awssdk:lambda:2.26.27'
 
     // https://mvnrepository.com/artifact/org.jsoup/jsoup
 //    compile 'org.jsoup:jsoup:1.15.3'
-
-    // https://mvnrepository.com/artifact/com.amazonaws/aws-java-sdk-secretsmanager
-    implementation group: 'com.amazonaws', name: 'aws-java-sdk-secretsmanager', version: '1.12.472'
-
-    // https://mvnrepository.com/artifact/com.google.code.gson/gson
-    implementation group: 'com.google.code.gson', name: 'gson', version: '2.10.1'
-
+    
 // https://mvnrepository.com/artifact/com.sun.mail/jakarta.mail
     implementation group: 'com.sun.mail', name: 'jakarta.mail', version: '2.0.1'
     // https://mvnrepository.com/artifact/javax.mail/javax.mail-api
@@ -78,15 +74,9 @@ dependencies {
 
     // https://mvnrepository.com/artifact/com.github.binarywang/java-emoji-converter
     implementation group: 'com.github.binarywang', name: 'java-emoji-converter', version: '1.0.2'
-
-    // https://mvnrepository.com/artifact/org.apache.commons/commons-lang3
-    implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.12.0'
-
+    
     // https://mvnrepository.com/artifact/org.unbescape/unbescape
     implementation group: 'org.unbescape', name: 'unbescape', version: '1.1.6.RELEASE'
-
-    // https://mvnrepository.com/artifact/com.ibm.icu/icu4j
-    implementation group: 'com.ibm.icu', name: 'icu4j', version: '73.2'
 
     // https://mvnrepository.com/artifact/org.apache.poi/poi
     implementation group: 'org.apache.poi', name: 'poi', version: '5.2.4'

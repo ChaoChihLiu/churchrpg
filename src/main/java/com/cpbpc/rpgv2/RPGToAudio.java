@@ -1,6 +1,5 @@
 package com.cpbpc.rpgv2;
 
-import com.amazonaws.services.s3.model.Tag;
 import com.cpbpc.comms.AWSUtil;
 import com.cpbpc.comms.AbstractArticleParser;
 import com.cpbpc.comms.AbstractComposer;
@@ -9,6 +8,7 @@ import com.cpbpc.comms.Article;
 import com.cpbpc.comms.ComposerResult;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import software.amazon.awssdk.services.s3.model.Tag;
 
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
@@ -16,6 +16,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 import java.util.logging.Logger;
+
+import static com.cpbpc.comms.AWSUtil.createS3Tag;
 
 public class RPGToAudio {
 
@@ -80,14 +82,14 @@ public class RPGToAudio {
         String prefix = "";
         String objectKey = "";
         for( Tag tag : tags ){
-            if(software.amazon.awssdk.utils.StringUtils.equals(tag.getKey(), "output_bucket") ){
-                bucketName = tag.getValue();
+            if(software.amazon.awssdk.utils.StringUtils.equals(tag.key(), "output_bucket") ){
+                bucketName = tag.value();
             }
-            if(software.amazon.awssdk.utils.StringUtils.equals(tag.getKey(), "output_prefix") ){
-                prefix = tag.getValue();
+            if(software.amazon.awssdk.utils.StringUtils.equals(tag.key(), "output_prefix") ){
+                prefix = tag.value();
             }
-            if(software.amazon.awssdk.utils.StringUtils.equals(tag.getKey(), "audio_key") ){
-                objectKey = tag.getValue();
+            if(software.amazon.awssdk.utils.StringUtils.equals(tag.key(), "audio_key") ){
+                objectKey = tag.value();
             }
         }
 
@@ -124,20 +126,20 @@ public class RPGToAudio {
         String publishDate = convertData.getStartDate();
 
         List<Tag> mergeTags = new ArrayList<>();
-        mergeTags.add(new Tag("output_bucket", appProperties.getProperty("output_bucket")));
-        mergeTags.add(new Tag("output_prefix", appProperties.getProperty("output_prefix")));
-        mergeTags.add(new Tag("output_format", appProperties.getProperty("output_format")));
-        mergeTags.add(new Tag("audio_merged_bucket", appProperties.getProperty("audio_merged_bucket")));
-        mergeTags.add(new Tag("audio_merged_prefix", appProperties.getProperty("audio_merged_prefix")));
-        mergeTags.add(new Tag("audio_merged_format", appProperties.getProperty("audio_merged_format")));
-        mergeTags.add(new Tag("name_prefix", appProperties.getProperty("name_prefix")));
-        mergeTags.add(new Tag("publish_date", publishDate));
+        mergeTags.add(createS3Tag("output_bucket", appProperties.getProperty("output_bucket")));
+        mergeTags.add(createS3Tag("output_prefix", appProperties.getProperty("output_prefix")));
+        mergeTags.add(createS3Tag("output_format", appProperties.getProperty("output_format")));
+        mergeTags.add(createS3Tag("audio_merged_bucket", appProperties.getProperty("audio_merged_bucket")));
+        mergeTags.add(createS3Tag("audio_merged_prefix", appProperties.getProperty("audio_merged_prefix")));
+        mergeTags.add(createS3Tag("audio_merged_format", appProperties.getProperty("audio_merged_format")));
+        mergeTags.add(createS3Tag("name_prefix", appProperties.getProperty("name_prefix")));
+        mergeTags.add(createS3Tag("publish_date", publishDate));
 
         String nameToBe = AppProperties.getConfig().getProperty("name_prefix") + publishDate.replaceAll("-", "");
         if( convertData.getCounter() > 0 ){
             nameToBe += "-"+convertData.getCounter();
         }
-        mergeTags.add(new Tag("audio_key", appProperties.getProperty("audio_merged_prefix")+publishDate.split("-")[0]+"_"+publishDate.split("-")[1]+"/"+nameToBe+"."+appProperties.getProperty("audio_merged_format")));
+        mergeTags.add(createS3Tag("audio_key", appProperties.getProperty("audio_merged_prefix")+publishDate.split("-")[0]+"_"+publishDate.split("-")[1]+"/"+nameToBe+"."+appProperties.getProperty("audio_merged_format")));
 
         String path = appProperties.getProperty("script_prefix")+publishDate.split("-")[0]+"_"+publishDate.split("-")[1]+"/"+publishDate.split("-")[2];
         if( convertData.getCounter() > 0 ){
@@ -172,8 +174,8 @@ public class RPGToAudio {
 
     private String findAudioKey(List<Tag> tags) {
         for( Tag tag : tags ){
-            if( StringUtils.equals("audio_key", tag.getKey()) ){
-                return tag.getValue();
+            if( StringUtils.equals("audio_key", tag.key()) ){
+                return tag.value();
             }
         }
 

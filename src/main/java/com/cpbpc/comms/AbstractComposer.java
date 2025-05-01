@@ -1,7 +1,7 @@
 package com.cpbpc.comms;
 
-import com.amazonaws.services.s3.model.Tag;
 import org.apache.commons.lang3.StringUtils;
+import software.amazon.awssdk.services.s3.model.Tag;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;

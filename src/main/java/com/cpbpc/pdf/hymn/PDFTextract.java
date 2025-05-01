@@ -3,9 +3,6 @@ package com.cpbpc.pdf.hymn;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.profile.ProfileCredentialsProvider;
 import com.amazonaws.regions.Regions;
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3ClientBuilder;
-import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.textract.AmazonTextract;
 import com.amazonaws.services.textract.AmazonTextractClientBuilder;
 import com.amazonaws.services.textract.model.AmazonTextractException;
@@ -14,10 +11,14 @@ import com.amazonaws.services.textract.model.DetectDocumentTextRequest;
 import com.amazonaws.services.textract.model.DetectDocumentTextResult;
 import com.amazonaws.services.textract.model.Document;
 import com.amazonaws.services.textract.model.S3Object;
+import com.cpbpc.comms.AWSUtil;
 import com.cpbpc.comms.AppProperties;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
+import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -105,10 +106,11 @@ public class PDFTextract {
         // Path to your PDF file
         String pdfFilePath = (String)AppProperties.getConfig().getOrDefault("pdf_path", "src/main/resources/openHymnal2014.06.pdf");
 
-        AmazonS3 s3Client = AmazonS3ClientBuilder.standard()
-                .withRegion(Regions.AP_SOUTHEAST_1)  // Set your desired region
-                .withCredentials(new ProfileCredentialsProvider())  // Uses AWS credentials from your AWS CLI profile
-                .build();
+//        AmazonS3 s3Client = AmazonS3ClientBuilder.standard()
+//                .withRegion(Regions.AP_SOUTHEAST_1)  // Set your desired region
+//                .withCredentials(new ProfileCredentialsProvider())  // Uses AWS credentials from your AWS CLI profile
+//                .build();
+        S3Client s3Client = AWSUtil.getS3Client();
 
         try {
             PDDocument document = PDDocument.load(new File(pdfFilePath));
@@ -125,7 +127,13 @@ public class PDFTextract {
 
                 // Upload the single page PDF to S3
                 String s3ObjectKey = "hymn_pages/page_" + page + ".pdf";
-                s3Client.putObject(new PutObjectRequest(s3BucketName, s3ObjectKey, tempFile));
+//                s3Client.putObject(new PutObjectRequest(s3BucketName, s3ObjectKey, tempFile));
+                PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+                                                        .bucket(s3BucketName)
+                                                        .key(s3ObjectKey)
+                                                        .build();
+
+                s3Client.putObject(putObjectRequest, RequestBody.fromFile(tempFile));
 
                 System.out.println("Uploaded page " + page + " to S3 as " + s3ObjectKey);
 

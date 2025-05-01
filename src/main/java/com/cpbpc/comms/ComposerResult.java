@@ -1,6 +1,7 @@
 package com.cpbpc.comms;
 
-import com.amazonaws.services.s3.model.Tag;
+
+import software.amazon.awssdk.services.s3.model.Tag;
 
 import java.util.ArrayList;
 import java.util.List;

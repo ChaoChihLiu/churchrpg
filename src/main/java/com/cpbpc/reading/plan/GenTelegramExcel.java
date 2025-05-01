@@ -50,8 +50,8 @@ public class GenTelegramExcel {
     private static final String language = "chinese";
 //    private static final int start = 0;
 //    private static final int end = 1;
-    private static final int start = 2;
-    private static final int end = 2;
+    private static final int start = 3;
+    private static final int end = 3;
     private static final boolean isTest = false;
 
     private static final String filePath = "/Users/liuchaochih/Documents/GitHub/churchrpg/src/main/resources/2-year-reading-plan.xlsx";

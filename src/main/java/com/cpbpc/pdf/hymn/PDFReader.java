@@ -1,10 +1,6 @@
 package com.cpbpc.pdf.hymn;
 
-import com.amazonaws.auth.profile.ProfileCredentialsProvider;
-import com.amazonaws.regions.Regions;
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3ClientBuilder;
-import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.cpbpc.comms.AWSUtil;
 import com.cpbpc.comms.AppProperties;
 import com.cpbpc.comms.DBUtil;
 import kotlin.Pair;
@@ -14,6 +10,9 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.rendering.PDFRenderer;
 import org.apache.pdfbox.text.PDFTextStripper;
 import org.apache.pdfbox.text.TextPosition;
+import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -27,6 +26,7 @@ import java.io.IOException;
 import java.math.MathContext;
 import java.math.RoundingMode;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -295,10 +295,11 @@ public class PDFReader {
         PDFRenderer pdfRenderer = new PDFRenderer(document);
         String outputDirPath = (String)AppProperties.getConfig().getOrDefault("output_path", "/Users/liuchaochih/Documents/GitHub/churchrpg/hymn_output");
         
-        AmazonS3 s3Client = AmazonS3ClientBuilder.standard()
-                .withRegion(Regions.AP_SOUTHEAST_1)  // Set your desired region
-                .withCredentials(new ProfileCredentialsProvider())  // Uses AWS credentials from your AWS CLI profile
-                .build();
+//        AmazonS3 s3Client = AmazonS3ClientBuilder.standard()
+//                .withRegion(Regions.AP_SOUTHEAST_1)  // Set your desired region
+//                .withCredentials(new ProfileCredentialsProvider())  // Uses AWS credentials from your AWS CLI profile
+//                .build();
+        S3Client s3Client = AWSUtil.getS3Client();
 
         int currentHymnNumber = 0;
         String lyrics = "";
@@ -335,10 +336,19 @@ public class PDFReader {
             }
 //            addWatermark( hymnPath + currentHymnNumber + "_" + hymnName + "/", outputImage, "Calvary Pandan Use Only" );
 
-            PutObjectRequest imgPutReq = new PutObjectRequest((String)AppProperties.getConfig().get("bucket_name"), imgKeyName, outputImage);
-            s3Client.putObject(imgPutReq);
-            PutObjectRequest txtPutReq = new PutObjectRequest((String)AppProperties.getConfig().get("bucket_name"), txtKeyName, outputText);
-            s3Client.putObject(txtPutReq);
+            PutObjectRequest imgPutReq = PutObjectRequest.builder()
+                                                .bucket((String)AppProperties.getConfig().get("bucket_name"))
+                                                .key(imgKeyName)
+                                                .build();
+            s3Client.putObject(imgPutReq, RequestBody.fromFile(Paths.get(outputImage.toURI())));
+
+
+            PutObjectRequest txtPutReq = PutObjectRequest.builder()
+                                                .bucket((String)AppProperties.getConfig().get("bucket_name"))
+                                                .key(txtKeyName)
+                                                .build();
+            s3Client.putObject(txtPutReq, RequestBody.fromFile(Paths.get(outputText.toURI())));  // Assuming outputText is the path to your text file
+
 
         }
         return new Pair<Integer, String>(currentHymnNumber, buffer.toString());

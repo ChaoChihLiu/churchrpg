@@ -1,32 +1,35 @@
 package com.cpbpc.comms;
 
-import com.amazonaws.AmazonServiceException;
-import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3Client;
-import com.amazonaws.services.s3.model.DeleteObjectRequest;
-import com.amazonaws.services.s3.model.ListObjectsV2Request;
-import com.amazonaws.services.s3.model.ListObjectsV2Result;
-import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.amazonaws.services.s3.model.ObjectTagging;
-import com.amazonaws.services.s3.model.PutObjectRequest;
-import com.amazonaws.services.s3.model.PutObjectResult;
-import com.amazonaws.services.s3.model.S3Object;
-import com.amazonaws.services.s3.model.S3ObjectInputStream;
-import com.amazonaws.services.s3.model.S3ObjectSummary;
-import com.amazonaws.services.s3.model.StorageClass;
-import com.amazonaws.services.s3.model.Tag;
-import com.amazonaws.util.IOUtils;
-import com.amazonaws.util.StringInputStream;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
+import software.amazon.awssdk.core.ResponseInputStream;
+import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.model.GetObjectResponse;
+import software.amazon.awssdk.services.s3.model.HeadObjectRequest;
+import software.amazon.awssdk.services.s3.model.HeadObjectResponse;
+import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
+import software.amazon.awssdk.services.s3.model.ListObjectsV2Response;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.model.S3Exception;
+import software.amazon.awssdk.services.s3.model.S3Object;
+import software.amazon.awssdk.services.s3.model.StorageClass;
+import software.amazon.awssdk.services.s3.model.Tag;
+import software.amazon.awssdk.services.s3.model.Tagging;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -36,13 +39,18 @@ public class AWSUtil {
 
     private static java.util.logging.Logger logger = Logger.getLogger(AWSUtil.class.getName());
 
-    private static AmazonS3 s3Client = null;
+    private static S3Client s3Client = null;
     static{
         if( s3Client == null ){
-            s3Client = AmazonS3Client.builder().withRegion(AppProperties.getConfig().getProperty("region"))
-                    .withCredentials(new DefaultAWSCredentialsProviderChain())
+            s3Client = S3Client.builder()
+                    .region(Region.of(AppProperties.getConfig().getProperty("region")))
+                    .credentialsProvider(DefaultCredentialsProvider.create())
                     .build();
         }
+    }
+
+    public static S3Client getS3Client(){
+        return s3Client;
     }
     
     private static List<Tag> saveToS3(String content, String bucketName, String objectKey, String audioKey, int count) {
@@ -51,42 +59,49 @@ public class AWSUtil {
 
     private static List<Tag> saveToS3(String content, String bucketName, String objectKey, String month, String date, String audioKey, int count) {
         List<Tag> tags = new ArrayList<>();
-        try {
-            InputStream inputStream = new StringInputStream(content);
-            // Upload the file to S3
-            PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName, objectKey, inputStream, createS3ObjMetadata());
+        //            InputStream inputStream = new StringInputStream(content);
+        // Upload the file to S3
+//            PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName, objectKey, inputStream, createS3ObjMetadata());
 
-            if( !StringUtils.isEmpty(month) && !StringUtils.isEmpty(date) ){
-                tags.add(new Tag("publish_date", month + "_" + genDatePath(date, count)));
-            }
-            tags.add(new Tag("voice_id", AppProperties.getConfig().getProperty("voice_id")));
-            tags.add(new Tag("category", URLDecoder.decode(AppProperties.getConfig().getProperty("content_category"))));
-            tags.add(new Tag("audio_key", audioKey));
+        if( !StringUtils.isEmpty(month) && !StringUtils.isEmpty(date) ){
+            tags.add(createS3Tag("publish_date", month + "_" + genDatePath(date, count)));
+        }
+        tags.add(createS3Tag("voice_id", AppProperties.getConfig().getProperty("voice_id")));
+        tags.add(createS3Tag("category", URLDecoder.decode(AppProperties.getConfig().getProperty("content_category"))));
+        tags.add(createS3Tag("audio_key", audioKey));
 //            if( AppProperties.getConfig().containsKey("name_prefix") ){
-//                tags.add(new Tag("name_prefix", AppProperties.getConfig().getProperty("name_prefix")));
+//                tags.add(createS3Tag("name_prefix", AppProperties.getConfig().getProperty("name_prefix")));
 //            }
-            tags.add(new Tag("output_bucket", AppProperties.getConfig().getProperty("output_bucket")));
-            tags.add(new Tag("output_format", AppProperties.getConfig().getProperty("output_format")));
-            tags.add(new Tag("output_prefix", AppProperties.getConfig().getProperty("output_prefix")));
-            tags.add(new Tag("engine", AppProperties.getConfig().getProperty("engine")));
+        tags.add(createS3Tag("output_bucket", AppProperties.getConfig().getProperty("output_bucket")));
+        tags.add(createS3Tag("output_format", AppProperties.getConfig().getProperty("output_format")));
+        tags.add(createS3Tag("output_prefix", AppProperties.getConfig().getProperty("output_prefix")));
+        tags.add(createS3Tag("engine", AppProperties.getConfig().getProperty("engine")));
 
 //            if( AppProperties.getConfig().containsKey("pl_script_bucket") ){
-//                tags.add(new Tag("pl_script_bucket", AppProperties.getConfig().getProperty("pl_script_bucket")));
-//                tags.add(new Tag("pl_script", StringUtils.replace(StringUtils.remove(objectKey, " "),
+//                tags.add(createS3Tag("pl_script_bucket", AppProperties.getConfig().getProperty("pl_script_bucket")));
+//                tags.add(createS3Tag("pl_script", StringUtils.replace(StringUtils.remove(objectKey, " "),
 //                                                                            AppProperties.getConfig().getProperty("script_format"),
 //                                                                            AppProperties.getConfig().getProperty("pl_format"))));
 //            }
-            
-            putObjectRequest.setStorageClass(StorageClass.IntelligentTiering);
-            putObjectRequest.setTagging(new ObjectTagging(tags));
 
-            s3Client.putObject(putObjectRequest);
-            return tags;
-        } catch (IOException e) {
-            logger.info(ExceptionUtils.getStackTrace(e));
-        }
+        Tagging tagging = Tagging.builder().tagSet(tags).build();
+        PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+                .cacheControl("no-store, no-cache, must-revalidate")
+                .expires(Instant.EPOCH)
+                .bucket(bucketName)
+                .key(objectKey)
+                .contentType("text/plain")
+                .storageClass(StorageClass.INTELLIGENT_TIERING)
+                .tagging(tagging)
+                .build();
 
+        s3Client.putObject(putObjectRequest, RequestBody.fromString(content));
         return tags;
+
+    }
+
+    public static Tag createS3Tag(String key, String value) {
+        return Tag.builder().key(key).value(value).build();
     }
 
     public static void putBibleScriptToS3(String content, String book, String chapter, String verseNum) throws IOException, InterruptedException {
@@ -127,31 +142,23 @@ public class AWSUtil {
         String objectKey = returnPLObjectKey(fileName);
 //        saveToS3(content, bucketName, objectKey, audioKey);
         List<Tag> tags = new ArrayList<>();
-        try {
-            InputStream inputStream = new StringInputStream(content);
-            // Upload the file to S3
 
-            PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName, objectKey, inputStream, createS3ObjMetadata());
-            
-            tags.add(new Tag("audio_key", audioKey));
-            tags.add(new Tag("output_bucket", AppProperties.getConfig().getProperty("audio_merged_bucket")));
-            tags.add(new Tag("output_format", AppProperties.getConfig().getProperty("audio_merged_format")));
-            tags.add(new Tag("output_prefix", AppProperties.getConfig().getProperty("audio_merged_prefix")));
-            putObjectRequest.setStorageClass(StorageClass.IntelligentTiering);
-            putObjectRequest.setTagging(new ObjectTagging(tags));
+        tags.add(createS3Tag("audio_key", audioKey));
+        tags.add(createS3Tag("output_bucket", AppProperties.getConfig().getProperty("audio_merged_bucket")));
+        tags.add(createS3Tag("output_format", AppProperties.getConfig().getProperty("audio_merged_format")));
+        tags.add(createS3Tag("output_prefix", AppProperties.getConfig().getProperty("audio_merged_prefix")));
 
-            s3Client.putObject(putObjectRequest);
-        } catch (IOException e) {
-            logger.info(ExceptionUtils.getStackTrace(e));
-        }
-    }
-
-    private static ObjectMetadata createS3ObjMetadata() {
-        ObjectMetadata metadata = new ObjectMetadata();
-        metadata.setCacheControl("no-store, no-cache, must-revalidate");
-//        metadata.setContentType("audio/mpeg");
-        metadata.setHttpExpiresDate(new Date(0));
-        return metadata;
+        Tagging tagging = Tagging.builder().tagSet(tags).build();
+        PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+                .cacheControl("no-store, no-cache, must-revalidate")
+                .expires(Instant.EPOCH)
+                .bucket(bucketName)
+                .key(objectKey)
+                .contentType("text/plain")
+                .storageClass(StorageClass.INTELLIGENT_TIERING)
+                .tagging(tagging)
+                .build();
+        s3Client.putObject(putObjectRequest, RequestBody.fromString(content));
     }
 
     public static void putPLScriptToS3(String content, String month, String date) {
@@ -273,9 +280,9 @@ public class AWSUtil {
 
     public static void copyS3Objects(String bucketName, String outputPrefix, String outputFormat, String local_destination) {
 
-        List<S3ObjectSummary> objects = listS3Objects(bucketName, outputPrefix);
-        for( S3ObjectSummary object: objects ){
-            String fileName = object.getKey();
+        List<S3Object> objects = listS3Objects(bucketName, outputPrefix);
+        for( S3Object object: objects ){
+            String fileName = object.key();
             logger.info("object key " + fileName);
             if( !org.apache.commons.lang3.StringUtils.endsWith(fileName, outputFormat) ){
                 continue;
@@ -289,18 +296,23 @@ public class AWSUtil {
 
     public static void downloadS3Object(String bucketName, String objectKey, String localFilePath){
 
-        S3Object s3Object = null;
+        ResponseInputStream<GetObjectResponse> s3Object = null;
         try {
             File localFile = new File(localFilePath);
             if( !localFile.exists() ){
                 localFile.createNewFile();
             }
 
-            s3Object = s3Client.getObject(bucketName, objectKey);
+            GetObjectRequest getObjectRequest = GetObjectRequest.builder()
+                                                .bucket(bucketName)
+                                                .key(objectKey)
+                                                .build();
+            s3Object = s3Client.getObject(getObjectRequest);
 
-            FileOutputStream fos = new FileOutputStream(localFilePath);
-            IOUtils.copy(s3Object.getObjectContent(), fos);
-            logger.info("Object downloaded successfully to: " + localFilePath);
+            try (FileOutputStream fos = new FileOutputStream(localFile)) {
+                IOUtils.copy(s3Object, fos);
+                logger.info("Object downloaded successfully to: " + localFilePath);
+            }
         } catch (Exception e) {
             logger.info(ExceptionUtils.getStackTrace(e));
         }finally{
@@ -315,28 +327,30 @@ public class AWSUtil {
 
     }
     public static String readS3Object(String bucketName, String objectKey) {
-        S3Object s3Object = null;
-        S3ObjectInputStream inputStream = null;
+        ResponseInputStream<GetObjectResponse> s3Object = null;
 
         try {
-            s3Object = s3Client.getObject(bucketName, objectKey);
-            if (s3Object == null) {
-                return StringUtils.EMPTY;
-            }
+            // Create the GetObjectRequest to fetch the object from S3
+            GetObjectRequest getObjectRequest = GetObjectRequest.builder()
+                    .bucket(bucketName)
+                    .key(objectKey)
+                    .build();
 
-            inputStream = s3Object.getObjectContent();
-            return IOUtils.toString(inputStream);
+            // Fetch the object from S3
+            s3Object = s3Client.getObject(getObjectRequest);
+
+            // Convert the InputStream to a String
+            return IOUtils.toString(s3Object, StandardCharsets.UTF_8);
         } catch (Exception e) {
             logger.info("Error reading S3 object: " + ExceptionUtils.getStackTrace(e));
         } finally {
-            try {
-                if( s3Object != null ){
+            // Safely close the stream
+            if (s3Object != null) {
+                try {
                     s3Object.close();
+                } catch (IOException e) {
+                    logger.info("Error closing S3 object stream: " + e.getMessage());
                 }
-                if( inputStream != null ){
-                    inputStream.close();
-                }
-            } catch (IOException e) {
             }
         }
 
@@ -345,129 +359,136 @@ public class AWSUtil {
     public static void uploadS3Object(String bucketName, String prefix, String objectKey, File localFile, List<Tag> tags){
 
         try {
-            if( !localFile.exists() || !localFile.isFile() ){
-                logger.info(localFile.getAbsolutePath() + " not exist or not a file, skip");
+            if (!localFile.exists() || !localFile.isFile()) {
+                logger.info(localFile.getAbsolutePath() + " does not exist or is not a file, skipping upload.");
                 return;
             }
 
-            PutObjectRequest request = new PutObjectRequest(bucketName, prefix+objectKey, new FileInputStream(localFile), createS3ObjMetadata());
-            request.setStorageClass(StorageClass.IntelligentTiering);
-            request.setTagging(new ObjectTagging(tags));
+            // Create the PutObjectRequest
+            PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+                    .bucket(bucketName)
+                    .key(prefix + objectKey)
+                    .storageClass(StorageClass.INTELLIGENT_TIERING)  // Setting storage class
+                    .tagging(Tagging.builder().tagSet(tags).build())  // Setting tags
+                    .cacheControl("no-store, no-cache, must-revalidate")
+                    .expires(Instant.EPOCH)
+                    .build();
 
-            PutObjectResult result = s3Client.putObject(request);
+            // Upload the file using the S3 client
+            try (FileInputStream fis = new FileInputStream(localFile)) {
+                s3Client.putObject(putObjectRequest, RequestBody.fromInputStream(fis, localFile.length()));
+            }
+
             logger.info("Object uploaded successfully to S3 bucket: " + localFile.getName());
-            Thread.sleep(1000);
+            Thread.sleep(1000); // If required, add a sleep time to ensure consistency
+
         } catch (Exception e) {
-            logger.info(ExceptionUtils.getStackTrace(e));
+            logger.info("Error uploading object to S3: " + e.getMessage());
         }
     }
     public static void uploadS3Object(String bucketName, String prefix, String objectKey, String content, List<Tag> tags){
 
         try {
-            if( StringUtils.isEmpty(content) ){
+            if (content == null || content.isEmpty()) {
+                logger.info("Content is empty, skipping upload.");
                 return;
             }
-            if( !StringUtils.endsWith(prefix, "/") ){
+
+            // Ensure the prefix ends with a "/"
+            if (!prefix.endsWith("/")) {
                 prefix += "/";
             }
 
-            PutObjectRequest request = new PutObjectRequest(bucketName, prefix+objectKey, new StringInputStream(content), createS3ObjMetadata());
-            request.setStorageClass(StorageClass.IntelligentTiering);
-            request.setTagging(new ObjectTagging(tags));
+            // Build the PutObjectRequest
+            PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+                    .bucket(bucketName)
+                    .key(prefix + objectKey)
+                    .storageClass(StorageClass.INTELLIGENT_TIERING)  // Setting storage class
+                    .tagging(Tagging.builder().tagSet(tags).build())  // Setting tags
+                    .cacheControl("no-store, no-cache, must-revalidate")
+                    .expires(Instant.EPOCH)
+                    .build();
 
-            PutObjectResult result = s3Client.putObject(request);
-            logger.info("Object uploaded successfully to S3 bucket");
-            Thread.sleep(1000);
+            // Upload the content as an InputStream
+            ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8));
+
+            // Upload the content to S3
+            s3Client.putObject(putObjectRequest, RequestBody.fromInputStream(byteArrayInputStream, content.length()));
+
+            logger.info("Object uploaded successfully to S3 bucket: " + bucketName);
+            Thread.sleep(1000);  // Optional sleep to ensure consistency
+
         } catch (Exception e) {
-            logger.info(ExceptionUtils.getStackTrace(e));
+            logger.info("Error uploading object to S3: " + e.getMessage());
         }
     }
 
-    public static List<S3ObjectSummary> listS3Objects(String bucketName, String prefix){
-        ListObjectsV2Request listObjectsRequest = new ListObjectsV2Request();
-        listObjectsRequest.setBucketName(bucketName);
-        listObjectsRequest.setPrefix(prefix);
+    public static List<S3Object> listS3Objects(String bucketName, String prefix) {
+        try {
+            ListObjectsV2Request request = ListObjectsV2Request.builder()
+                    .bucket(bucketName)
+                    .prefix(prefix)
+                    .build();
 
-        try{
-            ListObjectsV2Result listObjectsResponse = s3Client.listObjectsV2(listObjectsRequest);
-            List<S3ObjectSummary> objects = listObjectsResponse.getObjectSummaries();
-            return objects;
-        }catch(Exception e){
-//            e.printStackTrace();
-//            logger.info(ExceptionUtils.getStackTrace(e));
+            ListObjectsV2Response response = s3Client.listObjectsV2(request);
+            return response.contents(); // returns List<S3Object>
+        } catch (Exception e) {
+            // log the exception if needed
             return null;
         }
     }
 
     public static void purgeBucket(String outputBucket, String outputPrefix) {
-        List<S3ObjectSummary> summaries = listS3Objects(outputBucket, outputPrefix);
-        if( summaries == null ){
+        List<S3Object> summaries = listS3Objects(outputBucket, outputPrefix); // Updated to use SDK v2 return type
+        if (summaries == null) {
             return;
         }
-        for( S3ObjectSummary summary : summaries ){
-            DeleteObjectRequest request = new DeleteObjectRequest(outputBucket, summary.getKey());
+
+        for (S3Object summary : summaries) {
+            DeleteObjectRequest request = DeleteObjectRequest.builder()
+                    .bucket(outputBucket)
+                    .key(summary.key())
+                    .build();
+
             s3Client.deleteObject(request);
         }
     }
     public static void purgeObject(String bucketName, String objectKey) {
         System.out.println("object to be deleted : " + bucketName+"/"+objectKey);
-        DeleteObjectRequest request = new DeleteObjectRequest(bucketName, objectKey);
+        DeleteObjectRequest request = DeleteObjectRequest.builder()
+                                            .bucket(bucketName)
+                                            .key(objectKey)
+                                            .build();
+
         s3Client.deleteObject(request);
     }
 
-    public static void waitUntilObjectReady( String bucketName, String prefix, String objectKey, Date timeToUpload ) throws InterruptedException {
+    public static void waitUntilObjectReady(String bucketName, String prefix, String objectKey, Date timeToUpload) throws InterruptedException {
+        try {
+            HeadObjectRequest headRequest = HeadObjectRequest.builder()
+                    .bucket(bucketName)
+                    .key(objectKey)
+                    .build();
 
-//        List<S3ObjectSummary> summaries = listS3Objects(bucketName, prefix);
-//        String path = prefix.trim();
-//        if( !StringUtils.endsWith(path, "/") ){
-//            path += "/";
-//        }
-//        for( S3ObjectSummary summary : summaries ){
-//
-//            logger.info("summary.getKey() "+ summary.getKey());
-//            logger.info("objectKey "+ objectKey);
-//
-//            if( !StringUtils.equals(summary.getKey(), objectKey) ){
-//                continue;
-//            }
-//
-//            logger.info("summary  getLastModified "+ summary.getLastModified().getTime());
-//            logger.info("timeToUpload "+ timeToUpload.getTime());
-//            if( summary.getLastModified().getTime() >= timeToUpload.getTime() ){
-//                return;
-//            }
-//        }
-//        logger.info("bucket "+ bucketName);
-//        logger.info("objectKey "+ objectKey);
-        S3Object s3Object = null;
-        try{
-            s3Object = s3Client.getObject(bucketName, objectKey);
-            if( s3Object != null ){
-                if( s3Object.getObjectMetadata().getLastModified().getTime() >= timeToUpload.getTime()
-                    && s3Object.getObjectMetadata().getContentLength() > 0 ){
-                    s3Object.close();
-                    return;
-                }
+            HeadObjectResponse headResponse = s3Client.headObject(headRequest);
+
+            long lastModified = headResponse.lastModified().toEpochMilli();
+            long contentLength = headResponse.contentLength();
+
+            if (lastModified >= timeToUpload.getTime() && contentLength > 0) {
+                return;
             }
-        }catch (AmazonServiceException e){
-            if( e.getStatusCode() == 404 ){
+
+        } catch (S3Exception e) {
+            if (e.statusCode() == 404) {
                 Thread.sleep(3000);
                 waitUntilObjectReady(bucketName, prefix, objectKey, timeToUpload);
             } else {
-                logger.info(ExceptionUtils.getStackTrace(e));
+                logger.info("S3Exception: " + e.awsErrorDetails().errorMessage());
             }
-        } catch (IOException e) {
-            logger.info(ExceptionUtils.getStackTrace(e));
-        } finally{
-            if( s3Object != null ){
-                try {
-                    s3Object.close();
-                } catch (IOException e) {
-                    logger.info(ExceptionUtils.getStackTrace(e));
-                }
-            }
+        } catch (Exception e) {
+            logger.info("Exception: " + e.getMessage());
         }
-
     }
 
     public static void emptyTargetFolder(String month, String date, String timing) {

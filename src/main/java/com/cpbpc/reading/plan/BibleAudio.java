@@ -1,6 +1,5 @@
 package com.cpbpc.reading.plan;
 
-import com.amazonaws.services.s3.model.Tag;
 import com.cpbpc.comms.AWSUtil;
 import com.cpbpc.comms.AbbreIntf;
 import com.cpbpc.comms.AppProperties;
@@ -16,6 +15,7 @@ import com.cpbpc.comms.VerseIntf;
 import com.cpbpc.rpgv2.zh.BibleVerseGrab;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import software.amazon.awssdk.services.s3.model.Tag;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,6 +33,7 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.cpbpc.comms.AWSUtil.createS3Tag;
 import static com.cpbpc.comms.PunctuationTool.containHyphen;
 import static com.cpbpc.comms.PunctuationTool.getHyphen;
 import static com.cpbpc.comms.PunctuationTool.replacePauseTag;
@@ -128,12 +129,12 @@ public class BibleAudio {
             }
 
             List<Tag> tags = new ArrayList<>();
-            tags.add(new Tag("output_bucket", appProperties.getProperty("output_bucket")));
-            tags.add(new Tag("output_prefix", appProperties.getProperty("output_prefix")));
-            tags.add(new Tag("output_format", appProperties.getProperty("output_format")));
-            tags.add(new Tag("audio_merged_bucket", appProperties.getProperty("audio_merged_bucket")));
-            tags.add(new Tag("audio_merged_prefix", appProperties.getProperty("audio_merged_prefix")));
-            tags.add(new Tag("audio_merged_format", appProperties.getProperty("audio_merged_format")));
+            tags.add(createS3Tag("output_bucket", appProperties.getProperty("output_bucket")));
+            tags.add(createS3Tag("output_prefix", appProperties.getProperty("output_prefix")));
+            tags.add(createS3Tag("output_format", appProperties.getProperty("output_format")));
+            tags.add(createS3Tag("audio_merged_bucket", appProperties.getProperty("audio_merged_bucket")));
+            tags.add(createS3Tag("audio_merged_prefix", appProperties.getProperty("audio_merged_prefix")));
+            tags.add(createS3Tag("audio_merged_format", appProperties.getProperty("audio_merged_format")));
 
 //            String fileName = StringUtils.trim(result.get(0))
 //                    +"_"+
