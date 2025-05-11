@@ -32,8 +32,8 @@ import static com.cpbpc.comms.TextUtil.removeZhWhitespace;
 
 public class Composer extends AbstractComposer {
 
-            private static final Properties appProperties = AppProperties.getConfig();
-            private static Logger logger = Logger.getLogger(Composer.class.getName());
+    private static final Properties appProperties = AppProperties.getConfig();
+    private static Logger logger = Logger.getLogger(Composer.class.getName());
     public Composer(AbstractArticleParser parser) {
                 super(parser);
             }

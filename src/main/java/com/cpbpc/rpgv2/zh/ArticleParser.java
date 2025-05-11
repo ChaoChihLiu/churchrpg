@@ -31,8 +31,8 @@ public class ArticleParser extends AbstractArticleParser {
 
         VerseIntf verse = ThreadStorage.getVerse();
         int titlePosition = getAnchorPointAfterTitle(title, content);
-        int nextParaPosistion = findNextParagraph(getParagraphTag(), titlePosition);
-        String text = StringUtils.substring(content, titlePosition, nextParaPosistion);
+        int lastParaPosistion = findLastParagraph(getParagraphTag(), titlePosition);
+        String text = StringUtils.substring(content, titlePosition, lastParaPosistion);
 
         List<String> result = new ArrayList<>();
         List<String> splits = List.of(text.split("</p>"));
@@ -58,6 +58,7 @@ public class ArticleParser extends AbstractArticleParser {
     }
 
     private static String thoughtWord1 = "<strong>默想:</strong>";
+    private static String memorisationWord1 = "<strong>背诵:</strong>";
     private static String thoughtWord2 = "<strong>默想</strong>:";
     @Override
     public String readThought() {
@@ -72,6 +73,9 @@ public class ArticleParser extends AbstractArticleParser {
                 result = removeHtmlTag(line).trim();
             }
             if (StringUtils.contains(line, thoughtWord2)) {
+                result = removeHtmlTag(line).trim();
+            }
+            if (StringUtils.contains(line, memorisationWord1)) {
                 result = removeHtmlTag(line).trim();
             }
         }
@@ -108,7 +112,7 @@ public class ArticleParser extends AbstractArticleParser {
 
     @Override
     protected Pattern getFocusScripturePattern() {
-        return Pattern.compile("(“)(.*)(”)");
+        return Pattern.compile("(“|<em>)(.*)(”|</em>)");
     }
 
     @Override
@@ -135,6 +139,22 @@ public class ArticleParser extends AbstractArticleParser {
 
         return Pattern.compile(builder.toString());
 
+    }
+
+    protected int findLastParagraph(String paragraphTag, int start) {
+        if (StringUtils.isEmpty(content) || StringUtils.isEmpty(paragraphTag)) {
+            return 0;
+        }
+
+        if( StringUtils.contains(content, "<strong>背诵:</strong>") ){
+            return StringUtils.indexOf(content, "<strong>背诵:</strong>", start);
+        }
+
+        if( StringUtils.contains(content, "<strong>默想:</strong>") ){
+            return StringUtils.indexOf(content, "<strong>默想:</strong>", start);
+        }
+
+        return -1;
     }
     
 }

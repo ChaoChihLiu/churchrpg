@@ -72,4 +72,33 @@ public class NumberConverter {
         return j * 100 + i + x.indexOf(s.charAt(2)) * 10; // 111-119,121-129,131-139,...,971-979,981-989,991-999
     }
 
+    // Simple Chinese number parser for 1-31
+    private static final String[] CN_NUMS = {"零", "一", "二", "三", "四", "五", "六", "七", "八", "九", "十"};
+    public static int chineseToNumber(String cn) {
+        if (cn.equals("十")) return 10;
+        if (cn.length() == 1) { // "一"..."九"
+            return indexOfChineseOTNumber(CN_NUMS, cn);
+        }
+        if (cn.startsWith("十")) { // "十一"..."十九"
+            return 10 + indexOfChineseOTNumber(CN_NUMS, cn.substring(1));
+        }
+        if (cn.endsWith("十")) { // "二十","三十"
+            return indexOfChineseOTNumber(CN_NUMS, cn.substring(0, cn.length() - 1)) * 10;
+        }
+        if (cn.contains("十")) { // "二十一"..."三十一"
+            String[] parts = cn.split("十");
+            int tens = indexOfChineseOTNumber(CN_NUMS, parts[0]);
+            int ones = indexOfChineseOTNumber(CN_NUMS, parts[1]);
+            return tens * 10 + ones;
+        }
+        return 0; // fallback
+    }
+
+    private static int indexOfChineseOTNumber(String[] arr, String s) {
+        for (int i = 0; i < arr.length; i++) {
+            if (arr[i].equals(s)) return i;
+        }
+        return 0;
+    }
+
 }

@@ -13,6 +13,8 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.cpbpc.comms.NumberConverter.chineseToNumber;
+
 public class TextUtil {
 
     public static String escapeSpecialChar(String title) {
@@ -231,4 +233,50 @@ public class TextUtil {
 
         return buffer.toString();
     }
+
+    public static String convertChineseDate(String chineseDate) {
+        int month = chineseToNumber(chineseDate.substring(0, chineseDate.indexOf("月")));
+        int day = chineseToNumber(
+                chineseDate.substring(chineseDate.indexOf("月") + 1, chineseDate.indexOf("日"))
+        );
+        return String.format("%02d-%02d", month, day);
+    }
+
+    private static final Pattern chinese_date_pattern = Pattern.compile("((?:一|二|三|四|五|六|七|八|九|十|十一|十二)月(?:[一二三四五六七八九十]{1,3})日)[，、]?(?:[^一二三四五六七八九十早晚]*)(早晨|傍晚)?");
+    public static String getChieseDate(String summary) {
+
+        Matcher matcher = chinese_date_pattern.matcher(summary);
+        while( matcher.find() ){
+            String matched = matcher.group(1);
+            if( StringUtils.isEmpty(matched) ){
+                return "";
+            }
+
+            return matched.trim();
+        }
+
+        return "";
+    }
+
+    public static String getChieseTiming(String summary) {
+        Matcher matcher = chinese_date_pattern.matcher(summary);
+        while( matcher.find() ){
+            String timing = matcher.group(2);
+            if( StringUtils.isEmpty(timing) ){
+                return "";
+            }
+            return timing.trim();
+        }
+
+        return "";
+    }
+
+    public static String chieseTimingToEnglish(String input) {
+        if( StringUtils.equals(input, "早晨") ){
+            return "morning";
+        }
+
+        return "evening";
+    }
+
 }

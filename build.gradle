@@ -135,6 +135,13 @@ dependencies {
 
     // https://mvnrepository.com/artifact/com.google.zxing/core
     implementation group: 'com.google.zxing', name: 'core', version: '3.5.3'
+
+    // https://mvnrepository.com/artifact/software.amazon.awssdk/bedrockruntime
+    implementation("software.amazon.awssdk:bedrockruntime:2.31.33")
+    // https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.19.0")
+    // https://mvnrepository.com/artifact/org.apache.httpcomponents.client5/httpclient5
+    implementation("org.apache.httpcomponents.client5:httpclient5:5.4.4")
 }
 
 task buildZip(type: Zip) {
