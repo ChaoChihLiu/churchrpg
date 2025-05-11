@@ -3,7 +3,7 @@ package com.cpbpc.comms;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider;
+import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
 import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.regions.Region;
@@ -44,8 +44,8 @@ public class AWSUtil {
         if( s3Client == null ){
             s3Client = S3Client.builder()
                     .region(Region.of(AppProperties.getConfig().getProperty("region")))
-//                    .credentialsProvider(DefaultCredentialsProvider.create())
-                    .credentialsProvider(ProfileCredentialsProvider.create("cpbpc"))
+                    .credentialsProvider(DefaultCredentialsProvider.create())
+//                    .credentialsProvider(ProfileCredentialsProvider.create("cpbpc"))
                     .build();
         }
     }
