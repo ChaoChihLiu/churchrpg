@@ -59,7 +59,7 @@ public class MeditationEntry {
     private String prayer;
     private String memorisation;
     private List<String> paragraphs;
-
+    
     // Getters and setters
     public String getDate() { return date; }
     public void setDate(String date) { this.date = date; }
@@ -89,4 +89,5 @@ public class MeditationEntry {
 
     public List<String> getParagraphs() { return paragraphs; }
     public void setParagraphs(List<String> paragraphs) { this.paragraphs = paragraphs; }
+
 }

@@ -1,10 +1,8 @@
 package com.cpbpc.rpgv3.zh;
 
 import com.cpbpc.comms.AppProperties;
-import com.cpbpc.comms.Article;
 import com.cpbpc.comms.DBUtil;
 import com.cpbpc.comms.TextUtil;
-import com.cpbpc.rpgv2.RPGToAudio;
 import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -13,6 +11,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.rendering.PDFRenderer;
+import org.apache.pdfbox.text.PDFTextStripper;
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
@@ -26,14 +25,19 @@ import software.amazon.awssdk.services.bedrockruntime.model.InvokeModelResponse;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.StringWriter;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -52,6 +56,7 @@ public class Claude35SonnetChat {
         AppProperties.loadConfig(System.getProperty("app.properties", "/Users/liuchaochih/Documents/GitHub/churchrpg/src/main/resources/app-aiagent-rpg.properties"));
         bedrockClient = BedrockRuntimeClient.builder()
                 .region(Region.of(AppProperties.getConfig().getProperty("region")))
+//                .credentialsProvider(DefaultCredentialsProvider.create())
                 .credentialsProvider(ProfileCredentialsProvider.create("cpbpc"))
                 .build();
     }
@@ -59,17 +64,16 @@ public class Claude35SonnetChat {
     private static int starting_page = Integer.parseInt(AppProperties.getConfig().getProperty("starting_page"));
     private static int ending_page = Integer.parseInt(AppProperties.getConfig().getProperty("ending_page"));
     private final static VelocityEngine velocityEngine = new VelocityEngine();
+    private static final boolean isTest = false;
 
     public static void main(String[] args) throws Exception {
+        DBUtil.initStorage(AppProperties.getConfig());
         splitPDFtoImg();
         Map<String, MeditationEntry> entries = claude();
-        generateAudio(entries);
+//        generateAudio(entries);
     }
 
     private static void generateAudio(Map<String, MeditationEntry> entries) throws IOException, SQLException {
-
-        DBUtil.initStorage(AppProperties.getConfig());
-
         List<File> htmlFiles = listHtmlFiles( AppProperties.getConfig().getProperty("rpg_img_folder") );
         for ( File html : htmlFiles ){
             String htmlContent = IOUtils.toString( new FileReader(html));
@@ -80,10 +84,37 @@ public class Claude35SonnetChat {
             if( StringUtils.equals("evening", TextUtil.getChieseTiming(entry.getDate())) ){
                 count ++;
             }
-            Article article = new Article(date, htmlContent, entry.getTitle(), alias, count);
-            RPGToAudio worker = new RPGToAudio(0, 0);
-            worker.handleRequest(article);
+            if( !isTest ){
+                updateDB( entry.getTitle(), htmlContent, date );
+            }
+//            Article article = new Article(date, htmlContent, entry.getTitle(), alias, count);
+//            RPGToAudio worker = new RPGToAudio(0, 0);
+//            worker.handleRequest(article);
         }
+    }
+
+    private static String UPDATE_RPG_CHINESE = "UPDATE cpbpc_jevents_vevdetail cjv\n" +
+            "JOIN (\n" +
+            "    SELECT a.evdet_id\n" +
+            "    FROM cpbpc_jevents_vevdetail a\n" +
+            "    LEFT JOIN cpbpc_jevents_vevent cj ON cj.ev_id = a.evdet_id\n" +
+            "    LEFT JOIN cpbpc_categories cc ON cc.id = cj.catid  \n" +
+            "    WHERE cc.id = ?\n" +
+            "    AND LENGTH(a.description) = 0\n" +
+            "    AND a.summary = ?\n" +
+            ") AS subquery ON cjv.evdet_id = subquery.evdet_id\n" +
+            "SET cjv.description = ?, cjv.summary = ?"
+            ;
+    private static void updateDB(String title, String html, String date) throws SQLException {
+        Connection conn = DBUtil.createConnection(AppProperties.getConfig());
+        PreparedStatement ps = conn.prepareStatement(UPDATE_RPG_CHINESE);
+        ps.setString( 1, AppProperties.getConfig().getProperty("content_category") );
+        ps.setString( 2, date );
+        ps.setString( 3, html );
+        ps.setString( 4, title );
+
+        ps.executeUpdate();
+
     }
 
     private static List<File> listHtmlFiles(String folderPath) {
@@ -119,11 +150,19 @@ public class Claude35SonnetChat {
 
             int pageCount = document.getNumberOfPages();
             ending_page = Math.min(ending_page, pageCount - 1);
+            PDFTextStripper textStripper = new PDFTextStripper();
             for (int page = starting_page; page <= ending_page; page++) {
-                BufferedImage bim = pdfRenderer.renderImageWithDPI(page, 300);
+                BufferedImage bim = pdfRenderer.renderImageWithDPI(page-1, 300);
                 String fileName = outputDir + "/page_" + (page) + ".png";
                 ImageIO.write(bim, "png", new File(fileName));
                 logger.info("Saved: " + fileName);
+
+                textStripper.setStartPage(page);
+                textStripper.setEndPage(page);
+                String pageText = textStripper.getText(document);
+                String plainTextFileName = outputDir + "/page_" + (page) + ".txt";
+                OutputStream outputStream = new FileOutputStream(plainTextFileName);
+                IOUtils.write(pageText, outputStream, StandardCharsets.UTF_8);
             }
             document.close();
            logger.info("Pages " + starting_page + " to " + ending_page + " converted to images successfully!");
@@ -148,26 +187,49 @@ public class Claude35SonnetChat {
         }
     }
 
-    private static Map<String, MeditationEntry> claude() throws Exception {
-
-        File sampleFile = convertPDFtoImage(AppProperties.getConfig().getProperty("sample_pdf"));
-        String sampleBase64 = convertToBase64(sampleFile);
+    private static Map<String, MeditationEntry> claude() {
 
         Map<String, MeditationEntry> entries = new HashMap<>();
-        Files.list(Path.of(AppProperties.getConfig().getProperty("rpg_img_folder")))
-                .filter(Files::isRegularFile)
-                .filter(path -> path.toString().toLowerCase().endsWith(".png"))
-                .forEach(path -> {
+        try {
+            File sampleFile = convertPDFtoImage(AppProperties.getConfig().getProperty("sample_pdf"));
+            String sampleBase64 = convertToBase64(sampleFile);
+
+            try {
+                Path folderPath = Path.of(AppProperties.getConfig().getProperty("rpg_img_folder"));
+                DirectoryStream<Path> directoryStream = Files.newDirectoryStream(folderPath);
+
+                for (Path path : directoryStream) {
                     try {
-                        String inputBase64 = convertToBase64(path.toFile());
-                        MeditationEntry entry = claudeAnalyse(sampleBase64, inputBase64);
-                        saveHtml( entry );
-                        entries.put(AppProperties.getConfig().getProperty("year") + "-" +
-                                        TextUtil.convertChineseDate(entry.getDate()), entry);
-                    } catch (IOException e) {
+                        if (Files.isRegularFile(path) && path.toString().toLowerCase().endsWith(".png")) {
+                            String inputBase64 = convertToBase64(path.toFile());
+                            String pngPath = path.toString().toLowerCase();
+                            String plainTextPath = StringUtils.replace(pngPath, "png", "txt");
+                            String pdfContent = IOUtils.toString(new FileReader(new File(plainTextPath)));
+
+                            MeditationEntry entry = claudeAnalyse(sampleBase64, inputBase64, pdfContent);
+                            String htmlContent = saveHtml(entry);
+
+                            String year = AppProperties.getConfig().getProperty("year");
+                            String formattedDate = TextUtil.convertChineseDate(entry.getDate());
+                            entries.put(year + "-" + formattedDate, entry);
+                            String date = year + "-" + formattedDate;
+
+                            if (!isTest) {
+                                updateDB(entry.getTitle(), htmlContent, date);
+                            }
+                        }
+                    } catch (Exception e) {
                         logger.info(ExceptionUtils.getStackTrace(e));
                     }
-                });
+                }
+            } catch (IOException e) {
+                logger.info(ExceptionUtils.getStackTrace(e));
+            }
+
+            return entries;
+        }catch(Exception e){
+            logger.info(ExceptionUtils.getStackTrace(e));
+        }
         return entries;
     }
 
@@ -227,10 +289,10 @@ public class Claude35SonnetChat {
     }
 
     private static int counter = 0;
-    private static MeditationEntry claudeAnalyse(String sampleBase64, String inputBase64) throws IOException {
-        return claudeAnalyse(sampleBase64, inputBase64, "");
+    private static MeditationEntry claudeAnalyse(String sampleBase64, String inputBase64, String pdfContent) throws IOException {
+        return claudeAnalyse(sampleBase64, inputBase64, pdfContent, "");
     }
-    private static MeditationEntry claudeAnalyse(String sampleBase64, String inputBase64, String exceptionMsg) throws IOException {
+    private static MeditationEntry claudeAnalyse(String sampleBase64, String inputBase64, String pdfContent, String exceptionMsg) throws IOException {
         if( counter == 3 ){
             return null;
         }
@@ -253,7 +315,7 @@ public class Claude35SonnetChat {
         }
 
 // The content list can include both image and text blocks
-        content = createClaudeContent(content, inputBase64);
+        content = createClaudeContent(content, inputBase64, pdfContent);
 
         // Add the user message
         messages.add(Map.of(
@@ -414,7 +476,7 @@ public class Claude35SonnetChat {
         return null;
     }
 
-    private static List<Map<String, Object>> createClaudeContent(List<Map<String, Object>> content, String inputBase64) {
+    private static List<Map<String, Object>> createClaudeContent(List<Map<String, Object>> content, String inputBase64, String plainText) {
         
         content.add(Map.of(
                 "type", "image",
@@ -427,6 +489,11 @@ public class Claude35SonnetChat {
         content.add(Map.of(
                 "type", "text",
                 "text", "This is input.pdf."
+        ));
+
+        content.add(Map.of(
+                "type", "text",
+                "text", "this is plaintext for input.pdf:\n" + plainText
         ));
 
         content.add(Map.of(
@@ -481,7 +548,8 @@ public class Claude35SonnetChat {
                             11. keep line break for focused verses
                             12. focused verse always comes with double quotes (“) 
                             13. bible book name, sometimes you may read '利未记' wrongly, get '利末记' instead, double check it, it should be '利未记'
-                            
+                            14. sometimes you may read '耶和华' wrongly, get '那和华' instead, double check it, it should be '耶和华'
+                            15. after you parse text from input.pdf, double check accuracy again plaintext for input.pdf, sometimes you change words, it should never happen.
                         """
         ));
         

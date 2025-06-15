@@ -379,7 +379,7 @@ public class BibleVerseGrab {
         if( fromS3Bucket ){
             text = AWSUtil.readS3Object(AppProperties.getConfig().getProperty("bible_script_bucket"),
                     AppProperties.getConfig().getProperty("bible_script_prefix")
-                            +book+"/"+chapter+"/"+verse+"."+AppProperties.getConfig().getProperty("bible_script_format"));
+                            + ZhConverterUtil.toTraditional(book) +"/"+chapter+"/"+verse+"."+AppProperties.getConfig().getProperty("bible_script_format"));
         }
         if( !StringUtils.isEmpty(text) ){
             return extractVerse(text, book, chapter, verse);

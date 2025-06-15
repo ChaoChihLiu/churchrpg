@@ -47,16 +47,16 @@ import java.util.regex.Pattern;
 public class GenTelegramExcel {
     private static final Properties appProperties = AppProperties.getConfig();
 
-    private static final String language = "chinese";
+    private static final String language = "english";
 //    private static final int start = 0;
 //    private static final int end = 1;
-    private static final int start = 3;
-    private static final int end = 3;
+    private static final int start = 0;
+    private static final int end = 0;
     private static final boolean isTest = false;
 
     private static final String filePath = "/Users/liuchaochih/Documents/GitHub/churchrpg/src/main/resources/2-year-reading-plan.xlsx";
 //    private static List<Integer> columnsToRead = Arrays.asList(1, 4, 7, 10, 13, 16);
-    private static List<Integer> columnsToRead = Arrays.asList(10);
+    private static List<Integer> columnsToRead = Arrays.asList(13);
 
     /*
     ✝️ 彼得前书1-3章
